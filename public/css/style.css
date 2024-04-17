@@ -11,7 +11,11 @@
 
     --header-background: linear-gradient(to right, #eb4a40, #f59e72);
     --main-panel-background: linear-gradient(white, #fde0c5);
-    --online-users-panel-background: linear-gradient(to right, #fde0c5, #facba6);
+    --online-users-panel-background: linear-gradient(
+        to right,
+        #fde0c5,
+        #facba6
+    );
     --chat-panel-background: none;
 
     --title-color: white;
@@ -41,8 +45,12 @@ body {
     padding: 0;
     margin: 0;
 }
-.center { text-align: center; }
-.shadow { box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.4); }
+.center {
+    text-align: center;
+}
+.shadow {
+    box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.4);
+}
 
 /* Google icon */
 .material-icons {
@@ -50,24 +58,40 @@ body {
 }
 
 /* Flexbox related */
-.row, .col {
+.row,
+.col {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     padding: 20px;
 }
-.col { flex-direction: column; }
-.spacer-0 { width: 0; height: 0; }
-.spacer-1 { width: 5px; height: 5px; }
-.spacer-2 { width: 10px; height: 10px; }
-.spacer-grow { flex-grow: 1; }
+.col {
+    flex-direction: column;
+}
+.spacer-0 {
+    width: 0;
+    height: 0;
+}
+.spacer-1 {
+    width: 5px;
+    height: 5px;
+}
+.spacer-2 {
+    width: 10px;
+    height: 10px;
+}
+.spacer-grow {
+    flex-grow: 1;
+}
 
 /* Overlay */
 .overlay {
     position: fixed;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     background: var(--overlay-background);
 }
 .overlay .caption {
@@ -83,17 +107,20 @@ body {
 }
 
 /* Form related */
-form input, form select {
+form input,
+form select {
     width: 100%;
 }
-input, select {
+input,
+select {
     font-size: 1rem;
     background: var(--input-background);
     border: none;
     border-radius: 20px;
     padding: 10px 15px;
 }
-input::placeholder, select {
+input::placeholder,
+select {
     color: gray;
 }
 button {
@@ -221,7 +248,7 @@ button.icon:active {
 
 /* Online users panel */
 #online-users-panel {
-	flex: 0 0 250px;
+    flex: 0 0 250px;
     height: 100%;
     padding: 0;
     background: var(--online-users-panel-background);
@@ -250,3 +277,64 @@ button.icon:active {
     width: 270px;
     align-self: stretch;
 }
+
+/* Gam Rush Stylesheet */
+/* body {
+    font-family: "Press Start 2P", sans-serif;
+}
+
+#game-container {
+    position: relative;
+}
+
+canvas,
+#counter,
+#game-start,
+#game-over {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+canvas,
+#game-start,
+#game-over {
+    border: 1px solid gray;
+    width: 854px;
+    height: 480px;
+}
+
+canvas {
+    background: url(background.png);
+    background-size: cover;
+}
+
+#game-start,
+#game-over {
+    background: rgba(1, 1, 1, 0.8);
+}
+
+#counter text {
+    font-size: 130%;
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+}
+
+#game-start text {
+    font-size: 150%;
+    fill: white;
+    text-anchor: middle;
+}
+
+#game-start #game-title {
+    font-size: 400%;
+    fill: url(#title-fill);
+    stroke: black;
+}
+
+#game-over text {
+    font-size: 120%;
+    fill: url(#game-over-fill);
+    text-anchor: middle;
+} */
