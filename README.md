@@ -21,11 +21,11 @@ $ npm start
 
     -   [ ] Authentication
 
-        -   [] [front] Component for Login form
-        -   [] [back] Login form logic
+        -   [ ] [front] Component for Login form
+        -   [ ] [back] Login form logic
 
-        -   [] [front] Component for Signup form
-        -   [] [back] Signup form logic
+        -   [ ] [front] Component for Signup form
+        -   [ ] [back] Signup form logic
 
     -   [ ] How to Play Page
 
@@ -44,7 +44,7 @@ $ npm start
         -   [ ] [front] Game Canvas Component
         -   [ ] [back] Game Canvas Logic
     -   [ ] Game Controls
-        -   [ ] [back] Game Controls Logic
+        -   [ ] [back] Game Controls Logic [@jyyyeung DOING]
         -   [ ] [back] Cheat key logic
     -   [ ] Game Sprites
         -   [ ] [front] Tetris Piece Component
