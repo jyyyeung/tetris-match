@@ -44,7 +44,8 @@ $ npm start
         -   [ ] [front] Game Canvas Component
         -   [ ] [back] Game Canvas Logic
     -   [ ] Game Controls
-        -   [ ] [back] Game Controls Logic [@jyyyeung DOING]
+        -   [x] [back] Game Controls Logic [@jyyyeung DOING]
+                Partially done, need to wait for sprite movement logic to be implemented
         -   [ ] [back] Cheat key logic
     -   [ ] Game Sprites
         -   [ ] [front] Tetris Piece Component
