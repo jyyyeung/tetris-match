@@ -14,7 +14,6 @@ const Socket = (function () {
         return socket;
     };
 
-    //
     /**
      * This function connects the server and initializes the socket
      */

@@ -22,10 +22,12 @@ $ npm start
     -   [ ] Authentication
 
         -   [ ] [front] Component for Login form
-        -   [ ] [back] Login form logic
+        -   [x] [back] Login form logic
+                Taken from the chatroom, need to be modified to fit the new project
 
         -   [ ] [front] Component for Signup form
-        -   [ ] [back] Signup form logic
+        -   [x] [back] Signup form logic
+                Taken from the chatroom, need to be modified to fit the new project
 
     -   [ ] How to Play Page
 
