@@ -17,7 +17,7 @@ $ npm start
 
 -   [ ] Landing Page
 
-    -   [ ] Logo?
+    -   [x] Logo?
 
     -   [ ] Authentication
 
@@ -29,10 +29,10 @@ $ npm start
         -   [x] [back] Signup form logic
                 Taken from the chatroom, need to be modified to fit the new project
 
-    -   [ ] How to Play Page
+    -   [x] How to Play Page
 
-        -   [ ] [front + text] Game Rules
-        -   [ ] [front + text] Controls
+        -   [x] [front + text] Game Rules
+        -   [x] [front + text] Controls
 
     -   [ ] Play Now Button
         -   [ ] [front] Play Now Button
