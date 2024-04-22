@@ -3,6 +3,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const session = require("express-session");
+const { isEmpty, containWordCharsOnly } = require("./utils");
 
 // Create the Express app
 const app = express();

@@ -23,11 +23,9 @@ $ npm start
 
         -   [ ] [front] Component for Login form
         -   [x] [back] Login form logic
-                Taken from the chatroom, need to be modified to fit the new project
 
         -   [ ] [front] Component for Signup form
         -   [x] [back] Signup form logic
-                Taken from the chatroom, need to be modified to fit the new project
 
     -   [x] How to Play Page
 

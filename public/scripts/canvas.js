@@ -134,7 +134,7 @@ $(function () {
             action = action_from_key(event.keyCode);
             // Invalid Action
             if (action < 0) return;
-            // TODO: Handle othe rmovements
+            // TODO: Handle other movements
             if (action == MOVE_LEFT) return console.log("keyup: move left");
             if (action == MOVE_RIGHT) return console.log("keyup: move right");
             if (action == ROTATE_LEFT) return console.log("keyup: rotate left");
