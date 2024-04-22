@@ -1,4 +1,9 @@
 {
+ "123": {
+  "avatar": "Hamster",
+  "name": "123",
+  "password": "$2b$10$23l5.9FEpp0LnvisTrbSJu59YwwKVwvbfvnOCgqNtrrW6TK5v9uEO"
+ },
  "tony": {
   "avatar": "Owl",
   "name": "Tony Lee",

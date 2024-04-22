@@ -1,28 +1,10 @@
-const HOME_HIDDEN = 0;
-const HOME_LOGIN = 1;
-const HOME_REGISTER = 2;
-const HOME_HOWTOPLAY = 3;
+const HOME_LOGIN = 0;
+const HOME_REGISTER = 1;
+const HOME_HOWTOPLAY = 2;
+const HOME_PROFILE = 3;
 
 const HomePage = (function () {
-    let sidePanelStatus = 0;
-
-    const displaySidePanel = function (status) { // 0 - hidden, 1 - login, 2 - register, 3 - how to play
-        sidePanelStatus = status;
-        $("#home-panel").css("width", "50vw");
-        $("#home-side-panel").css("width", "50vw");
-        $("#home-side-panel").show();
-        $("#title").css("font-size", "400%");
-
-        $("#home-side-panel").children().each(function (index) {
-            if (index + 1 == status) {
-                $(this).show()
-            }
-            else {
-                $(this).hide()
-            }
-        }
-        )
-    }
+    let sidePanelStatus = -1;
 
     const hideSidePanel = function () {
         sidePanelStatus = HOME_HIDDEN;
@@ -32,20 +14,36 @@ const HomePage = (function () {
         $("#title").css("font-size", "500%");
     }
 
+    const renderSidePanel = function(status) { // 0 - login, 1 - register, 2 - how to play, 3 - profile
+        $("#home-panel").css("width", "50vw");
+        $("#home-side-panel").css("width", "50vw");
+        $("#home-side-panel").show();
+        $("#title").css("font-size", "400%");
+        const contents = [$("#signin-form"), $("#register-form"), $("#how-to-play"), $("#user-panel")]
+        contents.forEach((element)=> element.hide());
+        contents[status].show();
+        sidePanelStatus = status;
+    }
+
     const buttonFunc = function (status) {
-        if (sidePanelStatus != status) { displaySidePanel(status); }
+        if (sidePanelStatus != status) { renderSidePanel(status); }
         else { hideSidePanel(); }
     }
 
     const initialize = function () {
+        $(".before-login").show();
+        $(".after-login").hide();
         $("#home-side-panel").hide();
-        $("#register-form").hide();
-        $("#signin-form").hide();
+
         $("#register-button").click(function () { buttonFunc(HOME_REGISTER) });
         $("#login-button").click(function () { buttonFunc(HOME_LOGIN) });
-        $("#howtoplay-button").click(function () { buttonFunc(HOME_HOWTOPLAY) });
+        $("#howtoplay-button").click(function () {
+            if (sidePanelStatus != HOME_HOWTOPLAY) { renderSidePanel(HOME_HOWTOPLAY); }
+            else if (!Authentication.getUser()) { hideSidePanel(); }
+        });
+        $("#profile-button").click(function () { buttonFunc(HOME_PROFILE) });
     }
-    return { initialize };
+    return { initialize, renderSidePanel};
 })();
 
 
@@ -74,9 +72,13 @@ const SignInForm = (function () {
                 username,
                 password,
                 () => {
-                    hide();
+                    //hide();
+                    console.log("signed in")
                     UserPanel.update(Authentication.getUser());
                     UserPanel.show();
+                    $(".before-login").hide();
+                    HomePage.renderSidePanel(3);
+                    $(".after-login").show();
 
                     Socket.connect();
                 },
@@ -152,9 +154,9 @@ const UserPanel = (function () {
             // Send a signout request
             Authentication.signout(() => {
                 Socket.disconnect();
-
                 hide();
                 SignInForm.show();
+                HomePage.initialize();
             });
         });
     };
@@ -312,6 +314,13 @@ const ChatPanel = (function () {
     return { initialize, update, addMessage };
 })();
 
+const GameArea = (function() {
+    const initialize = function() {
+        //$("#game-container").hide();
+    }
+    return {initialize};
+})();
+
 /**
  * UI module for managing user interface components.
  * @module UI
@@ -331,7 +340,7 @@ const UI = (function () {
     };
 
     // The components of the UI are put here
-    const components = [HomePage, SignInForm, UserPanel, OnlineUsersPanel, ChatPanel];
+    const components = [HomePage, SignInForm, UserPanel, OnlineUsersPanel, ChatPanel, GameArea];
 
     // This function initializes the UI
     const initialize = function () {
@@ -341,5 +350,9 @@ const UI = (function () {
         }
     };
 
-    return { getUserDisplay, initialize };
+    const renderSidePanel = function (status) {
+        HomePage.renderSidePanel(status);
+    }
+
+    return { getUserDisplay, initialize, renderSidePanel};
 })();

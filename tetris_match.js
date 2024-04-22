@@ -23,24 +23,44 @@ const gameSession = session({
 });
 app.use(gameSession);
 
+function containWordCharsOnly(text) {
+    return /^\w+$/.test(text);
+}
+
 // Handle the /register endpoint
 app.post("/register", (req, res) => {
     // Get the JSON data from the body
     const { username, avatar, name, password } = req.body;
+    console.log({ username, avatar, name, password });
 
     // Reading the users.json file
 
     const users = JSON.parse(fs.readFileSync("data/users.json"));
-    // console.log(users);
+    console.log(users);
 
     // Checking for the user data correctness
     let isDataValid = false;
+    const dataList = [username,avatar,name,password];
+    const strings = ["username","avatar","name","password"];
+    let s = "";
+    let isEmpty = false;
+    for (let i = 0; i < dataList.length; ++i) {
+        if (!dataList[i]) {
+            isEmpty = true;
+            s += strings[i] + ", ";
+        }
+    }
+    s = s.slice(0, s.length-2);
 
-    if (isEmpty(username)) errorMsg = "Username cannot be empty";
-    else if (isEmpty(avatar)) errorMsg = "Avatar cannot be empty";
-    else if (isEmpty(name)) errorMsg = "Name cannot be empty";
-    else if (isEmpty(password)) errorMsg = "Password cannot be empty";
-    else if (!containWordCharsOnly(username))
+    let emptyErrorMsg = `${s} cannot be empty!`
+    emptyErrorMsg = emptyErrorMsg.charAt(0).toUpperCase() + emptyErrorMsg.slice(1)
+
+    if (isEmpty) {
+        res.json({ status: "error", error: emptyErrorMsg });
+        return;
+    }
+
+    if (!containWordCharsOnly(username))
         errorMsg = "username should only contain Word Characters Only. ";
     else if (username in users)
         errorMsg = "Invalid username, a user already exist with this username";
@@ -58,6 +78,7 @@ app.post("/register", (req, res) => {
         name: name,
         password: hash,
     };
+    
 
     // Saving the users.json file
     fs.writeFileSync("data/users.json", JSON.stringify(users, null, " "));
@@ -76,8 +97,8 @@ app.post("/signin", (req, res) => {
 
     // Checking for username/password
     let isDataValid = false;
-    if (isEmpty(username)) errorMsg = "Username cannot be empty";
-    else if (isEmpty(password)) errorMsg = "Password cannot be empty";
+    if (!(username)) errorMsg = "Username cannot be empty";
+    else if (!(password)) errorMsg = "Password cannot be empty";
     else if (!(username in users)) errorMsg = "Invalid Credentials";
     else if (!bcrypt.compareSync(password, users[username].password))
         errorMsg = "Invalid Credentials";
@@ -89,7 +110,7 @@ app.post("/signin", (req, res) => {
     }
 
     const user = users[username];
-
+    
     const user_data = {
         username,
         avatar: user.avatar,

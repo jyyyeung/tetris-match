@@ -17,3 +17,5 @@ function containWordCharsOnly(text) {
 function isEmpty(text) {
     return text == null || text.trim().length == 0;
 }
+
+
