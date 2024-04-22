@@ -1,9 +1,9 @@
 $(function () {
     /* Get the canvas and 2D context */
     console.log("canvas.js")
-    const opponent_cv = $("canvas").get(0);
+    const opponent_cv = $("canvas").get(1);
     const opponent_context = opponent_cv.getContext("2d");
-    const player_cv = $("canvas").get(1);
+    const player_cv = $("canvas").get(0);
     const player_context = player_cv.getContext("2d");
 
     const icons = {
