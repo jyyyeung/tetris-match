@@ -1,3 +1,54 @@
+const HOME_HIDDEN = 0;
+const HOME_LOGIN = 1;
+const HOME_REGISTER = 2;
+const HOME_HOWTOPLAY = 3;
+
+const HomePage = (function () {
+    let sidePanelStatus = 0;
+
+    const displaySidePanel = function (status) { // 0 - hidden, 1 - login, 2 - register, 3 - how to play
+        sidePanelStatus = status;
+        $("#home-panel").css("width", "50vw");
+        $("#home-side-panel").css("width", "50vw");
+        $("#home-side-panel").show();
+        $("#title").css("font-size", "400%");
+
+        $("#home-side-panel").children().each(function (index) {
+            if (index + 1 == status) {
+                $(this).show()
+            }
+            else {
+                $(this).hide()
+            }
+        }
+        )
+    }
+
+    const hideSidePanel = function () {
+        sidePanelStatus = HOME_HIDDEN;
+        $("#home-panel").css("width", "100vw");
+        $("#home-side-panel").css("width", "0vw");
+        $("#home-side-panel").hide();
+        $("#title").css("font-size", "500%");
+    }
+
+    const buttonFunc = function (status) {
+        if (sidePanelStatus != status) { displaySidePanel(status); }
+        else { hideSidePanel(); }
+    }
+
+    const initialize = function () {
+        $("#home-side-panel").hide();
+        $("#register-form").hide();
+        $("#signin-form").hide();
+        $("#register-button").click(function () { buttonFunc(HOME_REGISTER) });
+        $("#login-button").click(function () { buttonFunc(HOME_LOGIN) });
+        $("#howtoplay-button").click(function () { buttonFunc(HOME_HOWTOPLAY) });
+    }
+    return { initialize };
+})();
+
+
 const SignInForm = (function () {
     /**
      * Initializes the UI.
@@ -134,7 +185,7 @@ const UserPanel = (function () {
 
 const OnlineUsersPanel = (function () {
     // This function initializes the UI
-    const initialize = function () {};
+    const initialize = function () { };
 
     // This function updates the online users panel
     const update = function (onlineUsers) {
@@ -242,15 +293,15 @@ const ChatPanel = (function () {
                         .append(
                             $(
                                 "<div class='chat-date'>" +
-                                    datetimeString +
-                                    "</div>"
+                                datetimeString +
+                                "</div>"
                             )
                         )
                         .append(
                             $(
                                 "<div class='chat-content'>" +
-                                    message.content +
-                                    "</div>"
+                                message.content +
+                                "</div>"
                             )
                         )
                 )
@@ -272,15 +323,15 @@ const UI = (function () {
             .append(
                 $(
                     "<span class='user-avatar'>" +
-                        Avatar.getCode(user.avatar) +
-                        "</span>"
+                    Avatar.getCode(user.avatar) +
+                    "</span>"
                 )
             )
             .append($("<span class='user-name'>" + user.name + "</span>"));
     };
 
     // The components of the UI are put here
-    const components = [SignInForm, UserPanel, OnlineUsersPanel, ChatPanel];
+    const components = [HomePage, SignInForm, UserPanel, OnlineUsersPanel, ChatPanel];
 
     // This function initializes the UI
     const initialize = function () {

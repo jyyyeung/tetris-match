@@ -6,7 +6,7 @@
     <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/public-pixel" rel="stylesheet">
     <!-- Stylesheets -->
     <link href="css/style.css" rel="stylesheet">
 </head>
@@ -14,23 +14,76 @@
 <body>
     <!-- Chatroom container -->
     <div id="container" class="col">
-        <div id="header" class="row">
-            <div id="title">The Chatroom
-                <span class="material-icons">chat</span>
+        <!-- <div id="header" class="row"></div> -->
+        <div id="homepage" class="row">
+            <div id="home-panel" class="col">
+                <div id="title" class="col">Tetris Match</div>
+                <div class="col">
+                    <div class="row"><button class="homepage-buttons" id="login-button">Login</button></div>
+                    <div class="row"><button class="homepage-buttons" id="register-button">Register</button></div>
+                    <div class="row"><button class="homepage-buttons" id="howtoplay-button">How to Play</button></div>
+                </div>
+
             </div>
+            <div id="home-side-panel" class="col">
+                <form id="signin-form" class="col">
+                    <div class="caption">SIGN IN WITH YOUR ACCOUNT</div>
+                    <div class="spacer-0"></div>
+                    <input id="signin-username" placeholder="Enter your username"></input>
+                    <input id="signin-password" type="password" placeholder="Enter your password"></input>
+                    <div class="spacer-0"></div>
+                    <button type="submit">Sign In</button>
+                    <div id="signin-message" class="warning center"></div>
+                    <div class="spacer-grow"></div>
+                </form>
+                <form id="register-form" class="col">
+                    <div class="caption">OR, REGISTER IF YOU DO NOT HAVE ONE</div>
+                    <div class="spacer-0"></div>
+                    <input id="register-username" maxlength="10" placeholder="Enter your username"></input>
+                    <select id="register-avatar">
+                        <option value="">Select your avatar</option>
+                    </select>
+                    <input id="register-name" maxlength="16" placeholder="Enter your name"></input>
+                    <input id="register-password" type="password" placeholder="Enter your password"></input>
+                    <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
+                    <div class="spacer-0"></div>
+                    <button type="submit">Register</button>
+                    <div id="register-message" class="warning center"></div>
+                </form>
+                <div id="how-to-play">
+                    
+                    <h1 style="color: cyan;">ABOUT TETRIS®</h1>
+                    Tetris® is the addictive puzzle game that started it all, embracing our universal desire to create order out of chaos. The Tetris game was created by Alexey Pajitnov in 1984—the product of Alexey’s computer programming experience and his love of puzzles.
+                    
+                    In the decades to follow, Tetris became one of the most successful and recognizable video games, appearing on nearly every gaming platform available. This page is the destination for free online 2-player tetris game.
+                    <br></br>
+                    <h1 style="color: cyan;">OBJECTIVE</h1>
+                    The goal of Tetris is to score as many points as possible by clearing horizontal lines of Blocks. The player must rotate, move, and drop the falling Tetriminos inside the Matrix (playing field). Lines are cleared when they are filled with Blocks and have no empty spaces.
+                    <br></br>
+                    As lines are cleared, the level increases and Tetriminos fall faster, making the game progressively more challenging. If the Blocks land above the top of the playing field, the game is over.
+                    <br></br>
+                    <h1 style="color: cyan;">CONTROLS</h1>
+                    <span style="white-space: pre-line;color: white">
+                    Left/right arrow key - move left/right
+                    Up arrow key - rotate
+                    Down arrow key - soft drop
+                    Z - hold
+                    </span>
+                    
+                </div>
 
-            <div class="spacer-grow"></div>
+            </div>
+        </div>
 
-            <div id="user-panel" class="row">
+        <!-- <div id="user-panel" class="row">
                 <div class="field-content row shadow">
                     <span class="user-avatar"></span>
                     <span class="user-name">-</span>
                 </div>
                 <button id="signout-button" class="icon"><span class="material-icons">logout</span></button>
-            </div>
-        </div>
+            </div> -->
 
-        <div id="main-panel" class="row">
+        <!-- <div id="main-panel" class="row">
             <div id="chat-panel" class="col">
                 <div id="chat-area" class="col"></div>
                 <i>
@@ -44,45 +97,23 @@
             <div id="online-users-panel" class="col">
                 <div id="online-users-area" class="col"></div>
             </div>
-        </div>
+        </div> -->
     </div>
 
-    <div id="signin-overlay" class="overlay row">
+    <!-- <div id="signin-overlay" class="overlay row">
         <div class="content shadow row">
-            <form id="signin-form" class="col">
-                <div class="caption">SIGN IN WITH YOUR ACCOUNT</div>
-                <div class="spacer-0"></div>
-                <input id="signin-username" placeholder="Enter your username"></input>
-                <input id="signin-password" type="password" placeholder="Enter your password"></input>
-                <div class="spacer-0"></div>
-                <button type="submit">Sign In</button>
-                <div id="signin-message" class="warning center"></div>
-                <div class="spacer-grow"></div>
-            </form>
+            
 
             <div class="spacer-0"></div>
 
-            <form id="register-form" class="col">
-                <div class="caption">OR, REGISTER IF YOU DO NOT HAVE ONE</div>
-                <div class="spacer-0"></div>
-                <input id="register-username" maxlength="10" placeholder="Enter your username"></input>
-                <select id="register-avatar">
-                    <option value="">Select your avatar</option>
-                </select>
-                <input id="register-name" maxlength="16" placeholder="Enter your name"></input>
-                <input id="register-password" type="password" placeholder="Enter your password"></input>
-                <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
-                <div class="spacer-0"></div>
-                <button type="submit">Register</button>
-                <div id="register-message" class="warning center"></div>
-            </form>
-        </div>
+            
+        </div> -->
 
-        <!-- GEM Rush game container -->
-        <div id="game-container">
-            <!-- <canvas width="854px" height="480px"></canvas> -->
-            <!-- Game Start Display text -->
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" id="game-start">
+    <!-- GEM Rush game container -->
+    <div id="game-container">
+        <!-- <canvas width="854px" height="480px"></canvas> -->
+        <!-- Game Start Display text -->
+        <!-- <svg xmlns="http://www.w3.org/2000/svg" id="game-start">
                 <defs>
                     <linearGradient id="title-fill" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0.2" stop-color="red" />
@@ -95,8 +126,8 @@
                 <text x="50%" y="60%">Click here to start the game</text>
             </svg> -->
 
-            <!-- Game over display text -->
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" id="game-over" style="display: none">
+        <!-- Game over display text -->
+        <!-- <svg xmlns="http://www.w3.org/2000/svg" id="game-over" style="display: none">
                 <defs>
                     <linearGradient id="game-over-fill" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0" stop-color="red" />
@@ -110,7 +141,7 @@
                     gem(s).
                 </text>
             </svg> -->
-        </div>
+    </div>
     </div>
 
     <script src="/socket.io/socket.io.min.js"></script>
@@ -142,10 +173,10 @@
 
 
     <script src="scripts/control.js"></script>
-    <script src="scripts/canavs.js"></script>
+    <script src="scripts/canvas.js"></script>
     <script src="scripts/bounding_box.js"></script>
-    <script src="scripts/sprites/sprite.js"></script>
-    <script src="scripts/sprites/gem.js"></script>
+    <!-- <script src="scripts/sprites/sprite.js"></script>
+    <script src="scripts/sprites/gem.js"></script> -->
 
 </body>
 
