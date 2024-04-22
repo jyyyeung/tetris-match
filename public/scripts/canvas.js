@@ -80,6 +80,14 @@ $(function () {
         else $("#opponent-score").text(score);
     }
 
+    function setTime(time) {
+        $("#time").text(time);
+    }
+
+    function setLevel(level) {
+        $("#difficulty").text(level);
+    }
+
     function setHoldIcon(bool, block) { // bool - true if player, false if opponent. block - char (OSLZJTI)
         if (bool) $("#player-hold").children().css("background",icons[block])
         else $("#opponent-hold").children().css("background",icons[block])
@@ -113,6 +121,9 @@ $(function () {
     setScore(false, 456);
     setHoldIcon(true, 'O');
     setHoldIcon(false, 'T');
+    setTime(123);
+    setLevel(3);
+
 
     const test = Tetromino(player_context,16,16,"green"); // This line is for loading the images
     setTimeout(function() {

@@ -38,7 +38,7 @@
             rgba(255, 0, 0, 1) 100%);
     --caption-color: white;
 
-    --font-color: black;
+    --font-color: white;
     --date-color: gray;
 
     --register-form-background: linear-gradient(#fde0c5, #facba6);
