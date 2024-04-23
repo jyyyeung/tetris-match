@@ -17,12 +17,26 @@ const Tetromino = function (ctx, matrixX, matrixY, letter) {
     const MINO_WIDTH = 32;
     const MINO_HEIGHT = 32;
     const CANVAS_HEIGHT = 448;
+    const WIDTH = sequences[letter].width;
+    const HEIGHT = sequences[letter].height;
+    const BLOCK_WIDTH = WIDTH / MINO_WIDTH;
+    const BLOCK_HEIGHT = HEIGHT / MINO_HEIGHT;
+
+    const convertMatrixToPx = (matrixX, matrixY) => {
+        return {
+            x: matrixX * MINO_WIDTH + sequences[letter].width / 2,
+            y:
+                CANVAS_HEIGHT -
+                sequences[letter].height / 2 -
+                matrixY * MINO_HEIGHT,
+        };
+    };
 
     // This is the sprite object of the Tetromino created from the Sprite module.
     const sprite = Sprite(
         ctx,
-        matrixX * MINO_WIDTH + sequences[letter].width / 2,
-        CANVAS_HEIGHT - sequences[letter].height / 2 - matrixY * MINO_HEIGHT
+        convertMatrixToPx(matrixX, matrixY).x,
+        convertMatrixToPx(matrixX, matrixY).y
     );
     // Set Sprite anchor point to bottom left corner
     // sprite.anchorPoint = (0, 0);
@@ -71,20 +85,16 @@ const Tetromino = function (ctx, matrixX, matrixY, letter) {
         sprite.setXY(x, y);
     };
 
-    // This function updates the tetromino depending on its movement.
-    // - `time` - The timestamp when this function is called
-    const update = function (action) {
-        /* Update the player if the player is moving */
+    const move = function (gameArea, action) {
         if (action != INVALID_KEY) {
             let { x, y } = sprite.getXY();
-
             /* Move the player */
             switch (action) {
                 case MOVE_LEFT:
-                    x -= 32;
+                    x -= MINO_WIDTH;
                     break;
                 case MOVE_RIGHT:
-                    x += 32;
+                    x += MINO_WIDTH;
                     break;
                 // case 3:
                 //     y += speed / 60;
@@ -94,25 +104,68 @@ const Tetromino = function (ctx, matrixX, matrixY, letter) {
                 //     break;
             }
 
-            /* Set the new position if it is within the game area */
-            if (gameArea.isPointInBox(x, y)) sprite.setXY(x, y);
-        }
+            // console.log("Will Check ", x, y);
 
-        /* Update the sprite object */
-        // sprite.setX();
-        // sprite.update(time);
+            /* Set the new position if it is within the game area */
+            if (isValidPosition(x, y) && gameArea.isPointInBox(x, y)) {
+                sprite.setXY(x, y);
+            }
+        }
+    };
+
+    const isValidPosition = (x, y) => {
+        const MATRIX_WIDTH = 10;
+        const MATRIX_HEIGHT = 14;
+        const { matrixX, matrixY } = getMatrixXY(x, y);
+        // console.log("Checking ", matrixX, matrixY);
+        if (matrixX < 0 || matrixY < 0) return false;
+        if (matrixX + BLOCK_WIDTH > MATRIX_WIDTH) return false;
+        if (matrixY + BLOCK_HEIGHT > MATRIX_HEIGHT) return false;
+        return true;
+    };
+
+    let lastUpdate = 0;
+    const speed = 1000;
+    // This function updates the tetromino depending on its movement.
+    // - `time` - The timestamp when this function is called
+    const drop = (gameArea, time) => {
+        /* Update the player if the player is moving */
+        let { x, y } = sprite.getXY();
+        if (lastUpdate == 0) lastUpdate = time;
+
+        if (time - lastUpdate >= speed) {
+            /* Update the player if the player is moving */
+            y += MINO_HEIGHT;
+
+            /* Set the new position if it is within the game area */
+            if (isValidPosition(x, y) && gameArea.isPointInBox(x, y))
+                sprite.setXY(x, y);
+            lastUpdate = time;
+            // TODO: if matrixY is 0, fix position
+        }
+    };
+
+    const getMatrixXY = (x = null, y = null) => {
+        if (x == null && y == null) {
+            x = sprite.getXY().x;
+            y = sprite.getXY().y;
+        }
+        const matrixX = (x - WIDTH / 2) / MINO_WIDTH;
+        const matrixY = (CANVAS_HEIGHT - y - HEIGHT / 2) / MINO_HEIGHT;
+        return { matrixX, matrixY };
     };
 
     // The methods are returned as an object here.
     return {
         getXY: sprite.getXY,
         setXY: sprite.setXY,
+        getMatrixXY,
+        move: move,
         // setColor: setColor,
-        update: update,
+        drop: drop,
         /* getAge: getAge, */
         getBoundingBox: sprite.getBoundingBox,
         randomize: randomize,
         draw: sprite.draw,
-        update: sprite.update,
     };
 };

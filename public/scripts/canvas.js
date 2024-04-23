@@ -32,9 +32,6 @@ $(function () {
 
     // TODO: Create game sprites
 
-    /* Create the game area */
-    //const gameArea = BoundingBox(context, 165, 60, 420, 800);
-
     function makeArray(d1, d2) {
         var arr = [];
         for (let i = 0; i < d2; i++) {
@@ -49,6 +46,9 @@ $(function () {
     var bw = 320;
     var bh = 448;
     var p = 0;
+
+    /* Create the game area */
+    const gameArea = BoundingBox(player_context, 0, 0, bh, bw);
 
     /**
      * Draws a grid on the canvas.
@@ -156,20 +156,11 @@ $(function () {
             for (let x = 0; x < MATRIX_WIDTH; x++) {
                 const n = matrix[y][x];
                 if (n) {
-                    console.log(n);
+                    // console.log(n);
                     renderSingle(ctx, x, y, colors[n]);
                 }
             }
         }
-
-        Tetromino(ctx, 2, 2, "O").draw();
-        Tetromino(ctx, 3, 3, "S").draw();
-        Tetromino(ctx, 7, 5, "L").draw();
-        Tetromino(ctx, 8, 0, "Z").draw();
-        Tetromino(ctx, 7, 0, "J").draw();
-        Tetromino(ctx, 6, 2, "T").draw();
-        const test = Tetromino(ctx, 0, 0, "I").draw();
-        console.log(test.getXY());
     }
 
     /**
@@ -193,16 +184,16 @@ $(function () {
     setTime(123);
     setLevel(3);
 
-    const test = Mino(player_context, 16, 16, "green"); // This line is for loading the images
+    const test = Mino(gameArea, 16, 16, "green"); // This line is for loading the images
 
     const test_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
     test_matrix[0][0] = 1;
     test_matrix[3][5] = 2;
     test_matrix[8][8] = 5;
 
-    setTimeout(function () {
-        renderMatrix(test_matrix, player_context);
-    }, 100);
+    // setTimeout(function () {
+    //     renderMatrix(test_matrix, player_context);
+    // }, 100);
 
     /* setTimeout(function() {
         renderSingle(player_context, 0, 0, "red");
@@ -212,6 +203,8 @@ $(function () {
     }, 100) */
 
     //updateNext();
+    // let currentTetromino;
+    const currentTetromino = Tetromino(player_context, 2, 10, "I");
 
     /* The main processing of the game */
     /**
@@ -221,14 +214,13 @@ $(function () {
     function doFrame(now) {
         if (gameStartTime == 0) gameStartTime = now;
 
-        // renderMatrix(test_matrix, player_context);
-
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;
         const timeRemaining = Math.ceil(
             (totalGameTime * 1000 - gameTimeSoFar) / 1000
         );
-        $("#time-remaining").text(timeRemaining);
+        // $("#time-remaining").text(timeRemaining);
+        setTime(timeRemaining);
 
         // /* Handle the game over situation here */
         // if (timeRemaining == 0) {
@@ -240,13 +232,27 @@ $(function () {
         //     return;
         // }
 
-        // /* Update the sprites */
+        /* Update the sprites */
 
         // gem.update(now);
         // player.update(now);
         // fires.forEach((fire) => {
         //     fire.update(now);
         // });
+
+        // Tetromino(player_context, 2, 2, "O").draw();
+        // Tetromino(player_context, 3, 3, "S").draw();
+        // Tetromino(player_context, 7, 5, "L").draw();
+        // Tetromino(player_context, 8, 0, "Z").draw();
+        // Tetromino(player_context, 7, 0, "J").draw();
+        // Tetromino(player_context, 6, 2, "T").draw();
+        // console.log(test.getXY());
+        currentTetromino.draw();
+        // if () {
+        // gem.randomize(gameArea);
+        // }
+
+        currentTetromino.drop(gameArea, now);
 
         // /* Randomize the gem and collect the gem here */
         // if (gem.getAge(now) >= gemMaxAge) {
@@ -262,9 +268,10 @@ $(function () {
         //     collectedGems++;
         //     gem.randomize(gameArea);
         // }
+        console.log(currentTetromino.getMatrixXY());
 
-        // /* Clear the screen */
-        // context.clearRect(0, 0, cv.width, cv.height);
+        /* Clear the screen */
+        player_context.clearRect(0, 0, player_cv.width, player_cv.height);
 
         // /* Draw the sprites */
         // gem.draw();
@@ -272,6 +279,10 @@ $(function () {
         // fires.forEach((fire) => {
         //     fire.draw();
         // });
+        drawGrid(player_context);
+        currentTetromino.draw();
+
+        renderMatrix(test_matrix, player_context);
 
         /* Process the next frame */
         requestAnimationFrame(doFrame);
@@ -296,6 +307,7 @@ $(function () {
 
         // // Randomize Gem location and color
         // gem.randomize(gameArea);
+        // currentTetromino.draw();
 
         // TODO: Handle controls
         // Handle keydown of controls
@@ -307,11 +319,11 @@ $(function () {
 
             if (action == MOVE_LEFT) {
                 console.log("keydown: move left");
-                return test.update(MOVE_LEFT);
+                return currentTetromino.move(gameArea, MOVE_LEFT);
             }
             if (action == MOVE_RIGHT) {
                 console.log("keydown: move right");
-                return test.update(MOVE_RIGHT);
+                return currentTetromino.move(gameArea, MOVE_RIGHT);
             }
             if (action == ROTATE_LEFT)
                 return console.log("keydown: rotate left");
