@@ -18,4 +18,4 @@ function isEmpty(text) {
     return text == null || text.trim().length == 0;
 }
 
-
+module.exports = { isEmpty, containWordCharsOnly };
