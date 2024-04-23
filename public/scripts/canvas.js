@@ -54,6 +54,11 @@ $(function () {
     var bh = 448;
     var p = 0;
 
+    /**
+     * Draws a grid on the canvas.
+     *
+     * @param {CanvasRenderingContext2D} ctx - The rendering context of the canvas.
+     */
     function drawGrid(ctx) {
         for (var x = 0; x <= bw; x += 32) {
             ctx.moveTo(0.5 + x + p, p);
@@ -70,6 +75,13 @@ $(function () {
     drawGrid(opponent_context);
     drawGrid(player_context);
 
+    /**
+     * Sets the background of the next icon element based on the provided parameters.
+     *
+     * @param {boolean} bool - Indicates whether the player or opponent is being updated. True for player, false for opponent.
+     * @param {number} index - The index of the next icon element to update. Must be between 0 and 3.
+     * @param {string} block - The character representing the icon to set. Must be one of O, S, L, Z, J, T, or I.
+     */
     function setNextIcon(bool, index, block) {
         // bool - true if player, false if opponent. index max 3. block - char (OSLZJTI)
         if (bool)
@@ -84,20 +96,38 @@ $(function () {
                 .css("background", icons[block]);
     }
 
+    /**
+     * Sets the score for the player or opponent.
+     * @param {boolean} bool - True if player, false if opponent.
+     * @param {number} score - The score to set.
+     */
     function setScore(bool, score) {
         // bool - true if player, false if opponent
         if (bool) $("#player-score").text(score);
         else $("#opponent-score").text(score);
     }
 
+    /**
+     * Sets the time value in the DOM element with id "time".
+     * @param {number} time - The time value to be set.
+     */
     function setTime(time) {
         $("#time").text(time);
     }
 
+    /**
+     * Sets the level of difficulty.
+     * @param {number} level - The level of difficulty.
+     */
     function setLevel(level) {
         $("#difficulty").text(level);
     }
 
+    /**
+     * Sets the hold icon for the player or opponent.
+     * @param {boolean} bool - True if player, false if opponent.
+     * @param {string} block - The character representing the block (OSLZJTI).
+     */
     function setHoldIcon(bool, block) {
         // bool - true if player, false if opponent. block - char (OSLZJTI)
         if (bool) $("#player-hold").children().css("background", icons[block]);
@@ -109,6 +139,12 @@ $(function () {
     test_matrix[3][5] = 2;
     test_matrix[8][8] = 5;
 
+    /**
+     * Renders the matrix on the canvas.
+     *
+     * @param {number[][]} matrix - The matrix to be rendered.
+     * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+     */
     function renderMatrix(matrix, ctx) {
         const colors = [
             "empty",
@@ -132,6 +168,14 @@ $(function () {
         }
     }
 
+    /**
+     * Renders a single tetromino block on the canvas.
+     *
+     * @param {CanvasRenderingContext2D} ctx - The rendering context of the canvas.
+     * @param {number} x - The x-coordinate of the block.
+     * @param {number} y - The y-coordinate of the block.
+     * @param {string} color - The color of the block.
+     */
     function renderSingle(ctx, x, y, color) {
         Tetromino(ctx, 16 + 32 * x, 432 - 32 * y, color).draw();
     }
@@ -160,6 +204,10 @@ $(function () {
     //updateNext();
 
     /* The main processing of the game */
+    /**
+     * Performs the main logic for each frame of the game.
+     * @param {DOMHighResTimeStamp} now - The current timestamp.
+     */
     function doFrame(now) {
         if (gameStartTime == 0) gameStartTime = now;
 
