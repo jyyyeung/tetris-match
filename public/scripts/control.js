@@ -1,4 +1,5 @@
 // MOVEMENTS
+const INVALID_KEY = -1;
 const HOLD = 0;
 
 const MOVE_LEFT = 1;
@@ -68,5 +69,5 @@ function action_from_key(key) {
 
     if (key == KEY_X) return CHEAT_MODE;
 
-    return 0;
+    return -1;
 }

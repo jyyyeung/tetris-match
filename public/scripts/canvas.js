@@ -35,10 +35,6 @@ $(function () {
     /* Create the game area */
     //const gameArea = BoundingBox(context, 165, 60, 420, 800);
 
-    /* Create the sprites in the game */
-    // const player = Player(context, 427, 240, gameArea); // The player
-    // const gem = Gem(context, 427, 350, "green"); // The gem
-
     function makeArray(d1, d2) {
         var arr = [];
         for (let i = 0; i < d2; i++) {
@@ -134,10 +130,9 @@ $(function () {
         else $("#opponent-hold").children().css("background", icons[block]);
     }
 
-    const test_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
-    test_matrix[0][0] = 1;
-    test_matrix[3][5] = 2;
-    test_matrix[8][8] = 5;
+    /* Create the sprites in the game */
+    // const player = Player(context, 427, 240, gameArea); // The player
+    // const gem = Gem(context, 427, 350, "green"); // The gem
 
     /**
      * Renders the matrix on the canvas.
@@ -166,6 +161,15 @@ $(function () {
                 }
             }
         }
+
+        Tetromino(ctx, 2, 2, "O").draw();
+        Tetromino(ctx, 3, 3, "S").draw();
+        Tetromino(ctx, 7, 5, "L").draw();
+        Tetromino(ctx, 8, 0, "Z").draw();
+        Tetromino(ctx, 7, 0, "J").draw();
+        Tetromino(ctx, 6, 2, "T").draw();
+        const test = Tetromino(ctx, 0, 0, "I").draw();
+        console.log(test.getXY());
     }
 
     /**
@@ -177,7 +181,7 @@ $(function () {
      * @param {string} color - The color of the block.
      */
     function renderSingle(ctx, x, y, color) {
-        Tetromino(ctx, 16 + 32 * x, 432 - 32 * y, color).draw();
+        Mino(ctx, 16 + 32 * x, 432 - 32 * y, color).draw();
     }
 
     setNextIcon(true, 0, "I");
@@ -189,7 +193,13 @@ $(function () {
     setTime(123);
     setLevel(3);
 
-    const test = Tetromino(player_context, 16, 16, "green"); // This line is for loading the images
+    const test = Mino(player_context, 16, 16, "green"); // This line is for loading the images
+
+    const test_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
+    test_matrix[0][0] = 1;
+    test_matrix[3][5] = 2;
+    test_matrix[8][8] = 5;
+
     setTimeout(function () {
         renderMatrix(test_matrix, player_context);
     }, 100);
@@ -211,12 +221,14 @@ $(function () {
     function doFrame(now) {
         if (gameStartTime == 0) gameStartTime = now;
 
+        // renderMatrix(test_matrix, player_context);
+
         // /* Update the time remaining */
-        // const gameTimeSoFar = now - gameStartTime;
-        // const timeRemaining = Math.ceil(
-        //     (totalGameTime * 1000 - gameTimeSoFar) / 1000
-        // );
-        // $("#time-remaining").text(timeRemaining);
+        const gameTimeSoFar = now - gameStartTime;
+        const timeRemaining = Math.ceil(
+            (totalGameTime * 1000 - gameTimeSoFar) / 1000
+        );
+        $("#time-remaining").text(timeRemaining);
 
         // /* Handle the game over situation here */
         // if (timeRemaining == 0) {
@@ -229,6 +241,7 @@ $(function () {
         // }
 
         // /* Update the sprites */
+
         // gem.update(now);
         // player.update(now);
         // fires.forEach((fire) => {
@@ -265,7 +278,16 @@ $(function () {
     }
 
     /* Handle the start of the game */
-    $("#game-start").on("click", function () {
+    $("#game-container").show(function () {
+        console.log("Game Container Shown");
+        // const test = Tetromino(player_context, 16 + 32 * 1, 432 - 32 * 1, "O"); // This line is for loading the images
+        // test.draw();
+        // console.log(test);
+        // console.log(test.getXY());
+        // test.randomize(player_cv);
+
+        // test.draw();
+        // $("#game-start").on("click", function () {
         // /* Hide the start screen */
         // $("#game-start").hide();
 
@@ -280,11 +302,17 @@ $(function () {
         $(document).on("keydown", function (event) {
             action = action_from_key(event.keyCode);
             // Invalid Action
-            if (action < 0) return;
+            if (action == INVALID_KEY) return;
             // TODO: Handle other movements
 
-            if (action == MOVE_LEFT) return console.log("keydown: move left");
-            if (action == MOVE_RIGHT) return console.log("keydown: move right");
+            if (action == MOVE_LEFT) {
+                console.log("keydown: move left");
+                return test.update(MOVE_LEFT);
+            }
+            if (action == MOVE_RIGHT) {
+                console.log("keydown: move right");
+                return test.update(MOVE_RIGHT);
+            }
             if (action == ROTATE_LEFT)
                 return console.log("keydown: rotate left");
             if (action == ROTATE_RIGHT)
@@ -299,7 +327,7 @@ $(function () {
         $(document).on("keyup", function (event) {
             action = action_from_key(event.keyCode);
             // Invalid Action
-            if (action < 0) return;
+            if (action == INVALID_KEY) return;
             // TODO: Handle othe rmovements
             if (action == MOVE_LEFT) return console.log("keyup: move left");
             if (action == MOVE_RIGHT) return console.log("keyup: move right");
