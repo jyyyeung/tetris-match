@@ -7,14 +7,14 @@ const Tetromino = function (ctx, x, y, color) {
     // This is the sprite sequences of the Tetromino of four colours
     // `green`, `red`, `yellow` and `purple`.
     const sequences = {
-        red: {x: 0, y: 0, width: 32, height: 32}, // Block O
-        yellow: {x: 32,y: 0,width: 32,height: 32}, // Block S
-        green: {x: 64,y: 0,width: 32,height: 32}, // Block L
-        lightBlue: {x: 96,y: 0,width: 32,height: 32}, // Block Z
-        pink: {x: 0,y: 32,width: 32,height: 32}, // Block J
-        darkBlue: {x: 32,y: 32,width: 32,height: 32}, // Block T
-        purple: {x: 64,y: 32,width: 32,height: 32}, // Block I
-        grey: {x: 96,y: 32,width: 32,height: 32} // added block for cheat
+        red: { x: 0, y: 0, width: 32, height: 32 }, // Block O
+        yellow: { x: 32, y: 0, width: 32, height: 32 }, // Block S
+        green: { x: 64, y: 0, width: 32, height: 32 }, // Block L
+        lightBlue: { x: 96, y: 0, width: 32, height: 32 }, // Block Z
+        pink: { x: 0, y: 32, width: 32, height: 32 }, // Block J
+        darkBlue: { x: 32, y: 32, width: 32, height: 32 }, // Block T
+        purple: { x: 64, y: 32, width: 32, height: 32 }, // Block I
+        grey: { x: 96, y: 32, width: 32, height: 32 }, // added block for cheat
     };
 
     // This is the sprite object of the Tetromino created from the Sprite module.
@@ -47,7 +47,16 @@ const Tetromino = function (ctx, x, y, color) {
     // - `area` - The area that the Tetromino should be located in.
     const randomize = function (area) {
         /* Randomize the color */
-        const colors = ["red","yellow","green","lightBlue","pink","darkBlue","purple", "grey"];
+        const colors = [
+            "red",
+            "yellow",
+            "green",
+            "lightBlue",
+            "pink",
+            "darkBlue",
+            "purple",
+            "grey",
+        ];
         setColor(colors[Math.floor(Math.random() * 7)]);
 
         /* Randomize the position */

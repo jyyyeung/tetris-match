@@ -12,40 +12,57 @@ const HomePage = (function () {
         $("#home-side-panel").css("width", "0vw");
         $("#home-side-panel").hide();
         $("#title").css("font-size", "500%");
-    }
+    };
 
-    const renderSidePanel = function(status) { // 0 - login, 1 - register, 2 - how to play, 3 - profile
+    const renderSidePanel = function (status) {
+        // 0 - login, 1 - register, 2 - how to play, 3 - profile
         $("#home-panel").css("width", "50vw");
         $("#home-side-panel").css("width", "50vw");
         $("#home-side-panel").show();
         $("#title").css("font-size", "400%");
-        const contents = [$("#signin-form"), $("#register-form"), $("#how-to-play"), $("#user-panel")]
-        contents.forEach((element)=> element.hide());
+        const contents = [
+            $("#signin-form"),
+            $("#register-form"),
+            $("#how-to-play"),
+            $("#user-panel"),
+        ];
+        contents.forEach((element) => element.hide());
         contents[status].show();
         sidePanelStatus = status;
-    }
+    };
 
     const buttonFunc = function (status) {
-        if (sidePanelStatus != status) { renderSidePanel(status); }
-        else { hideSidePanel(); }
-    }
+        if (sidePanelStatus != status) {
+            renderSidePanel(status);
+        } else {
+            hideSidePanel();
+        }
+    };
 
     const initialize = function () {
         $(".before-login").show();
         $(".after-login").hide();
         $("#home-side-panel").hide();
 
-        $("#register-button").click(function () { buttonFunc(HOME_REGISTER) });
-        $("#login-button").click(function () { buttonFunc(HOME_LOGIN) });
-        $("#howtoplay-button").click(function () {
-            if (sidePanelStatus != HOME_HOWTOPLAY) { renderSidePanel(HOME_HOWTOPLAY); }
-            else if (!Authentication.getUser()) { hideSidePanel(); }
+        $("#register-button").click(function () {
+            buttonFunc(HOME_REGISTER);
         });
-        $("#profile-button").click(function () { buttonFunc(HOME_PROFILE) });
-    }
-    return { initialize, renderSidePanel};
+        $("#login-button").click(function () {
+            buttonFunc(HOME_LOGIN);
+        });
+        $("#howtoplay-button").click(function () {
+            if (sidePanelStatus != HOME_HOWTOPLAY) {
+                renderSidePanel(HOME_HOWTOPLAY);
+            } else if (!Authentication.getUser()) {
+                hideSidePanel();
+            }
+        });
+        $("#profile-button").click(function () {
+            buttonFunc(HOME_PROFILE);
+        });
+    };
+    return { initialize, renderSidePanel };
 })();
-
 
 const SignInForm = (function () {
     /**
@@ -73,7 +90,7 @@ const SignInForm = (function () {
                 password,
                 () => {
                     //hide();
-                    console.log("signed in")
+                    console.log("signed in");
                     UserPanel.update(Authentication.getUser());
                     UserPanel.show();
                     $(".before-login").hide();
@@ -187,7 +204,7 @@ const UserPanel = (function () {
 
 const OnlineUsersPanel = (function () {
     // This function initializes the UI
-    const initialize = function () { };
+    const initialize = function () {};
 
     // This function updates the online users panel
     const update = function (onlineUsers) {
@@ -295,15 +312,15 @@ const ChatPanel = (function () {
                         .append(
                             $(
                                 "<div class='chat-date'>" +
-                                datetimeString +
-                                "</div>"
+                                    datetimeString +
+                                    "</div>"
                             )
                         )
                         .append(
                             $(
                                 "<div class='chat-content'>" +
-                                message.content +
-                                "</div>"
+                                    message.content +
+                                    "</div>"
                             )
                         )
                 )
@@ -314,11 +331,11 @@ const ChatPanel = (function () {
     return { initialize, update, addMessage };
 })();
 
-const GameArea = (function() {
-    const initialize = function() {
+const GameArea = (function () {
+    const initialize = function () {
         //$("#game-container").hide();
-    }
-    return {initialize};
+    };
+    return { initialize };
 })();
 
 /**
@@ -332,15 +349,22 @@ const UI = (function () {
             .append(
                 $(
                     "<span class='user-avatar'>" +
-                    Avatar.getCode(user.avatar) +
-                    "</span>"
+                        Avatar.getCode(user.avatar) +
+                        "</span>"
                 )
             )
             .append($("<span class='user-name'>" + user.name + "</span>"));
     };
 
     // The components of the UI are put here
-    const components = [HomePage, SignInForm, UserPanel, OnlineUsersPanel, ChatPanel, GameArea];
+    const components = [
+        HomePage,
+        SignInForm,
+        UserPanel,
+        OnlineUsersPanel,
+        ChatPanel,
+        GameArea,
+    ];
 
     // This function initializes the UI
     const initialize = function () {
@@ -352,7 +376,7 @@ const UI = (function () {
 
     const renderSidePanel = function (status) {
         HomePage.renderSidePanel(status);
-    }
+    };
 
-    return { getUserDisplay, initialize, renderSidePanel};
+    return { getUserDisplay, initialize, renderSidePanel };
 })();

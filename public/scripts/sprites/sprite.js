@@ -37,7 +37,6 @@ const Sprite = function (ctx, x, y) {
         height: 32,
     };
 
-
     /**
      * Represents the index of the sprite.
      *
@@ -275,9 +274,9 @@ const Sprite = function (ctx, x, y) {
         return this;
     }; */
 
-    const isLoaded = function() {
+    const isLoaded = function () {
         return loaded;
-    }
+    };
 
     // The methods are returned as an object here.
     return {

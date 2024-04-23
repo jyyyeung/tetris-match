@@ -24,10 +24,6 @@ const gameSession = session({
 });
 app.use(gameSession);
 
-function containWordCharsOnly(text) {
-    return /^\w+$/.test(text);
-}
-
 // Handle the /register endpoint
 app.post("/register", (req, res) => {
     // Get the JSON data from the body
@@ -41,8 +37,8 @@ app.post("/register", (req, res) => {
 
     // Checking for the user data correctness
     let isDataValid = false;
-    const dataList = [username,avatar,name,password];
-    const strings = ["username","avatar","name","password"];
+    const dataList = [username, avatar, name, password];
+    const strings = ["username", "avatar", "name", "password"];
     let s = "";
     let isEmpty = false;
     for (let i = 0; i < dataList.length; ++i) {
@@ -51,10 +47,11 @@ app.post("/register", (req, res) => {
             s += strings[i] + ", ";
         }
     }
-    s = s.slice(0, s.length-2);
+    s = s.slice(0, s.length - 2);
 
-    let emptyErrorMsg = `${s} cannot be empty!`
-    emptyErrorMsg = emptyErrorMsg.charAt(0).toUpperCase() + emptyErrorMsg.slice(1)
+    let emptyErrorMsg = `${s} cannot be empty!`;
+    emptyErrorMsg =
+        emptyErrorMsg.charAt(0).toUpperCase() + emptyErrorMsg.slice(1);
 
     if (isEmpty) {
         res.json({ status: "error", error: emptyErrorMsg });
@@ -79,7 +76,6 @@ app.post("/register", (req, res) => {
         name: name,
         password: hash,
     };
-    
 
     // Saving the users.json file
     fs.writeFileSync("data/users.json", JSON.stringify(users, null, " "));
@@ -98,8 +94,8 @@ app.post("/signin", (req, res) => {
 
     // Checking for username/password
     let isDataValid = false;
-    if (!(username)) errorMsg = "Username cannot be empty";
-    else if (!(password)) errorMsg = "Password cannot be empty";
+    if (!username) errorMsg = "Username cannot be empty";
+    else if (!password) errorMsg = "Password cannot be empty";
     else if (!(username in users)) errorMsg = "Invalid Credentials";
     else if (!bcrypt.compareSync(password, users[username].password))
         errorMsg = "Invalid Credentials";
@@ -111,7 +107,7 @@ app.post("/signin", (req, res) => {
     }
 
     const user = users[username];
-    
+
     const user_data = {
         username,
         avatar: user.avatar,

@@ -12,30 +12,34 @@
 
     --header-background: linear-gradient(to right, #eb4a40, #f59e72);
     --container-background: linear-gradient(to top, cyan, rgb(0, 89, 255));
-    --online-users-panel-background: linear-gradient(to right,
-            #fde0c5,
-            #facba6);
+    --online-users-panel-background: linear-gradient(
+        to right,
+        #fde0c5,
+        #facba6
+    );
     --chat-panel-background: none;
-    --title-color: linear-gradient(to right,
-            rgba(255, 0, 0, 1) 0%,
-            rgba(255, 154, 0, 1) 10%,
-            rgba(208, 222, 33, 1) 15%,
-            rgba(79, 220, 74, 1) 20%,
-            rgba(63, 218, 216, 1) 25%,
-            rgba(47, 201, 226, 1) 30%,
-            rgba(28, 127, 238, 1) 35%,
-            rgba(95, 21, 242, 1) 40%,
-            rgba(186, 12, 248, 1) 45%,
-            rgba(251, 7, 217, 1) 50%,
-            rgba(186, 12, 248, 1) 55%,
-            rgba(95, 21, 242, 1) 60%,
-            rgba(28, 127, 238, 1) 65%,
-            rgba(47, 201, 226, 1) 70%,
-            rgba(63, 218, 216, 1) 75%,
-            rgba(79, 220, 74, 1) 80%,
-            rgba(208, 222, 33, 1) 85%,
-            rgba(255, 154, 0, 1) 90%,
-            rgba(255, 0, 0, 1) 100%);
+    --title-color: linear-gradient(
+        to right,
+        rgba(255, 0, 0, 1) 0%,
+        rgba(255, 154, 0, 1) 10%,
+        rgba(208, 222, 33, 1) 15%,
+        rgba(79, 220, 74, 1) 20%,
+        rgba(63, 218, 216, 1) 25%,
+        rgba(47, 201, 226, 1) 30%,
+        rgba(28, 127, 238, 1) 35%,
+        rgba(95, 21, 242, 1) 40%,
+        rgba(186, 12, 248, 1) 45%,
+        rgba(251, 7, 217, 1) 50%,
+        rgba(186, 12, 248, 1) 55%,
+        rgba(95, 21, 242, 1) 60%,
+        rgba(28, 127, 238, 1) 65%,
+        rgba(47, 201, 226, 1) 70%,
+        rgba(63, 218, 216, 1) 75%,
+        rgba(79, 220, 74, 1) 80%,
+        rgba(208, 222, 33, 1) 85%,
+        rgba(255, 154, 0, 1) 90%,
+        rgba(255, 0, 0, 1) 100%
+    );
     --caption-color: white;
 
     --font-color: white;
@@ -50,7 +54,7 @@
 }
 
 * {
-    font-family: 'Public Pixel', sans-serif;
+    font-family: "Public Pixel", sans-serif;
     color: var(--font-color);
     box-sizing: border-box;
 }
@@ -398,9 +402,11 @@ button.icon:active {
     width: 100%;
     height: 100%;
     opacity: 0.3;
-    background-image:
-      repeating-linear-gradient(cyan 0 1px, transparent 1px 100%),
-      repeating-linear-gradient(90deg, cyan 0 1px, transparent 1px 100%);
+    background-image: repeating-linear-gradient(
+            cyan 0 1px,
+            transparent 1px 100%
+        ),
+        repeating-linear-gradient(90deg, cyan 0 1px, transparent 1px 100%);
     background-size: 30px 30px;
     background-position: bottom 0px left 0px;
 }
@@ -410,7 +416,7 @@ icon {
     transform: scale(0.75);
     height: 96px;
     width: 128px;
-    margin: 10px 0px 10px 0px
+    margin: 10px 0px 10px 0px;
 }
 
 canvas {
@@ -421,11 +427,11 @@ canvas {
     /* border-radius: 20px; */
     background-color: black;
     border-radius: 5px;
-/*     outline: 2px solid cyan;
+    /*     outline: 2px solid cyan;
     outline-offset: -10px; */
     border: 5px solid cyan;
     color: white;
-      
+
     /* border: 5px #2A2F4E solid;
     background-color: black; */
 }
@@ -443,7 +449,8 @@ box {
     color: white;
 }
 
-#opponent-score, #player-score {
+#opponent-score,
+#player-score {
     color: white;
 }
 /* Gam Rush Stylesheet */
