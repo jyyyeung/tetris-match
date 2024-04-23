@@ -33,12 +33,10 @@ const Sprite = function (ctx, x, y) {
     let sequence = {
         x: 0,
         y: 0,
-        width: 20,
-        height: 20,
-        count: 1,
-        timing: 0,
-        loop: false,
+        width: 32,
+        height: 32,
     };
+
 
     /**
      * Represents the index of the sprite.
@@ -245,7 +243,7 @@ const Sprite = function (ctx, x, y) {
      */
     const draw = function () {
         if (isReady()) {
-            drawShadow();
+            //drawShadow();
             drawSprite();
         }
         return this;
@@ -258,10 +256,10 @@ const Sprite = function (ctx, x, y) {
      * @param {number} time - The current time in milliseconds.
      * @returns {Object} - The updated sprite object.
      */
-    const update = function (time) {
+    /* const update = function (time) {
         if (lastUpdate == 0) lastUpdate = time;
 
-        /* XXX: Move to the next sprite when the timing is right */
+        // XXX: Move to the next sprite when the timing is right 
         if (time - lastUpdate >= sequence.timing) {
             // Draw the sprite
             index++;
@@ -275,7 +273,11 @@ const Sprite = function (ctx, x, y) {
         }
 
         return this;
-    };
+    }; */
+
+    const isLoaded = function() {
+        return loaded;
+    }
 
     // The methods are returned as an object here.
     return {
@@ -289,6 +291,6 @@ const Sprite = function (ctx, x, y) {
         getBoundingBox: getBoundingBox,
         isReady: isReady,
         draw: draw,
-        update: update,
+        /* update: update, */
     };
 };
