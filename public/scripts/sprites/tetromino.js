@@ -16,9 +16,9 @@ const Tetromino = function (
     ctx,
     gameArea,
     minosMatrix,
-    matrixX,
-    matrixY,
-    letter
+    letter,
+    matrixX = 3,
+    matrixY = 12
 ) {
     const sequences = {
         // J: { x: 32, y: 96, width: 64, height: 96 }, // Piece J
@@ -142,7 +142,7 @@ const Tetromino = function (
         else if (mRight >= 10) matrixX = 10 - BLOCK_WIDTH();
         if (mBottom < 0) matrixY = 0;
         // TODO: If movement, do not allow, if stacking, game over
-        // else if (mTop >= 14)
+        else if (mTop >= 14) matrixY = 14 - BLOCK_HEIGHT();
 
         console.log("Returning cleaned up matrixXY:", matrixX, matrixY);
 

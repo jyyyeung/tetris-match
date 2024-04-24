@@ -216,8 +216,6 @@ $(function () {
         player_context,
         gameArea,
         player_matrix,
-        2,
-        10,
         "T"
     );
 
@@ -283,8 +281,6 @@ $(function () {
                 player_context,
                 gameArea,
                 player_matrix,
-                2,
-                10,
                 "O"
             ).draw();
         }
