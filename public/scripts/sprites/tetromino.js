@@ -14,25 +14,43 @@
  */
 const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
     const sequences = {
-        O: { x: 32, y: 20, width: 64, height: 64 }, // Piece O
-        S: { x: 160, y: 0, width: 64, height: 96 }, // Piece S
-        L: { x: 288, y: 0, width: 64, height: 96 }, // Piece L
-        Z: { x: 416, y: 0, width: 64, height: 96 }, // Piece Z
-        J: { x: 32, y: 96, width: 64, height: 96 }, // Piece J
-        T0: { x: 0, y: 160, width: 96, height: 64, count: 2 }, // Piece T
-        T1: { x: 112, y: 144, width: 64, height: 96, count: 2 }, // Piece T
+        // J: { x: 32, y: 96, width: 64, height: 96 }, // Piece J
+        J0: { x: 32, y: 0, width: 64, height: 96, count: 4 }, // Piece J
+        J1: { x: 144, y: 16, width: 96, height: 64, count: 4 }, // Piece J
+        J2: { x: 288, y: 0, width: 64, height: 96, count: 4 }, // Piece J
+        J3: { x: 400, y: 16, width: 96, height: 64, count: 4 }, // Piece J
+        // L: { x: 288, y: 0, width: 64, height: 96 }, // Piece L
+        L0: { x: 32, y: 96, width: 64, height: 96, count: 4 }, // Piece L
+        L1: { x: 144, y: 112, width: 96, height: 64, count: 4 }, // Piece L
+        L2: { x: 288, y: 96, width: 64, height: 96, count: 4 }, // Piece L
+        L3: { x: 400, y: 112, width: 96, height: 64, count: 4 }, // Piece L
+        // S: { x: 160, y: 0, width: 64, height: 96 }, // Piece S
+        S0: { x: 32, y: 192, width: 64, height: 96, count: 2 }, // Piece S
+        S1: { x: 144, y: 208, width: 96, height: 64, count: 2 }, // Piece S
+        // Z: { x: 416, y: 0, width: 64, height: 96 }, // Piece Z
+        Z0: { x: 32, y: 288, width: 64, height: 96, count: 2 }, // Piece Z
+        Z1: { x: 144, y: 304, width: 96, height: 64, count: 2 }, // Piece Z
+        // O: { x: 32, y: 20, width: 64, height: 64 }, // Piece O
+        O0: { x: 32, y: 404, width: 64, height: 64, count: 1 }, // Piece O
 
         // I: { x: 256, y: 128, width: 128, height: 32 }, // Piece I
-        I0: { x: 0, y: 160, width: 128, height: 32, count: 2 },
-        I1: { x: 160, y: 0, width: 32, height: 128, count: 2 }, // Piece I
+        I0: { x: 0, y: 512, width: 128, height: 32, count: 2 },
+        I1: { x: 160, y: 480, width: 32, height: 128, count: 2 }, // Piece I
+
+        T0: { x: 0, y: 640, width: 96, height: 64, count: 4 }, // Piece T
+        T1: { x: 112, y: 624, width: 64, height: 96, count: 4 }, // Piece T
+        T2: { x: 192, y: 640, width: 96, height: 64, count: 4 }, // Piece T
+        T3: { x: 304, y: 624, width: 64, height: 96, count: 4 }, // Piece T
     };
 
     const MINO_WIDTH = 32;
     const MINO_HEIGHT = 32;
     const CANVAS_HEIGHT = 448;
 
-    let rotation = 1;
-    const getBlockId = () => letter + rotation;
+    let rotation = 0;
+    const getBlockId = () =>
+        letter + (rotation % sequences[`${letter}0`].count);
+    console.log(getBlockId());
 
     const COUNT = () => sequences[getBlockId()].count;
     const WIDTH = () => sequences[getBlockId()].width;
@@ -130,7 +148,7 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
     sprite
         .setSequence(sequences[getBlockId()])
         .setScale(1)
-        .useSheet("../../src/res/css_sprites.png");
+        .useSheet("../../src/res/tetrominos_w_rotation.png");
 
     // This is the birth time of the Tetromino for finding its age.
     /* let birthTime = performance.now(); */

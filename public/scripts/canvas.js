@@ -204,7 +204,7 @@ $(function () {
 
     //updateNext();
     // let currentTetromino;
-    const currentTetromino = Tetromino(player_context, gameArea, 2, 2, "T");
+    const currentTetromino = Tetromino(player_context, gameArea, 2, 10, "T");
 
     /* The main processing of the game */
     /**
@@ -240,12 +240,13 @@ $(function () {
         //     fire.update(now);
         // });
 
-        // Tetromino(player_context, 2, 2, "O").draw();
-        // Tetromino(player_context, 3, 3, "S").draw();
-        // Tetromino(player_context, 7, 5, "L").draw();
-        // Tetromino(player_context, 8, 0, "Z").draw();
-        // Tetromino(player_context, 7, 0, "J").draw();
-        // Tetromino(player_context, 6, 2, "T").draw();
+        // Tetromino(player_context, gameArea, 2, 2, "O").draw();
+        // Tetromino(player_context, gameArea, 3, 3, "S").draw();
+        // Tetromino(player_context, gameArea, 7, 5, "L").draw();
+        // Tetromino(player_context, gameArea, 8, 0, "Z").draw();
+        // Tetromino(player_context, gameArea, 5, 1, "J").draw();
+        // Tetromino(player_context, gameArea, 6, 2, "T").draw();
+        // Tetromino(player_context, gameArea, 2, 0, "I").draw();
         // console.log(test.getXY());
         currentTetromino.draw();
         // if () {
@@ -269,6 +270,7 @@ $(function () {
         //     gem.randomize(gameArea);
         // }
         // console.log(currentTetromino.getMatrixXY());
+        // return;
 
         /* Clear the screen */
         player_context.clearRect(0, 0, player_cv.width, player_cv.height);
