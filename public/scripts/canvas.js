@@ -204,7 +204,7 @@ $(function () {
 
     //updateNext();
     // let currentTetromino;
-    const currentTetromino = Tetromino(player_context, 2, 10, "I");
+    const currentTetromino = Tetromino(player_context, gameArea, 2, 2, "T");
 
     /* The main processing of the game */
     /**
@@ -252,7 +252,7 @@ $(function () {
         // gem.randomize(gameArea);
         // }
 
-        currentTetromino.drop(gameArea, now);
+        currentTetromino.drop(now);
 
         // /* Randomize the gem and collect the gem here */
         // if (gem.getAge(now) >= gemMaxAge) {
@@ -268,7 +268,7 @@ $(function () {
         //     collectedGems++;
         //     gem.randomize(gameArea);
         // }
-        console.log(currentTetromino.getMatrixXY());
+        // console.log(currentTetromino.getMatrixXY());
 
         /* Clear the screen */
         player_context.clearRect(0, 0, player_cv.width, player_cv.height);
@@ -319,16 +319,20 @@ $(function () {
 
             if (action == MOVE_LEFT) {
                 console.log("keydown: move left");
-                return currentTetromino.move(gameArea, MOVE_LEFT);
+                return currentTetromino.move(MOVE_LEFT);
             }
             if (action == MOVE_RIGHT) {
                 console.log("keydown: move right");
-                return currentTetromino.move(gameArea, MOVE_RIGHT);
+                return currentTetromino.move(MOVE_RIGHT);
             }
-            if (action == ROTATE_LEFT)
+            if (action == ROTATE_LEFT) {
+                currentTetromino.move(ROTATE_LEFT);
                 return console.log("keydown: rotate left");
-            if (action == ROTATE_RIGHT)
+            }
+            if (action == ROTATE_RIGHT) {
+                currentTetromino.move(ROTATE_RIGHT);
                 return console.log("keydown: rotate right");
+            }
             if (action == SOFT_DROP) return console.log("keydown: soft drop");
             if (action == HARD_DROP) return console.log("keydown: hard drop");
             if (action == HOLD) return console.log("keydown: hold");

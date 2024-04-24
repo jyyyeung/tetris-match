@@ -35,6 +35,7 @@ const Sprite = function (ctx, x, y) {
         y: 0,
         width: 32,
         height: 32,
+        count: 1,
     };
 
     /**
