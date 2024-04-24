@@ -212,11 +212,10 @@ $(function () {
     }, 100) */
 
     //updateNext();
-    let currentTetromino = Tetromino(
+    let currentTetromino = spawnRandomTetromino(
         player_context,
         gameArea,
-        player_matrix,
-        "T"
+        player_matrix
     );
 
     let isHardDrop = false;
@@ -277,11 +276,10 @@ $(function () {
         if (isHardDrop || hitBottom) {
             isHardDrop = false;
             // fitTetromino.tetrominoToMinos(player_context_data);
-            currentTetromino = Tetromino(
+            currentTetromino = spawnRandomTetromino(
                 player_context,
                 gameArea,
-                player_matrix,
-                "O"
+                player_matrix
             ).draw();
         }
 

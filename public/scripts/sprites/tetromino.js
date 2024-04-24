@@ -1,8 +1,15 @@
-// A Tetromino is a Piece that contains 4 blocks (mino)
-// - `ctx` - A canvas context for drawing
-// - `x` - The initial x position of the Tetromino
-// - `y` - The initial y position of the Tetromino
-// - `letter` - The colour of the Tetromino
+const spawnRandomTetromino = (player_context, gameArea, player_matrix) => {
+    const letters = ["I", "J", "L", "O", "S", "T", "Z"];
+    const randomLetter = letters[Math.floor(Math.random() * 7)];
+    const tetromino = Tetromino(
+        player_context,
+        gameArea,
+        player_matrix,
+        randomLetter
+    );
+    return tetromino;
+};
+
 /**
  * Represents a Tetromino object.
  * @constructor
@@ -149,6 +156,9 @@ const Tetromino = function (
         return { matrixX, matrixY };
     };
     // This is the sprite object of the Tetromino created from the Sprite module.
+    if (matrixY + BLOCK_HEIGHT() > 14) {
+        matrixY = 14 - BLOCK_HEIGHT();
+    }
     const sprite = Sprite(
         ctx,
         convertMatrixToPx(matrixX, matrixY).x,
