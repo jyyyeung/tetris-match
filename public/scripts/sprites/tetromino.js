@@ -1,5 +1,10 @@
+let previousSpawned = null;
 const spawnRandomTetromino = (player_context, gameArea, player_matrix) => {
     const letters = ["I", "J", "L", "O", "S", "T", "Z"];
+    if (previousSpawned != null) {
+        // Try to avoid two consecuitive tetrominos of the same type
+        letters.splice(letters.indexOf(previousSpawned), 1);
+    }
     const randomLetter = letters[Math.floor(Math.random() * 7)];
     const tetromino = Tetromino(
         player_context,
@@ -7,6 +12,7 @@ const spawnRandomTetromino = (player_context, gameArea, player_matrix) => {
         player_matrix,
         randomLetter
     );
+    previousSpawned = randomLetter;
     return tetromino;
 };
 

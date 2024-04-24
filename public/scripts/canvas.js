@@ -364,14 +364,6 @@ $(function () {
                 // console.log("keydown: hard drop");
                 const fixTetromino = currentTetromino;
                 fixTetromino.move(HARD_DROP);
-                // currentTetromino = Tetromino(
-                //     player_context,
-                //     gameArea,
-                //     player_matrix,
-                //     2,
-                //     10,
-                //     "O"
-                // ).draw();
                 isHardDrop = true;
                 return;
             }
@@ -385,18 +377,19 @@ $(function () {
             action = action_from_key(event.keyCode);
             // Invalid Action
             if (action == INVALID_KEY) return;
+            // if (action == MOVE_LEFT) return console.log("keyup: move left");
+            // if (action == MOVE_RIGHT) return console.log("keyup: move right");
+            // if (action == ROTATE_LEFT) return console.log("keyup: rotate left");
+            // if (action == ROTATE_RIGHT)
+            //     return console.log("keyup: rotate right");
+
             // TODO: Handle othe rmovements
-            if (action == MOVE_LEFT) return console.log("keyup: move left");
-            if (action == MOVE_RIGHT) return console.log("keyup: move right");
-            if (action == ROTATE_LEFT) return console.log("keyup: rotate left");
-            if (action == ROTATE_RIGHT)
-                return console.log("keyup: rotate right");
             if (action == SOFT_DROP) {
                 // console.log("keyup: soft drop");
                 return currentTetromino.move(SOFT_DROP, 0);
             }
-            if (action == HARD_DROP) return console.log("keyup: hard drop");
-            if (action == HOLD) return console.log("keyup: hold");
+            // if (action == HARD_DROP) return console.log("keyup: hard drop");
+            // if (action == HOLD) return console.log("keyup: hold");
             if (action == CHEAT_MODE) return console.log("keyup: cheat mode");
         });
 
