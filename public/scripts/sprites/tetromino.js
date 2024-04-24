@@ -125,8 +125,13 @@ const Tetromino = function (
         if (isValidMatrixPosition(_matrixX, _matrixY)) {
             return { matrixX: _matrixX, matrixY: _matrixY };
         }
+
         let matrixX = _matrixX;
         let matrixY = _matrixY;
+        // while (hasMinoBelow(matrixX, matrixY)) {
+        //     console.log("hasMinoBelow");
+        //     matrixY += 1;
+        // }
 
         const mLeft = _matrixX;
         const mRight = _matrixX + BLOCK_WIDTH() - 1;
@@ -208,6 +213,21 @@ const Tetromino = function (
 
     const SOFT_DROP_SPEED = 100;
 
+    const hardDrop = () => {
+        const { matrixX, matrixY } = getMatrixXY();
+        // const { matrixX: _mX, matrixY: _mY } = getValidMatrixXY(matrixX, 0);
+        let _mX = matrixX;
+        let _mY = 0;
+        while (isOverlappingMinos(_mX, _mY)) {
+            _mY += 1;
+        }
+        isHardDrop = true;
+        // TODO: Check if game over
+        // setMatrixXY(_mX, _mY);
+        tetrominoToMinos(_mX, _mY);
+        // lastUpdate -= DEFAULT_SPEED;
+    };
+
     const move = function (_action, _isKeyDown = 1) {
         if (_action != INVALID_KEY) {
             let { x, y } = sprite.getXY();
@@ -231,7 +251,7 @@ const Tetromino = function (
                     speed = _isKeyDown ? SOFT_DROP_SPEED : DEFAULT_SPEED;
                     return;
                 case HARD_DROP:
-                    setMatrixXY(matrixX, 0);
+                    hardDrop();
                     return;
             }
 
@@ -255,6 +275,7 @@ const Tetromino = function (
         // console.log("fullyWIthinBox");
         const box = sprite.getBoundingBox();
         if (!box.fullyWithinBox(gameArea)) return false;
+        if (isOverlappingMinos(matrixX, matrixY)) return false;
         // console.log("<0");
         if (matrixX < 0 || matrixY < 0) return false;
         if (matrixX + BLOCK_WIDTH() > MATRIX_WIDTH) return false;
@@ -264,6 +285,36 @@ const Tetromino = function (
 
     const getLetter = () => letter;
 
+    const hasMinoBelow = (matrixX, matrixY) => {
+        for (let i = 0; i < BLOCK_WIDTH(); i++) {
+            const _mX = matrixX + i;
+            const _mY = matrixY;
+            // console.log("hasMinoBelow", _mX, _mY, minosMatrix[_mY - 1][_mX]);
+            const _minoBelow = minosMatrix[_mY - 1][_mX];
+            if (_minoBelow != undefined && _minoBelow != "empty") return true;
+        }
+        return false;
+    };
+
+    /**
+     * Checks if the current tetromino is overlapping with other tetrominos in the matrix.
+     * @param {number} matrixX - The x-coordinate of the current tetromino in the matrix.
+     * @param {number} matrixY - The y-coordinate of the current tetromino in the matrix.
+     * @returns {boolean} - True if the tetromino is overlapping with other tetrominos, false otherwise.
+     */
+    const isOverlappingMinos = (matrixX, matrixY) => {
+        for (let i = 0; i < BLOCK_WIDTH(); i++) {
+            for (let j = 0; j < BLOCK_HEIGHT(); j++) {
+                const _mX = matrixX + i;
+                const _mY = matrixY + j;
+                const _mino = minosMatrix[_mY][_mX];
+                if (_mino != undefined && _mino != "empty") return true;
+            }
+        }
+        return false;
+    };
+
+    let isHardDrop = false;
     let lastUpdate = 0;
     // This function updates the tetromino depending on its movement.
     // - `time` - The timestamp when this function is called
@@ -273,16 +324,21 @@ const Tetromino = function (
         const { matrixX, matrixY } = getMatrixXY();
         if (lastUpdate == 0) lastUpdate = time;
 
-        if (time - lastUpdate >= speed) {
+        if (isHardDrop || time - lastUpdate >= speed) {
+            isHardDrop = false;
             // console.log(matrixY)
-            // TODO: if matrixY is 0, fix position
+
+            // if matrixY is 0, return true to fix position
             if (matrixY == 0) return true;
+            if (hasMinoBelow(matrixX, matrixY)) return true;
 
             /* Update the player if the player is moving */
             y += MINO_HEIGHT;
 
             /* Set the new position if it is within the game area */
-            if (isValidPosition(x, y)) sprite.setXY(x, y);
+            if (isValidPosition(x, y)) {
+                sprite.setXY(x, y);
+            }
             lastUpdate = time;
             // return false;
         }
@@ -321,7 +377,7 @@ const Tetromino = function (
      * Converts the tetromino image data to minos matrix.
      * @param {ImageData} imageData - The image data of the player canvas.
      */
-    const tetrominoToMinos = () => {
+    const tetrominoToMinos = (_matrixX = null, _matrixY = null) => {
         const BOX = sprite.getBoundingBox();
         const imageData = ctx.getImageData(
             BOX.getLeft(),
@@ -330,15 +386,21 @@ const Tetromino = function (
             HEIGHT()
         ).data;
 
-        console.log("Converting Tetromino to Minos");
-        const { matrixX, matrixY } = getMatrixXY();
-        console.log(matrixX, matrixY, BLOCK_WIDTH(), BLOCK_HEIGHT());
+        if (_matrixX == null && _matrixY == null) {
+            const { matrixX, matrixY } = getMatrixXY();
+            _matrixX = matrixX;
+            _matrixY = matrixY;
+        }
+
+        // console.log("Converting Tetromino to Minos");
+        // const { matrixX, matrixY } = getMatrixXY();
+        // console.log(matrixX, matrixY, BLOCK_WIDTH(), BLOCK_HEIGHT());
         // console.log(BLOCK_WIDTH(), BLOCK_HEIGHT());
 
         for (let i = 0; i < BLOCK_WIDTH(); i++) {
             for (let j = 0; j < BLOCK_HEIGHT(); j++) {
-                const _mX = matrixX + i;
-                const _mY = matrixY + j;
+                const _mX = _matrixX + i;
+                const _mY = _matrixY + j;
                 const alpha = getAlpha(
                     imageData,
                     // _mX * MINO_WIDTH + MINO_WIDTH / 2,

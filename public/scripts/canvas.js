@@ -195,10 +195,10 @@ $(function () {
 
     // const test = Mino(gameArea, 16, 16, "green"); // This line is for loading the images
 
-    const test_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
-    test_matrix[0][0] = "O";
-    test_matrix[3][5] = "S";
-    test_matrix[8][8] = "L";
+    const player_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
+    // test_matrix[0][0] = "O";
+    // test_matrix[3][5] = "S";
+    // test_matrix[8][8] = "L";
 
     // setTimeout(function () {
     //     renderMatrix(test_matrix, player_context);
@@ -215,11 +215,13 @@ $(function () {
     let currentTetromino = Tetromino(
         player_context,
         gameArea,
-        test_matrix,
+        player_matrix,
         2,
         10,
         "T"
     );
+
+    let isHardDrop = false;
 
     /* The main processing of the game */
     /**
@@ -272,11 +274,15 @@ $(function () {
             // Generate new tetromino
             const fitTetromino = currentTetromino;
             fitTetromino.tetrominoToMinos();
+        }
+
+        if (isHardDrop || hitBottom) {
+            isHardDrop = false;
             // fitTetromino.tetrominoToMinos(player_context_data);
             currentTetromino = Tetromino(
                 player_context,
                 gameArea,
-                test_matrix,
+                player_matrix,
                 2,
                 10,
                 "O"
@@ -307,7 +313,7 @@ $(function () {
         drawGrid(player_context);
         currentTetromino.draw();
 
-        renderMatrix(test_matrix, player_context);
+        renderMatrix(player_matrix, player_context);
 
         /* Process the next frame */
         requestAnimationFrame(doFrame);
@@ -362,7 +368,18 @@ $(function () {
             }
             if (action == HARD_DROP) {
                 // console.log("keydown: hard drop");
-                return currentTetromino.move(HARD_DROP);
+                const fixTetromino = currentTetromino;
+                fixTetromino.move(HARD_DROP);
+                // currentTetromino = Tetromino(
+                //     player_context,
+                //     gameArea,
+                //     player_matrix,
+                //     2,
+                //     10,
+                //     "O"
+                // ).draw();
+                isHardDrop = true;
+                return;
             }
             // TODO: Handle other movements
             if (action == HOLD) return console.log("keydown: hold");
