@@ -223,14 +223,14 @@ $(function () {
         setTime(timeRemaining);
 
         // /* Handle the game over situation here */
-        // if (timeRemaining == 0) {
-        //     $("#final-gems").text(collectedGems);
-        //     sounds.background.pause();
-        //     sounds.collect.pause();
-        //     sounds.gameover.play();
-        //     $("#game-over").show();
-        //     return;
-        // }
+        if (timeRemaining == 0) {
+            // $("#final-gems").text(collectedGems);
+            // sounds.background.pause();
+            // sounds.collect.pause();
+            // sounds.gameover.play();
+            // $("#game-over").show();
+            return;
+        }
 
         /* Update the sprites */
 
@@ -276,11 +276,6 @@ $(function () {
         player_context.clearRect(0, 0, player_cv.width, player_cv.height);
 
         // /* Draw the sprites */
-        // gem.draw();
-        // player.draw();
-        // fires.forEach((fire) => {
-        //     fire.draw();
-        // });
         drawGrid(player_context);
         currentTetromino.draw();
 
@@ -309,7 +304,6 @@ $(function () {
 
         // // Randomize Gem location and color
         // gem.randomize(gameArea);
-        // currentTetromino.draw();
 
         // TODO: Handle controls
         // Handle keydown of controls
@@ -317,26 +311,32 @@ $(function () {
             action = action_from_key(event.keyCode);
             // Invalid Action
             if (action == INVALID_KEY) return;
-            // TODO: Handle other movements
 
             if (action == MOVE_LEFT) {
-                console.log("keydown: move left");
+                // console.log("keydown: move left");
                 return currentTetromino.move(MOVE_LEFT);
             }
             if (action == MOVE_RIGHT) {
-                console.log("keydown: move right");
+                // console.log("keydown: move right");
                 return currentTetromino.move(MOVE_RIGHT);
             }
             if (action == ROTATE_LEFT) {
-                currentTetromino.move(ROTATE_LEFT);
-                return console.log("keydown: rotate left");
+                // console.log("keydown: rotate left");
+                return currentTetromino.move(ROTATE_LEFT);
             }
             if (action == ROTATE_RIGHT) {
-                currentTetromino.move(ROTATE_RIGHT);
-                return console.log("keydown: rotate right");
+                // console.log("keydown: rotate right");
+                return currentTetromino.move(ROTATE_RIGHT);
             }
-            if (action == SOFT_DROP) return console.log("keydown: soft drop");
-            if (action == HARD_DROP) return console.log("keydown: hard drop");
+            if (action == SOFT_DROP) {
+                // console.log("keydown: soft drop");
+                return currentTetromino.move(SOFT_DROP);
+            }
+            if (action == HARD_DROP) {
+                // console.log("keydown: hard drop");
+                return currentTetromino.move(HARD_DROP);
+            }
+            // TODO: Handle other movements
             if (action == HOLD) return console.log("keydown: hold");
             if (action == CHEAT_MODE) return console.log("keydown: cheat mode");
         });
@@ -352,7 +352,10 @@ $(function () {
             if (action == ROTATE_LEFT) return console.log("keyup: rotate left");
             if (action == ROTATE_RIGHT)
                 return console.log("keyup: rotate right");
-            if (action == SOFT_DROP) return console.log("keyup: soft drop");
+            if (action == SOFT_DROP) {
+                // console.log("keyup: soft drop");
+                return currentTetromino.move(SOFT_DROP, 0);
+            }
             if (action == HARD_DROP) return console.log("keyup: hard drop");
             if (action == HOLD) return console.log("keyup: hold");
             if (action == CHEAT_MODE) return console.log("keyup: cheat mode");

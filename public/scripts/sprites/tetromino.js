@@ -46,6 +46,8 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
     const MINO_WIDTH = 32;
     const MINO_HEIGHT = 32;
     const CANVAS_HEIGHT = 448;
+    const DEFAULT_SPEED = 1000;
+    let speed = DEFAULT_SPEED;
 
     let rotation = 0;
     const getBlockId = () =>
@@ -150,12 +152,6 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
         .setScale(1)
         .useSheet("../../src/res/tetrominos_w_rotation.png");
 
-    // This is the birth time of the Tetromino for finding its age.
-    /* let birthTime = performance.now(); */
-
-    // This function sets the color of the Tetromino.
-    // - `color` - The colour of the Tetromino which can be
-    // `"green"`, `"red"`, `"yellow"` or `"purple"`
     const set = function (_letter, _matrixX, _matrixY, _rotation = 0) {
         _rotation = _rotation % sequences[`${_letter}0`].count;
         console.log("new Rotation: ", _rotation);
@@ -164,10 +160,7 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
         rotation = _rotation;
 
         const { matrixX, matrixY } = getValidMatrixXY(_matrixX, _matrixY);
-        // if (isValidMatrixPosition(matrixX, matrixY)) {
         setMatrixXY(matrixX, matrixY);
-        console.log("Kept ", getMatrixXY());
-        // }
 
         // setMatrixXY(0, 0);
         /* birthTime = performance.now(); */
@@ -202,16 +195,19 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
 
     const rotate = (dir) => {
         const { matrixX, matrixY } = getMatrixXY();
-        console.log("Trying to keep ", matrixX, matrixY);
+        // console.log("Trying to keep ", matrixX, matrixY);
         set(letter, matrixX, matrixY, rotation + dir + COUNT()); // added COUNT() to ensure no negative remainder
-        // setMatrixXY(matrixX, matrixY);
     };
-    const move = function (action) {
-        if (action != INVALID_KEY) {
+
+    const SOFT_DROP_SPEED = 100;
+
+    const move = function (_action, _isKeyDown = 1) {
+        if (_action != INVALID_KEY) {
             let { x, y } = sprite.getXY();
+            let { matrixX, matrixY } = getMatrixXY();
 
             /* Move the player */
-            switch (action) {
+            switch (_action) {
                 case MOVE_LEFT:
                     x -= MINO_WIDTH;
                     break;
@@ -223,11 +219,14 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
                     return;
                 case ROTATE_RIGHT:
                     rotate(1);
-                    // ctx.rotate(90);
+                    return;
+                case SOFT_DROP:
+                    speed = _isKeyDown ? SOFT_DROP_SPEED : DEFAULT_SPEED;
+                    return;
+                case HARD_DROP:
+                    setMatrixXY(matrixX, 0);
                     return;
             }
-
-            // console.log("Will Check ", x, y);
 
             /* Set the new position if it is within the game area */
             if (isValidPosition(x, y)) {
@@ -246,10 +245,10 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
         const MATRIX_WIDTH = 10;
         const MATRIX_HEIGHT = 14;
 
-        console.log("fullyWIthinBox");
+        // console.log("fullyWIthinBox");
         const box = sprite.getBoundingBox();
         if (!box.fullyWithinBox(gameArea)) return false;
-        console.log("<0");
+        // console.log("<0");
         if (matrixX < 0 || matrixY < 0) return false;
         if (matrixX + BLOCK_WIDTH() > MATRIX_WIDTH) return false;
         if (matrixY + BLOCK_HEIGHT() > MATRIX_HEIGHT) return false;
@@ -257,7 +256,6 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
     };
 
     let lastUpdate = 0;
-    const speed = 1000;
     // This function updates the tetromino depending on its movement.
     // - `time` - The timestamp when this function is called
     const drop = (time) => {
@@ -266,7 +264,6 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
         if (lastUpdate == 0) lastUpdate = time;
 
         if (time - lastUpdate >= speed) {
-            // TODO: !!!!!!!!!! Use setMatrixXY
             /* Update the player if the player is moving */
             y += MINO_HEIGHT;
 
