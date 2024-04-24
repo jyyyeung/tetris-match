@@ -12,7 +12,14 @@
  * @param {number} matrixY - The y-coordinate of the Tetromino in the game matrix.
  * @param {string} letter - The letter representing the type of Tetromino.
  */
-const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
+const Tetromino = function (
+    ctx,
+    gameArea,
+    minosMatrix,
+    matrixX,
+    matrixY,
+    letter
+) {
     const sequences = {
         // J: { x: 32, y: 96, width: 64, height: 96 }, // Piece J
         J0: { x: 32, y: 0, width: 64, height: 96, count: 4 }, // Piece J
@@ -255,22 +262,95 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
         return true;
     };
 
+    const getLetter = () => letter;
+
     let lastUpdate = 0;
     // This function updates the tetromino depending on its movement.
     // - `time` - The timestamp when this function is called
     const drop = (time) => {
         /* Update the player if the player is moving */
         let { x, y } = sprite.getXY();
+        const { matrixX, matrixY } = getMatrixXY();
         if (lastUpdate == 0) lastUpdate = time;
 
         if (time - lastUpdate >= speed) {
+            // console.log(matrixY)
+            // TODO: if matrixY is 0, fix position
+            if (matrixY == 0) return true;
+
             /* Update the player if the player is moving */
             y += MINO_HEIGHT;
 
             /* Set the new position if it is within the game area */
             if (isValidPosition(x, y)) sprite.setXY(x, y);
             lastUpdate = time;
-            // TODO: if matrixY is 0, fix position
+            // return false;
+        }
+        return false;
+    };
+
+    const BOX = sprite.getBoundingBox();
+    const xCoord = 50;
+    const yCoord = 100;
+    const CANVAS_WIDTH = 320;
+
+    // const getColorIndicesForCoord = (x, y) => {
+    //     // console.log(x, y, imageData);
+    //     // const red = y * (width * 4) + x * 4;
+    //     return imageData[3];
+    // };
+
+    const getColorIndicesForCoord = (_x, _y) => {
+        // const red = _y * (CANVAS_WIDTH * 4) + _x * 4;
+        const red = _y * (WIDTH() * 4) + _x * 4;
+        return { r: red, g: red + 1, b: red + 2, a: red + 3 };
+    };
+
+    // const colorIndices = getColorIndicesForCoord(xCoord, yCoord, CANVAS_WIDTH);
+    const getAlpha = (_imageData, _x, _y) => {
+        console.log(_x, _y);
+        const { r, g, b, a } = getColorIndicesForCoord(_x, _y);
+        return _imageData[a];
+    };
+
+    // console.log(myImageData);
+
+    // const [redIndex, greenIndex, blueIndex, alphaIndex] = colorIndices;
+
+    /**
+     * Converts the tetromino image data to minos matrix.
+     * @param {ImageData} imageData - The image data of the player canvas.
+     */
+    const tetrominoToMinos = () => {
+        const BOX = sprite.getBoundingBox();
+        const imageData = ctx.getImageData(
+            BOX.getLeft(),
+            BOX.getTop(),
+            WIDTH(),
+            HEIGHT()
+        ).data;
+
+        console.log("Converting Tetromino to Minos");
+        const { matrixX, matrixY } = getMatrixXY();
+        console.log(matrixX, matrixY, BLOCK_WIDTH(), BLOCK_HEIGHT());
+        // console.log(BLOCK_WIDTH(), BLOCK_HEIGHT());
+
+        for (let i = 0; i < BLOCK_WIDTH(); i++) {
+            for (let j = 0; j < BLOCK_HEIGHT(); j++) {
+                const _mX = matrixX + i;
+                const _mY = matrixY + j;
+                const alpha = getAlpha(
+                    imageData,
+                    // _mX * MINO_WIDTH + MINO_WIDTH / 2,
+                    i * MINO_WIDTH + MINO_WIDTH / 2,
+                    // CANVAS_HEIGHT - _mY * MINO_HEIGHT - MINO_HEIGHT / 2
+                    HEIGHT() - j * MINO_HEIGHT - MINO_HEIGHT / 2
+                );
+                console.log(i, j, alpha);
+                if (alpha == 255) {
+                    minosMatrix[_mY][_mX] = letter;
+                }
+            }
         }
     };
 
@@ -278,8 +358,10 @@ const Tetromino = function (ctx, gameArea, matrixX, matrixY, letter) {
     return {
         getXY: sprite.getXY,
         setXY: sprite.setXY,
+        getLetter: getLetter,
         getMatrixXY,
         move: move,
+        tetrominoToMinos,
         // setColor: setColor,
         drop: drop,
         /* getAge: getAge, */

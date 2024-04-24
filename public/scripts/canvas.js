@@ -4,7 +4,12 @@ $(function () {
     const opponent_cv = $("canvas").get(1);
     const opponent_context = opponent_cv.getContext("2d");
     const player_cv = $("canvas").get(0);
-    const player_context = player_cv.getContext("2d");
+    const player_context = player_cv.getContext("2d", {
+        willReadFrequently: false,
+        alpha: true,
+        // desynchronized: true,
+    });
+    console.log("player_context", player_context);
 
     const icons = {
         O: "url(../src/res/icon-sprite.png) 0 0",
@@ -49,6 +54,7 @@ $(function () {
 
     /* Create the game area */
     const gameArea = BoundingBox(player_context, 0, 0, bh, bw);
+    let nextTetrominos = [];
 
     /**
      * Draws a grid on the canvas.
@@ -56,6 +62,7 @@ $(function () {
      * @param {CanvasRenderingContext2D} ctx - The rendering context of the canvas.
      */
     function drawGrid(ctx) {
+        // ctx.save();
         for (var x = 0; x <= bw; x += 32) {
             ctx.moveTo(0.5 + x + p, p);
             ctx.lineTo(0.5 + x + p, bh + p);
@@ -67,9 +74,10 @@ $(function () {
         }
         ctx.strokeStyle = "rgba(0,255,255,0.3)";
         ctx.stroke();
+        // ctx.restore();
     }
     drawGrid(opponent_context);
-    drawGrid(player_context);
+    // drawGrid(player_context);
 
     /**
      * Sets the background of the next icon element based on the provided parameters.
@@ -119,6 +127,7 @@ $(function () {
         $("#difficulty").text(level);
     }
 
+    let holdTetromino = null;
     /**
      * Sets the hold icon for the player or opponent.
      * @param {boolean} bool - True if player, false if opponent.
@@ -141,17 +150,17 @@ $(function () {
      * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
      */
     function renderMatrix(matrix, ctx) {
-        const colors = [
-            "empty",
-            "red",
-            "yellow",
-            "green",
-            "lightBlue",
-            "pink",
-            "darkBlue",
-            "purple",
-            "grey",
-        ];
+        const colors = {
+            0: "empty",
+            O: "red",
+            S: "yellow",
+            L: "green",
+            Z: "lightBlue",
+            J: "pink",
+            T: "darkBlue",
+            I: "purple",
+            1: "grey",
+        };
         for (let y = 0; y < MATRIX_HEIGHT; y++) {
             for (let x = 0; x < MATRIX_WIDTH; x++) {
                 const n = matrix[y][x];
@@ -184,12 +193,12 @@ $(function () {
     setTime(123);
     setLevel(3);
 
-    const test = Mino(gameArea, 16, 16, "green"); // This line is for loading the images
+    // const test = Mino(gameArea, 16, 16, "green"); // This line is for loading the images
 
     const test_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
-    test_matrix[0][0] = 1;
-    test_matrix[3][5] = 2;
-    test_matrix[8][8] = 5;
+    test_matrix[0][0] = "O";
+    test_matrix[3][5] = "S";
+    test_matrix[8][8] = "L";
 
     // setTimeout(function () {
     //     renderMatrix(test_matrix, player_context);
@@ -203,8 +212,14 @@ $(function () {
     }, 100) */
 
     //updateNext();
-    // let currentTetromino;
-    const currentTetromino = Tetromino(player_context, gameArea, 2, 10, "T");
+    let currentTetromino = Tetromino(
+        player_context,
+        gameArea,
+        test_matrix,
+        2,
+        10,
+        "T"
+    );
 
     /* The main processing of the game */
     /**
@@ -248,12 +263,25 @@ $(function () {
         // Tetromino(player_context, gameArea, 6, 2, "T").draw();
         // Tetromino(player_context, gameArea, 2, 0, "I").draw();
         // console.log(test.getXY());
-        currentTetromino.draw();
         // if () {
         // gem.randomize(gameArea);
         // }
 
-        currentTetromino.drop(now);
+        const hitBottom = currentTetromino.drop(now);
+        if (hitBottom) {
+            // Generate new tetromino
+            const fitTetromino = currentTetromino;
+            fitTetromino.tetrominoToMinos();
+            // fitTetromino.tetrominoToMinos(player_context_data);
+            currentTetromino = Tetromino(
+                player_context,
+                gameArea,
+                test_matrix,
+                2,
+                10,
+                "O"
+            ).draw();
+        }
 
         // /* Randomize the gem and collect the gem here */
         // if (gem.getAge(now) >= gemMaxAge) {
