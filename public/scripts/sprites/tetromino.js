@@ -29,32 +29,224 @@ const Tetromino = function (
 ) {
     const sequences = {
         // J: { x: 32, y: 96, width: 64, height: 96 }, // Piece J
-        J0: { x: 32, y: 0, width: 64, height: 96, count: 4 }, // Piece J
-        J1: { x: 144, y: 16, width: 96, height: 64, count: 4 }, // Piece J
-        J2: { x: 288, y: 0, width: 64, height: 96, count: 4 }, // Piece J
-        J3: { x: 400, y: 16, width: 96, height: 64, count: 4 }, // Piece J
+        J0: {
+            x: 32,
+            y: 0,
+            width: 64,
+            height: 96,
+            count: 4,
+            minos: [
+                [1, 0],
+                [1, 0],
+                [1, 1],
+            ],
+        }, // Piece J
+        J1: {
+            x: 144,
+            y: 16,
+            width: 96,
+            height: 64,
+            count: 4,
+            minos: [
+                [0, 0, 1],
+                [1, 1, 1],
+            ],
+        }, // Piece J
+        J2: {
+            x: 288,
+            y: 0,
+            width: 64,
+            height: 96,
+            count: 4,
+            minos: [
+                [1, 1],
+                [0, 1],
+                [0, 1],
+            ],
+        }, // Piece J
+        J3: {
+            x: 400,
+            y: 16,
+            width: 96,
+            height: 64,
+            count: 4,
+            minos: [
+                [1, 1, 1],
+                [1, 0, 0],
+            ],
+        }, // Piece J
         // L: { x: 288, y: 0, width: 64, height: 96 }, // Piece L
-        L0: { x: 32, y: 96, width: 64, height: 96, count: 4 }, // Piece L
-        L1: { x: 144, y: 112, width: 96, height: 64, count: 4 }, // Piece L
-        L2: { x: 288, y: 96, width: 64, height: 96, count: 4 }, // Piece L
-        L3: { x: 400, y: 112, width: 96, height: 64, count: 4 }, // Piece L
+        L0: {
+            x: 32,
+            y: 96,
+            width: 64,
+            height: 96,
+            count: 4,
+            minos: [
+                [1, 1],
+                [1, 0],
+                [1, 0],
+            ],
+        }, // Piece L
+        L1: {
+            x: 144,
+            y: 112,
+            width: 96,
+            height: 64,
+            count: 4,
+            minos: [
+                [1, 0, 0],
+                [1, 1, 1],
+            ],
+        }, // Piece L
+        L2: {
+            x: 288,
+            y: 96,
+            width: 64,
+            height: 96,
+            count: 4,
+            minos: [
+                [0, 1],
+                [0, 1],
+                [1, 1],
+            ],
+        }, // Piece L
+        L3: {
+            x: 400,
+            y: 112,
+            width: 96,
+            height: 64,
+            count: 4,
+            minos: [
+                [1, 1, 1],
+                [0, 0, 1],
+            ],
+        }, // Piece L
         // S: { x: 160, y: 0, width: 64, height: 96 }, // Piece S
-        S0: { x: 32, y: 192, width: 64, height: 96, count: 2 }, // Piece S
-        S1: { x: 144, y: 208, width: 96, height: 64, count: 2 }, // Piece S
+        S0: {
+            x: 32,
+            y: 192,
+            width: 64,
+            height: 96,
+            count: 2,
+            minos: [
+                [0, 1],
+                [1, 1],
+                [1, 0],
+            ],
+        }, // Piece S
+        S1: {
+            x: 144,
+            y: 208,
+            width: 96,
+            height: 64,
+            count: 2,
+            minos: [
+                [1, 1, 0],
+                [0, 1, 1],
+            ],
+        }, // Piece S
         // Z: { x: 416, y: 0, width: 64, height: 96 }, // Piece Z
-        Z0: { x: 32, y: 288, width: 64, height: 96, count: 2 }, // Piece Z
-        Z1: { x: 144, y: 304, width: 96, height: 64, count: 2 }, // Piece Z
+        Z0: {
+            x: 32,
+            y: 288,
+            width: 64,
+            height: 96,
+            count: 2,
+            minos: [
+                [1, 0],
+                [1, 1],
+                [0, 1],
+            ],
+        }, // Piece Z
+        Z1: {
+            x: 144,
+            y: 304,
+            width: 96,
+            height: 64,
+            count: 2,
+            minos: [
+                [0, 1, 1],
+                [1, 1, 0],
+            ],
+        }, // Piece Z
         // O: { x: 32, y: 20, width: 64, height: 64 }, // Piece O
-        O0: { x: 32, y: 404, width: 64, height: 64, count: 1 }, // Piece O
+        O0: {
+            x: 32,
+            y: 404,
+            width: 64,
+            height: 64,
+            count: 1,
+            minos: [
+                [1, 1],
+                [1, 1],
+            ],
+        }, // Piece O
 
         // I: { x: 256, y: 128, width: 128, height: 32 }, // Piece I
-        I0: { x: 0, y: 512, width: 128, height: 32, count: 2 },
-        I1: { x: 160, y: 480, width: 32, height: 128, count: 2 }, // Piece I
+        I0: {
+            x: 0,
+            y: 512,
+            width: 128,
+            height: 32,
+            count: 2,
+            minos: [[1, 1, 1, 1]],
+        },
+        I1: {
+            x: 160,
+            y: 480,
+            width: 32,
+            height: 128,
+            count: 2,
+            minos: [[1], [1], [1], [1]],
+        }, // Piece I
 
-        T0: { x: 0, y: 640, width: 96, height: 64, count: 4 }, // Piece T
-        T1: { x: 112, y: 624, width: 64, height: 96, count: 4 }, // Piece T
-        T2: { x: 192, y: 640, width: 96, height: 64, count: 4 }, // Piece T
-        T3: { x: 304, y: 624, width: 64, height: 96, count: 4 }, // Piece T
+        T0: {
+            x: 0,
+            y: 640,
+            width: 96,
+            height: 64,
+            count: 4,
+            minos: [
+                [1, 1, 1],
+                [0, 1, 0],
+            ],
+        }, // Piece T
+        T1: {
+            x: 112,
+            y: 624,
+            width: 64,
+            height: 96,
+            count: 4,
+            minos: [
+                [1, 0],
+                [1, 1],
+                [1, 0],
+            ],
+        }, // Piece T
+        T2: {
+            x: 192,
+            y: 640,
+            width: 96,
+            height: 64,
+            count: 4,
+            minos: [
+                [0, 1, 0],
+                [1, 1, 1],
+            ],
+        }, // Piece T
+        T3: {
+            x: 304,
+            y: 624,
+            width: 64,
+            height: 96,
+            count: 4,
+            minos: [
+                [0, 1],
+                [1, 1],
+                [0, 1],
+            ],
+        }, // Piece T
     };
 
     const MINO_WIDTH = 32;
@@ -224,18 +416,21 @@ const Tetromino = function (
     const SOFT_DROP_SPEED = 100;
 
     const hardDrop = () => {
+        console.log("--- START HARD_DROP() ---");
         const { matrixX, matrixY } = getMatrixXY();
         // const { matrixX: _mX, matrixY: _mY } = getValidMatrixXY(matrixX, 0);
         let _mX = matrixX;
-        let _mY = 0;
-        while (isOverlappingMinos(_mX, _mY)) {
-            _mY += 1;
+        let _mY = matrixY;
+        while (_mY > 0 && !isOverlappingMinos(_mX, _mY - 1)) {
+            console.log("Hard Drop: No Overlapping Minos", _mX, _mY);
+            _mY -= 1;
+            isHardDrop = true;
         }
-        isHardDrop = true;
         // TODO: Check if game over
         // setMatrixXY(_mX, _mY);
         tetrominoToMinos(_mX, _mY);
         // lastUpdate -= DEFAULT_SPEED;
+        console.log("--- END HARD_DROP() ---");
     };
 
     const move = function (_action, _isKeyDown = 1) {
@@ -296,13 +491,38 @@ const Tetromino = function (
     const getLetter = () => letter;
 
     const hasMinoBelow = (matrixX, matrixY) => {
+        console.log("--- START HAS_MATRIX_BELOW() ---", matrixX, matrixY);
+        const BOX = sprite.getBoundingBox();
+        const imageData = ctx.getImageData(
+            BOX.getLeft(),
+            BOX.getTop(),
+            WIDTH(),
+            HEIGHT()
+        ).data;
         for (let i = 0; i < BLOCK_WIDTH(); i++) {
             const _mX = matrixX + i;
-            const _mY = matrixY;
+            const _mY = matrixY - 1;
             // console.log("hasMinoBelow", _mX, _mY, minosMatrix[_mY - 1][_mX]);
-            const _minoBelow = minosMatrix[_mY - 1][_mX];
-            if (_minoBelow != undefined && _minoBelow != "empty") return true;
+            const _minoBelow = minosMatrix[_mY][_mX];
+            const alpha = getAlpha(imageData, _mX, _mY);
+            if (alpha == 0) continue;
+
+            if (_minoBelow != undefined && _minoBelow != "empty") {
+                // Location below is not empty in matrix
+                // I am not transparent
+
+                console.log(
+                    "I am not empty and there is something below",
+                    _mX,
+                    _mY,
+                    _minoBelow
+                );
+                return true;
+
+                console.log("hasMinoBelow", _mX, _mY, _minoBelow);
+            }
         }
+        console.log("--- END HAS_MATRIX_BELOW() ---");
         return false;
     };
 
@@ -313,14 +533,38 @@ const Tetromino = function (
      * @returns {boolean} - True if the tetromino is overlapping with other tetrominos, false otherwise.
      */
     const isOverlappingMinos = (matrixX, matrixY) => {
-        for (let i = 0; i < BLOCK_WIDTH(); i++) {
-            for (let j = 0; j < BLOCK_HEIGHT(); j++) {
-                const _mX = matrixX + i;
-                const _mY = matrixY + j;
+        console.log("--- START IS_OVERLAPPING_MINOS() ---", matrixX, matrixY);
+        const BOX = sprite.getBoundingBox();
+        const imageData = ctx.getImageData(
+            BOX.getLeft(),
+            BOX.getTop(),
+            WIDTH(),
+            HEIGHT()
+        ).data;
+        for (let _w = 0; _w < BLOCK_WIDTH(); _w++) {
+            for (let _h = 0; _h < BLOCK_HEIGHT(); _h++) {
+                if (!sequences[getBlockId()].minos[_h][_w]) continue;
+
+                const _mX = matrixX + _w;
+                const _mY = matrixY + _h;
                 const _mino = minosMatrix[_mY][_mX];
-                if (_mino != undefined && _mino != "empty") return true;
+
+                const alpha = getAlpha(imageData, _mX, _mY);
+                // if (alpha == 0) continue;
+
+                if (_mino != undefined) {
+                    console.log(
+                        "I am not transparent and there is someone below me",
+                        { _mX },
+                        { _mY },
+                        { _mino },
+                        { alpha }
+                    );
+                    return true;
+                }
             }
         }
+        console.log("--- END IS_OVERLAPPING_MINOS() ---");
         return false;
     };
 
@@ -339,8 +583,23 @@ const Tetromino = function (
             // console.log(matrixY)
 
             // if matrixY is 0, return true to fix position
-            if (matrixY == 0) return true;
-            if (hasMinoBelow(matrixX, matrixY)) return true;
+            if (matrixY == 0) {
+                console.log("--- DROP(): MatrixY == 0 ---", matrixX, matrixY);
+                return true;
+            }
+
+            if (isOverlappingMinos(matrixX, matrixY - 1)) {
+                console.log(
+                    "--- DROP(): Overlapping Minos ---",
+                    matrixX,
+                    matrixY
+                );
+                return true;
+            }
+            // if (hasMinoBelow(matrixX, matrixY - 1)) {
+            //     console.log("--- DROP(): Mino Below ---", matrixX, matrixY);
+            //     return true;
+            // }
 
             /* Update the player if the player is moving */
             y += MINO_HEIGHT;
@@ -374,14 +633,14 @@ const Tetromino = function (
 
     // const colorIndices = getColorIndicesForCoord(xCoord, yCoord, CANVAS_WIDTH);
     const getAlpha = (_imageData, _x, _y) => {
-        console.log(_x, _y);
+        // console.log(_x, _y);
         const { r, g, b, a } = getColorIndicesForCoord(_x, _y);
         return _imageData[a];
     };
 
     // console.log(myImageData);
 
-    // const [redIndex, greenIndex, blueIndex, alphaIndex] = colorIndices;
+    // const getColor = (_x, _y) = getColorIndicesForCoord(_x, _y);
 
     /**
      * Converts the tetromino image data to minos matrix.
@@ -407,23 +666,25 @@ const Tetromino = function (
         // console.log(matrixX, matrixY, BLOCK_WIDTH(), BLOCK_HEIGHT());
         // console.log(BLOCK_WIDTH(), BLOCK_HEIGHT());
 
-        for (let i = 0; i < BLOCK_WIDTH(); i++) {
-            for (let j = 0; j < BLOCK_HEIGHT(); j++) {
-                const _mX = _matrixX + i;
-                const _mY = _matrixY + j;
+        for (let _w = 0; _w < BLOCK_WIDTH(); _w++) {
+            for (let _h = 0; _h < BLOCK_HEIGHT(); _h++) {
+                if (!sequences[getBlockId()].minos[_h][_w]) continue;
+                const _mX = _matrixX + _w;
+                const _mY = _matrixY + _h;
                 const alpha = getAlpha(
                     imageData,
                     // _mX * MINO_WIDTH + MINO_WIDTH / 2,
-                    i * MINO_WIDTH + MINO_WIDTH / 2,
+                    _w * MINO_WIDTH + MINO_WIDTH / 2,
                     // CANVAS_HEIGHT - _mY * MINO_HEIGHT - MINO_HEIGHT / 2
-                    HEIGHT() - j * MINO_HEIGHT - MINO_HEIGHT / 2
+                    HEIGHT() - _h * MINO_HEIGHT - MINO_HEIGHT / 2
                 );
-                console.log(i, j, alpha);
-                if (alpha == 255) {
+                console.log(_w, _h, alpha);
+                if (alpha == 255 && minosMatrix[_mY][_mX] == undefined) {
                     minosMatrix[_mY][_mX] = letter;
                 }
             }
         }
+        console.table(minosMatrix);
     };
 
     // The methods are returned as an object here.

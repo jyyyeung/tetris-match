@@ -27,7 +27,7 @@ $(function () {
         gameover: new Audio("gameover.mp3"),
     }; */
 
-    const totalGameTime = 20; // Total game time in seconds
+    const totalGameTime = 5; // Total game time in seconds
     const gemMaxAge = 3000; // The maximum age of the gems in milliseconds
     let gameStartTime = 0; // The timestamp when the game starts
     let collectedGems = 0; // The number of gems collected in the game
