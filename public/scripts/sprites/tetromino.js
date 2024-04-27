@@ -321,9 +321,9 @@ const Tetromino = function (
     const setMatrixXY = (_matrixX, _matrixY) => {
         const { matrixX, matrixY } = getValidMatrixXY(_matrixX, _matrixY);
         const { x, y } = convertMatrixToPx(matrixX, matrixY);
-        console.log(x, y, " is the converted values");
+        // console.log(x, y, " is the converted values");
         sprite.setXY(x, y);
-        console.log("Set xy to be", sprite.getXY());
+        // console.log("Set xy to be", sprite.getXY());
     };
 
     const getValidMatrixXY = (_matrixX, _matrixY) => {
@@ -362,7 +362,7 @@ const Tetromino = function (
         convertMatrixToPx(matrixX, matrixY).x,
         convertMatrixToPx(matrixX, matrixY).y
     );
-    console.log(sprite);
+    // console.log(sprite);
     // Set Sprite anchor point to bottom left corner
     // sprite.anchorPoint = (0, 0);
 
@@ -386,33 +386,6 @@ const Tetromino = function (
         /* birthTime = performance.now(); */
     };
 
-    // This function gets the age (in millisecond) of the Tetromino.
-    // - `now` - The current timestamp
-    /* const getAge = function (now) {
-        return now - birthTime;
-    }; */
-
-    // This function randomizes the Tetromino colour and position.
-    // - `area` - The area that the Tetromino should be located in.
-    const randomize = function (area) {
-        /* Randomize the color */
-        // const colors = [
-        //     "red",
-        //     "yellow",
-        //     "green",
-        //     "lightBlue",
-        //     "pink",
-        //     "darkBlue",
-        //     "purple",
-        //     "grey",
-        // ];
-        // setColor(colors[Math.floor(Math.random() * 7)]);
-
-        /* Randomize the position */
-        const { x, y } = area.randomPoint();
-        sprite.setXY(x, y);
-    };
-
     const rotate = (dir) => {
         const { matrixX, matrixY } = getMatrixXY();
         // console.log("Trying to keep ", matrixX, matrixY);
@@ -432,10 +405,10 @@ const Tetromino = function (
             _mY -= 1;
             isHardDrop = true;
         }
-        // TODO: Check if game over
-        // setMatrixXY(_mX, _mY);
+
         const noCollision = tetrominoToMinos(_mX, _mY);
         if (!noCollision) {
+            // TODO: Show game over
             console.log("Game Over");
             return;
         }
@@ -513,7 +486,7 @@ const Tetromino = function (
      * @returns {boolean} - True if the tetromino is overlapping with other tetrominos, false otherwise.
      */
     const isOverlappingMinos = (matrixX, matrixY) => {
-        console.log("--- START IS_OVERLAPPING_MINOS() ---", matrixX, matrixY);
+        // console.log("--- START IS_OVERLAPPING_MINOS() ---", matrixX, matrixY);
         const BOX = sprite.getBoundingBox();
         const imageData = ctx.getImageData(
             BOX.getLeft(),
@@ -528,25 +501,25 @@ const Tetromino = function (
                 const _mX = matrixX + _w;
                 const _mY = matrixY + _h;
                 // if (_mY >= 14) continue;
-                console.log({ _mY }, { _mX }, { minosMatrix });
+                // console.log({ _mY }, { _mX }, { minosMatrix });
                 const _mino = minosMatrix[_mY][_mX];
 
                 const alpha = getAlpha(imageData, _mX, _mY);
                 // if (alpha == 0) continue;
 
                 if (_mino != undefined) {
-                    console.log(
-                        "I am not transparent and there is someone below me",
-                        { _mX },
-                        { _mY },
-                        { _mino },
-                        { alpha }
-                    );
+                    // console.log(
+                    //     "I am not transparent and there is someone below me",
+                    //     { _mX },
+                    //     { _mY },
+                    //     { _mino },
+                    //     { alpha }
+                    // );
                     return true;
                 }
             }
         }
-        console.log("--- END IS_OVERLAPPING_MINOS() ---");
+        // console.log("--- END IS_OVERLAPPING_MINOS() ---");
         return false;
     };
 
@@ -583,11 +556,6 @@ const Tetromino = function (
                 );
                 return true;
             }
-            // if (hasMinoBelow(matrixX, matrixY - 1)) {
-            //     console.log("--- DROP(): Mino Below ---", matrixX, matrixY);
-            //     return true;
-            // }
-
             /* Update the player if the player is moving */
             y += MINO_HEIGHT;
 
@@ -601,17 +569,6 @@ const Tetromino = function (
         }
         return false;
     };
-
-    const BOX = sprite.getBoundingBox();
-    const xCoord = 50;
-    const yCoord = 100;
-    const CANVAS_WIDTH = 320;
-
-    // const getColorIndicesForCoord = (x, y) => {
-    //     // console.log(x, y, imageData);
-    //     // const red = y * (width * 4) + x * 4;
-    //     return imageData[3];
-    // };
 
     const getColorIndicesForCoord = (_x, _y) => {
         // const red = _y * (CANVAS_WIDTH * 4) + _x * 4;
@@ -635,7 +592,7 @@ const Tetromino = function (
      * @param {ImageData} imageData - The image data of the player canvas.
      */
     const tetrominoToMinos = (_matrixX = null, _matrixY = null) => {
-        console.log("--- START TETROMINO_TO_MINOS() ---");
+        // console.log("--- START TETROMINO_TO_MINOS() ---");
         const BOX = sprite.getBoundingBox();
         const imageData = ctx.getImageData(
             BOX.getLeft(),
@@ -676,8 +633,8 @@ const Tetromino = function (
                 }
             }
         }
-        console.table(minosMatrix);
-        console.log("--- END TETROMINO_TO_MINOS() ---");
+        // console.table(minosMatrix);
+        // console.log("--- END TETROMINO_TO_MINOS() ---");
         return noCollision;
     };
 

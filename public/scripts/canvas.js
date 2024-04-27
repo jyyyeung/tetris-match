@@ -289,7 +289,7 @@ $(function () {
     const checkHitCeiling = (matrix) => {
         for (let x = 0; x < MATRIX_WIDTH; x++) {
             if (matrix[MATRIX_HEIGHT - 1][x]) {
-                console.log("Game Over");
+                console.log("Hit Ceiling Game Over");
                 return true;
             }
         }
@@ -336,15 +336,13 @@ $(function () {
 
         const hitBottom = currentTetromino.drop(now);
         if (hitBottom && !isHardDrop) {
-            // TODO: Clear and redraw?
-            console.log(currentTetromino.getLetter() + " hit bottom");
-
-            console.log("Hit bottom");
+            // console.log("Hit bottom");
             const fitTetromino = currentTetromino;
             // Add the tetromino to the matrix
             const noCollision = fitTetromino.tetrominoToMinos();
             if (!noCollision) {
                 clearAndRedraw(true, false);
+                // TODO: Show Game Over
                 console.log("hit bottom collision Game Over");
                 return;
             }
@@ -363,6 +361,7 @@ $(function () {
             if (checkHitCeiling(player_matrix)) {
                 clearAndRedraw(true, false);
 
+                // TODO: Show Game Over
                 console.log("Hit Ceiling Game Over");
                 return;
             }
@@ -384,6 +383,7 @@ $(function () {
             if (!currentTetromino.canSpawn()) {
                 // Game over
                 clearAndRedraw(true, false);
+                // TODO: Show Game Over
                 console.log("Cannot Spawn Game Over");
                 return;
             }
