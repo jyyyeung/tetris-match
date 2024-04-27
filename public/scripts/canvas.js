@@ -35,6 +35,10 @@ $(function () {
     const MATRIX_WIDTH = 10;
     const MATRIX_HEIGHT = 14;
 
+    let level = 0;
+    let score = 0;
+    let tetrisCount = 0;
+
     // TODO: Create game sprites
 
     function makeArray(d1, d2) {
@@ -210,8 +214,13 @@ $(function () {
     }
 
     function checkFullRows(matrix) {
+        let single = 0;
+        let double = 0;
+        let triple = 0;
+        let tetris = 0;
+        let consecuitive = 0;
         // Iterate through the rows
-        for (let y = 0; y < MATRIX_HEIGHT; y++) {
+        for (let y = MATRIX_HEIGHT - 1; y >= 0; y--) {
             let isFull = true;
             // Iterate through the columns
             for (let x = 0; x < MATRIX_WIDTH; x++) {
@@ -222,24 +231,31 @@ $(function () {
                 }
             }
             if (isFull) {
+                consecuitive++;
                 // Remove the row
                 for (let i = y; i < MATRIX_HEIGHT - 1; i++) {
                     matrix[i] = matrix[i + 1];
-                    // for (let x = 0; x < MATRIX_WIDTH; x++) {
-
-                    //     // matrix[i][x] = matrix[i - 1][x];
-                    // }
                 }
-                // for (let x = 0; x < MATRIX_WIDTH; x++) {
-                //     matrix[0][x] = null;
-                // }
                 matrix[MATRIX_HEIGHT - 1] = new Array(MATRIX_WIDTH).fill(null);
             }
+            if ((!isFull && consecuitive > 0) || y == 0) {
+                if (consecuitive == 1) single++;
+                else if (consecuitive == 2) double++;
+                else if (consecuitive == 3) triple++;
+                else if (consecuitive == 4) tetris++;
+
+                consecuitive = 0;
+            }
         }
+        score += 40 * (level + 1) * single;
+        score += 50 * (level + 1) * double * 2;
+        score += 100 * (level + 1) * triple * 3;
+        score += 300 * (level + 1) * tetris * 4;
+        tetrisCount += tetris;
     }
 
     setNextIcon(false, 1, "Z");
-    setScore(true, 123);
+    setScore(true, 0);
     setScore(false, 456);
     setHoldIcon(false, "T");
     setTime(123);
@@ -324,6 +340,8 @@ $(function () {
 
             // Check for full rows
             checkFullRows(player_matrix);
+
+            setScore(true, score);
 
             // get next tetromino
             currentTetromino = nextTetrominos.shift();
