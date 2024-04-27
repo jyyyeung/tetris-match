@@ -5,7 +5,7 @@ const spawnRandomTetromino = (player_context, gameArea, player_matrix) => {
         // Try to avoid two consecuitive tetrominos of the same type
         letters.splice(letters.indexOf(previousSpawned), 1);
     }
-    const randomLetter = letters[Math.floor(Math.random() * 7)];
+    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
     const tetromino = Tetromino(
         player_context,
         gameArea,
@@ -254,7 +254,6 @@ const Tetromino = function (
             ],
         }, // Piece T
     };
-    let sequence = sequences[`${letter}0`];
 
     const MINO_WIDTH = 32;
     const MINO_HEIGHT = 32;
@@ -263,9 +262,15 @@ const Tetromino = function (
     let speed = DEFAULT_SPEED;
 
     let rotation = 0;
+    const getBlockId = () =>
+        letter + (rotation % sequences[`${letter}0`].count);
+    console.log(getBlockId());
 
-    const BLOCK_WIDTH = () => sequence.width / MINO_WIDTH;
-    const BLOCK_HEIGHT = () => sequence.height / MINO_HEIGHT;
+    const COUNT = () => sequences[getBlockId()].count;
+    const WIDTH = () => sequences[getBlockId()].width;
+    const HEIGHT = () => sequences[getBlockId()].height;
+    const BLOCK_WIDTH = () => WIDTH() / MINO_WIDTH;
+    const BLOCK_HEIGHT = () => HEIGHT() / MINO_HEIGHT;
 
     /**
      * Converts the representing position of the tetromino in a matrix co-ordinate system to PX (where the tetromino is represented by its center point)
@@ -274,8 +279,8 @@ const Tetromino = function (
      * @returns {{x: number, y: number}} Where the center of a tetromino should be placed in the canvas
      */
     const convertMatrixToPx = (_matrixX, _matrixY) => {
-        const x = _matrixX * MINO_WIDTH + sequence.width / 2;
-        const y = CANVAS_HEIGHT - _matrixY * MINO_HEIGHT - sequence.height / 2;
+        const x = _matrixX * MINO_WIDTH + WIDTH() / 2;
+        const y = CANVAS_HEIGHT - _matrixY * MINO_HEIGHT - HEIGHT() / 2;
         return {
             x,
             y,
@@ -291,9 +296,8 @@ const Tetromino = function (
      * @property {number} matrixY - The y-coordinate in matrix units.
      */
     const convertPxToMatrix = (_x, _y) => {
-        const matrixX = (_x - sequence.width / 2) / MINO_WIDTH;
-        const matrixY =
-            (CANVAS_HEIGHT - _y - sequence.height / 2) / MINO_HEIGHT;
+        const matrixX = (_x - WIDTH() / 2) / MINO_WIDTH;
+        const matrixY = (CANVAS_HEIGHT - _y - HEIGHT() / 2) / MINO_HEIGHT;
         return { matrixX, matrixY };
     };
 
@@ -364,15 +368,14 @@ const Tetromino = function (
 
     // The sprite object is configured for the Tetromino sprite here.
     sprite
-        .setSequence(sequence)
+        .setSequence(sequences[getBlockId()])
         .setScale(1)
         .useSheet("../../src/res/tetrominos_w_rotation.png");
 
     const set = function (_letter, _matrixX, _matrixY, _rotation = 0) {
-        _rotation = _rotation % sequence.count;
+        _rotation = _rotation % sequences[`${_letter}0`].count;
         console.log("new Rotation: ", _rotation);
         const newSequence = sequences[`${_letter}${_rotation}`];
-        sequence = newSequence;
         sprite.setSequence(newSequence);
         rotation = _rotation;
 
@@ -413,7 +416,7 @@ const Tetromino = function (
     const rotate = (dir) => {
         const { matrixX, matrixY } = getMatrixXY();
         // console.log("Trying to keep ", matrixX, matrixY);
-        set(letter, matrixX, matrixY, rotation + dir + sequence.count); // added sequence.count to ensure no negative remainder
+        set(letter, matrixX, matrixY, rotation + dir + COUNT()); // added COUNT() to ensure no negative remainder
     };
 
     const SOFT_DROP_SPEED = 100;
@@ -499,8 +502,8 @@ const Tetromino = function (
         const imageData = ctx.getImageData(
             BOX.getLeft(),
             BOX.getTop(),
-            sequence.width,
-            sequence.height
+            WIDTH(),
+            HEIGHT()
         ).data;
         for (let i = 0; i < BLOCK_WIDTH(); i++) {
             const _mX = matrixX + i;
@@ -520,9 +523,9 @@ const Tetromino = function (
                     _mY,
                     _minoBelow
                 );
+                return true;
 
                 console.log("hasMinoBelow", _mX, _mY, _minoBelow);
-                return true;
             }
         }
         console.log("--- END HAS_MATRIX_BELOW() ---");
@@ -541,12 +544,12 @@ const Tetromino = function (
         const imageData = ctx.getImageData(
             BOX.getLeft(),
             BOX.getTop(),
-            sequence.width,
-            sequence.height
+            WIDTH(),
+            HEIGHT()
         ).data;
         for (let _w = 0; _w < BLOCK_WIDTH(); _w++) {
             for (let _h = 0; _h < BLOCK_HEIGHT(); _h++) {
-                if (!sequence.minos[_h][_w]) continue;
+                if (!sequences[getBlockId()].minos[_h][_w]) continue;
 
                 const _mX = matrixX + _w;
                 const _mY = matrixY + _h;
@@ -630,7 +633,7 @@ const Tetromino = function (
 
     const getColorIndicesForCoord = (_x, _y) => {
         // const red = _y * (CANVAS_WIDTH * 4) + _x * 4;
-        const red = _y * (sequence.width * 4) + _x * 4;
+        const red = _y * (WIDTH() * 4) + _x * 4;
         return { r: red, g: red + 1, b: red + 2, a: red + 3 };
     };
 
@@ -654,8 +657,8 @@ const Tetromino = function (
         const imageData = ctx.getImageData(
             BOX.getLeft(),
             BOX.getTop(),
-            sequence.width,
-            sequence.height
+            WIDTH(),
+            HEIGHT()
         ).data;
 
         if (_matrixX == null && _matrixY == null) {
@@ -671,7 +674,7 @@ const Tetromino = function (
 
         for (let _w = 0; _w < BLOCK_WIDTH(); _w++) {
             for (let _h = 0; _h < BLOCK_HEIGHT(); _h++) {
-                if (!sequence.minos[_h][_w]) continue;
+                if (!sequences[getBlockId()].minos[_h][_w]) continue;
                 const _mX = _matrixX + _w;
                 const _mY = _matrixY + _h;
                 const alpha = getAlpha(
@@ -679,7 +682,7 @@ const Tetromino = function (
                     // _mX * MINO_WIDTH + MINO_WIDTH / 2,
                     _w * MINO_WIDTH + MINO_WIDTH / 2,
                     // CANVAS_HEIGHT - _mY * MINO_HEIGHT - MINO_HEIGHT / 2
-                    sequence.height - _h * MINO_HEIGHT - MINO_HEIGHT / 2
+                    HEIGHT() - _h * MINO_HEIGHT - MINO_HEIGHT / 2
                 );
                 console.log(_w, _h, alpha);
                 if (alpha == 255 && minosMatrix[_mY][_mX] == undefined) {
