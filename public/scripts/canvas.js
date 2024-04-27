@@ -27,7 +27,7 @@ $(function () {
         gameover: new Audio("gameover.mp3"),
     }; */
 
-    const totalGameTime = 5; // Total game time in seconds
+    const totalGameTime = 10; // Total game time in seconds
     const gemMaxAge = 3000; // The maximum age of the gems in milliseconds
     let gameStartTime = 0; // The timestamp when the game starts
     let collectedGems = 0; // The number of gems collected in the game
@@ -98,6 +98,13 @@ $(function () {
                 .children()
                 .eq(index)
                 .css("background", icons[block]);
+    }
+
+    function updateNextIcons(bool, nextTetrominos) {
+        // bool - true if player, false if opponent
+        for (let i = 0; i < 3; i++) {
+            setNextIcon(bool, i, nextTetrominos[i].getLetter());
+        }
     }
 
     /**
@@ -184,7 +191,7 @@ $(function () {
         Mino(ctx, 16 + 32 * x, 432 - 32 * y, color).draw();
     }
 
-    setNextIcon(true, 0, "I");
+    // setNextIcon(true, 0, "I");
     setNextIcon(false, 1, "Z");
     setScore(true, 123);
     setScore(false, 456);
@@ -196,20 +203,10 @@ $(function () {
     // const test = Mino(gameArea, 16, 16, "green"); // This line is for loading the images
 
     const player_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
-    // test_matrix[0][0] = "O";
-    // test_matrix[3][5] = "S";
-    // test_matrix[8][8] = "L";
 
     // setTimeout(function () {
     //     renderMatrix(test_matrix, player_context);
     // }, 100);
-
-    /* setTimeout(function() {
-        renderSingle(player_context, 0, 0, "red");
-        renderSingle(player_context, 9, 0, "yellow");
-        renderSingle(player_context, 0, 13, "lightBlue");
-        renderSingle(player_context, 9, 13, "pink");
-    }, 100) */
 
     //updateNext();
     let currentTetromino = spawnRandomTetromino(
@@ -217,6 +214,16 @@ $(function () {
         gameArea,
         player_matrix
     );
+    nextTetrominos.push(
+        spawnRandomTetromino(player_context, gameArea, player_matrix)
+    );
+    nextTetrominos.push(
+        spawnRandomTetromino(player_context, gameArea, player_matrix)
+    );
+    nextTetrominos.push(
+        spawnRandomTetromino(player_context, gameArea, player_matrix)
+    );
+    updateNextIcons(true, nextTetrominos);
 
     let isHardDrop = false;
 
@@ -254,13 +261,6 @@ $(function () {
         //     fire.update(now);
         // });
 
-        // Tetromino(player_context, gameArea, 2, 2, "O").draw();
-        // Tetromino(player_context, gameArea, 3, 3, "S").draw();
-        // Tetromino(player_context, gameArea, 7, 5, "L").draw();
-        // Tetromino(player_context, gameArea, 8, 0, "Z").draw();
-        // Tetromino(player_context, gameArea, 5, 1, "J").draw();
-        // Tetromino(player_context, gameArea, 6, 2, "T").draw();
-        // Tetromino(player_context, gameArea, 2, 0, "I").draw();
         // console.log(test.getXY());
         // if () {
         // gem.randomize(gameArea);
@@ -274,13 +274,17 @@ $(function () {
         }
 
         if (isHardDrop || hitBottom) {
+            // Reset hard drop flag
             isHardDrop = false;
-            // fitTetromino.tetrominoToMinos(player_context_data);
-            currentTetromino = spawnRandomTetromino(
-                player_context,
-                gameArea,
-                player_matrix
-            ).draw();
+            // get next tetromino
+            currentTetromino = nextTetrominos.shift();
+            // Generate new tetromino and add to nextTetrominos
+            nextTetrominos.push(
+                spawnRandomTetromino(player_context, gameArea, player_matrix)
+            );
+            updateNextIcons(true, nextTetrominos);
+            // Draw current Tetromino
+            currentTetromino.draw();
         }
 
         // /* Randomize the gem and collect the gem here */
