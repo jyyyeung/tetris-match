@@ -434,7 +434,11 @@ const Tetromino = function (
         }
         // TODO: Check if game over
         // setMatrixXY(_mX, _mY);
-        tetrominoToMinos(_mX, _mY);
+        const noCollision = tetrominoToMinos(_mX, _mY);
+        if (!noCollision) {
+            console.log("Game Over");
+            return;
+        }
         // lastUpdate -= DEFAULT_SPEED;
         console.log("--- END HARD_DROP() ---");
     };
@@ -479,7 +483,13 @@ const Tetromino = function (
         return isValidMatrixPosition(matrixX, matrixY);
     };
 
-    const isValidMatrixPosition = (matrixX, matrixY) => {
+    /**
+     * Checks if the given matrix position is valid within the game area.
+     * @param {number} matrixX - The x-coordinate of the matrix position.
+     * @param {number} matrixY - The y-coordinate of the matrix position.
+     * @returns {boolean} - Returns true if the matrix position is valid, otherwise false.
+     */
+    function isValidMatrixPosition(matrixX, matrixY) {
         const MATRIX_WIDTH = 10;
         const MATRIX_HEIGHT = 14;
 
@@ -488,49 +498,13 @@ const Tetromino = function (
         if (!box.fullyWithinBox(gameArea)) return false;
         if (isOverlappingMinos(matrixX, matrixY)) return false;
         // console.log("<0");
-        if (matrixX < 0 || matrixY < 0) return false;
-        if (matrixX + BLOCK_WIDTH() > MATRIX_WIDTH) return false;
-        if (matrixY + BLOCK_HEIGHT() > MATRIX_HEIGHT) return false;
+        // if (matrixX < 0 || matrixY < 0) return false;
+        // if (matrixX + BLOCK_WIDTH() > MATRIX_WIDTH) return false;
+        // if (matrixY + BLOCK_HEIGHT() > MATRIX_HEIGHT) return false;
         return true;
-    };
+    }
 
     const getLetter = () => letter;
-
-    const hasMinoBelow = (matrixX, matrixY) => {
-        console.log("--- START HAS_MATRIX_BELOW() ---", matrixX, matrixY);
-        const BOX = sprite.getBoundingBox();
-        const imageData = ctx.getImageData(
-            BOX.getLeft(),
-            BOX.getTop(),
-            WIDTH(),
-            HEIGHT()
-        ).data;
-        for (let i = 0; i < BLOCK_WIDTH(); i++) {
-            const _mX = matrixX + i;
-            const _mY = matrixY - 1;
-            // console.log("hasMinoBelow", _mX, _mY, minosMatrix[_mY - 1][_mX]);
-            const _minoBelow = minosMatrix[_mY][_mX];
-            const alpha = getAlpha(imageData, _mX, _mY);
-            if (alpha == 0) continue;
-
-            if (_minoBelow != undefined && _minoBelow != "empty") {
-                // Location below is not empty in matrix
-                // I am not transparent
-
-                console.log(
-                    "I am not empty and there is something below",
-                    _mX,
-                    _mY,
-                    _minoBelow
-                );
-                return true;
-
-                console.log("hasMinoBelow", _mX, _mY, _minoBelow);
-            }
-        }
-        console.log("--- END HAS_MATRIX_BELOW() ---");
-        return false;
-    };
 
     /**
      * Checks if the current tetromino is overlapping with other tetrominos in the matrix.
@@ -553,6 +527,8 @@ const Tetromino = function (
 
                 const _mX = matrixX + _w;
                 const _mY = matrixY + _h;
+                // if (_mY >= 14) continue;
+                console.log({ _mY }, { _mX }, { minosMatrix });
                 const _mino = minosMatrix[_mY][_mX];
 
                 const alpha = getAlpha(imageData, _mX, _mY);
@@ -578,6 +554,11 @@ const Tetromino = function (
     let lastUpdate = 0;
     // This function updates the tetromino depending on its movement.
     // - `time` - The timestamp when this function is called
+    /**
+     * Drops the tetromino down by one row.
+     * @param {number} time - The current time.
+     * @returns {boolean} hitBottom - True if the tetromino's position is fixed, false otherwise.
+     */
     const drop = (time) => {
         /* Update the player if the player is moving */
         let { x, y } = sprite.getXY();
@@ -612,10 +593,11 @@ const Tetromino = function (
 
             /* Set the new position if it is within the game area */
             if (isValidPosition(x, y)) {
+                // console.log("is valid posiition");
                 sprite.setXY(x, y);
             }
             lastUpdate = time;
-            // return false;
+            return false;
         }
         return false;
     };
@@ -653,6 +635,7 @@ const Tetromino = function (
      * @param {ImageData} imageData - The image data of the player canvas.
      */
     const tetrominoToMinos = (_matrixX = null, _matrixY = null) => {
+        console.log("--- START TETROMINO_TO_MINOS() ---");
         const BOX = sprite.getBoundingBox();
         const imageData = ctx.getImageData(
             BOX.getLeft(),
@@ -672,6 +655,7 @@ const Tetromino = function (
         // console.log(matrixX, matrixY, BLOCK_WIDTH(), BLOCK_HEIGHT());
         // console.log(BLOCK_WIDTH(), BLOCK_HEIGHT());
 
+        let noCollision = true;
         for (let _w = 0; _w < BLOCK_WIDTH(); _w++) {
             for (let _h = 0; _h < BLOCK_HEIGHT(); _h++) {
                 if (!sequences[getBlockId()].minos[_h][_w]) continue;
@@ -685,13 +669,19 @@ const Tetromino = function (
                     HEIGHT() - _h * MINO_HEIGHT - MINO_HEIGHT / 2
                 );
                 console.log(_w, _h, alpha);
-                if (alpha == 255 && minosMatrix[_mY][_mX] == undefined) {
+                if (alpha == 255 && !minosMatrix[_mY][_mX]) {
                     minosMatrix[_mY][_mX] = letter;
+                } else if (alpha == 255 && minosMatrix[_mY][_mX]) {
+                    noCollision = false;
                 }
             }
         }
         console.table(minosMatrix);
+        console.log("--- END TETROMINO_TO_MINOS() ---");
+        return noCollision;
     };
+
+    const canSpawn = () => isValidMatrixPosition(3, 12);
 
     // The methods are returned as an object here.
     return {
@@ -701,11 +691,13 @@ const Tetromino = function (
         getMatrixXY,
         move: move,
         tetrominoToMinos,
+        isValidMatrixPosition,
         // setColor: setColor,
         drop: drop,
         /* getAge: getAge, */
         getBoundingBox: sprite.getBoundingBox,
         randomize: randomize,
         draw: sprite.draw,
+        canSpawn: canSpawn,
     };
 };

@@ -236,7 +236,9 @@ $(function () {
                 for (let i = y; i < MATRIX_HEIGHT - 1; i++) {
                     matrix[i] = matrix[i + 1];
                 }
-                matrix[MATRIX_HEIGHT - 1] = new Array(MATRIX_WIDTH).fill(null);
+                matrix[MATRIX_HEIGHT - 1] = new Array(MATRIX_WIDTH).fill(
+                    undefined
+                );
             }
             if ((!isFull && consecuitive > 0) || y == 0) {
                 if (consecuitive == 1) single++;
@@ -261,9 +263,7 @@ $(function () {
     setTime(123);
     setLevel(3);
 
-    // const test = Mino(gameArea, 16, 16, "green"); // This line is for loading the images
-
-    const player_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
+    const player_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT + 2);
 
     // setTimeout(function () {
     //     renderMatrix(test_matrix, player_context);
@@ -286,7 +286,27 @@ $(function () {
     );
     updateNextIcons(true, nextTetrominos);
 
+    const checkHitCeiling = (matrix) => {
+        for (let x = 0; x < MATRIX_WIDTH; x++) {
+            if (matrix[MATRIX_HEIGHT - 1][x]) {
+                console.log("Game Over");
+                return true;
+            }
+        }
+        return false;
+    };
+
     let isHardDrop = false;
+
+    function clearAndRedraw(_matrix = true, _tetromino = true) {
+        /* Clear the screen */
+        player_context.clearRect(0, 0, player_cv.width, player_cv.height);
+        // /* Draw the sprites */
+        drawGrid(player_context);
+        if (_matrix) renderMatrix(player_matrix, player_context);
+
+        if (_tetromino) currentTetromino.draw();
+    }
 
     /* The main processing of the game */
     /**
@@ -305,7 +325,7 @@ $(function () {
         setTime(timeRemaining);
 
         // /* Handle the game over situation here */
-        if (timeRemaining == 0) {
+        if (timeRemaining <= 0) {
             // $("#final-gems").text(collectedGems);
             // sounds.background.pause();
             // sounds.collect.pause();
@@ -314,37 +334,44 @@ $(function () {
             return;
         }
 
-        /* Update the sprites */
-
-        // gem.update(now);
-        // player.update(now);
-        // fires.forEach((fire) => {
-        //     fire.update(now);
-        // });
-
-        // console.log(test.getXY());
-        // if () {
-        // gem.randomize(gameArea);
-        // }
-
         const hitBottom = currentTetromino.drop(now);
-        if (hitBottom) {
-            // Generate new tetromino
+        if (hitBottom && !isHardDrop) {
+            // TODO: Clear and redraw?
+            console.log(currentTetromino.getLetter() + " hit bottom");
+
+            console.log("Hit bottom");
             const fitTetromino = currentTetromino;
-            fitTetromino.tetrominoToMinos();
+            // Add the tetromino to the matrix
+            const noCollision = fitTetromino.tetrominoToMinos();
+            if (!noCollision) {
+                clearAndRedraw(true, false);
+                console.log("hit bottom collision Game Over");
+                return;
+            }
         }
+        /* Clear the screen */
+        player_context.clearRect(0, 0, player_cv.width, player_cv.height);
+        // /* Draw the sprites */
+        drawGrid(player_context);
 
         if (isHardDrop || hitBottom) {
-            // Reset hard drop flag
-            isHardDrop = false;
-
             // Check for full rows
             checkFullRows(player_matrix);
 
             setScore(true, score);
+            // Check for game over
+            if (checkHitCeiling(player_matrix)) {
+                clearAndRedraw(true, false);
+
+                console.log("Hit Ceiling Game Over");
+                return;
+            }
+            // Reset hard drop flag
+            isHardDrop = false;
 
             // get next tetromino
             currentTetromino = nextTetrominos.shift();
+
             // Generate new tetromino and add to nextTetrominos
             nextTetrominos.push(
                 spawnRandomTetromino(player_context, gameArea, player_matrix)
@@ -353,33 +380,19 @@ $(function () {
             updateNextIcons(true, nextTetrominos);
             // Draw current Tetromino
             currentTetromino.draw();
+
+            if (!currentTetromino.canSpawn()) {
+                // Game over
+                clearAndRedraw(true, false);
+                console.log("Cannot Spawn Game Over");
+                return;
+            }
         }
 
-        // /* Randomize the gem and collect the gem here */
-        // if (gem.getAge(now) >= gemMaxAge) {
-        //     gem.randomize(gameArea);
-        // }
+        clearAndRedraw(true, true);
+        // renderMatrix(player_matrix, player_context);
 
-        // playerBox = player.getBoundingBox();
-        // gemLoc = gem.getXY();
-        // if (playerBox.isPointInBox(gemLoc.x, gemLoc.y)) {
-        //     // Player touched gem
-        //     sounds.collect.currentTime = 0;
-        //     sounds.collect.play();
-        //     collectedGems++;
-        //     gem.randomize(gameArea);
-        // }
-        // console.log(currentTetromino.getMatrixXY());
-        // return;
-
-        /* Clear the screen */
-        player_context.clearRect(0, 0, player_cv.width, player_cv.height);
-
-        // /* Draw the sprites */
-        drawGrid(player_context);
-        currentTetromino.draw();
-
-        renderMatrix(player_matrix, player_context);
+        // currentTetromino.draw();
 
         /* Process the next frame */
         requestAnimationFrame(doFrame);
