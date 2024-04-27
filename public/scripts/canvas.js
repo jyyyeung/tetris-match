@@ -209,11 +209,38 @@ $(function () {
         currentTetromino.draw();
     }
 
-    // setNextIcon(true, 0, "I");
+    function checkFullRows(matrix) {
+        // Iterate through the rows
+        for (let y = 0; y < MATRIX_HEIGHT; y++) {
+            let isFull = true;
+            // Iterate through the columns
+            for (let x = 0; x < MATRIX_WIDTH; x++) {
+                if (!matrix[y][x]) {
+                    // If the cell is empty, the row is not full
+                    isFull = false;
+                    break;
+                }
+            }
+            if (isFull) {
+                // Remove the row
+                for (let i = y; i < MATRIX_HEIGHT - 1; i++) {
+                    matrix[i] = matrix[i + 1];
+                    // for (let x = 0; x < MATRIX_WIDTH; x++) {
+
+                    //     // matrix[i][x] = matrix[i - 1][x];
+                    // }
+                }
+                // for (let x = 0; x < MATRIX_WIDTH; x++) {
+                //     matrix[0][x] = null;
+                // }
+                matrix[MATRIX_HEIGHT - 1] = new Array(MATRIX_WIDTH).fill(null);
+            }
+        }
+    }
+
     setNextIcon(false, 1, "Z");
     setScore(true, 123);
     setScore(false, 456);
-    // setHoldIcon(true, "O");
     setHoldIcon(false, "T");
     setTime(123);
     setLevel(3);
@@ -294,6 +321,10 @@ $(function () {
         if (isHardDrop || hitBottom) {
             // Reset hard drop flag
             isHardDrop = false;
+
+            // Check for full rows
+            checkFullRows(player_matrix);
+
             // get next tetromino
             currentTetromino = nextTetrominos.shift();
             // Generate new tetromino and add to nextTetrominos
