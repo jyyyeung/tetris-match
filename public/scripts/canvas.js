@@ -55,6 +55,7 @@ $(function () {
     /* Create the game area */
     const gameArea = BoundingBox(player_context, 0, 0, bh, bw);
     let nextTetrominos = [];
+    let holdTetromino = null;
 
     /**
      * Draws a grid on the canvas.
@@ -134,7 +135,6 @@ $(function () {
         $("#difficulty").text(level);
     }
 
-    let holdTetromino = null;
     /**
      * Sets the hold icon for the player or opponent.
      * @param {boolean} bool - True if player, false if opponent.
@@ -191,11 +191,29 @@ $(function () {
         Mino(ctx, 16 + 32 * x, 432 - 32 * y, color).draw();
     }
 
+    function holdCurrentTetromino() {
+        console.log("Hold Tetromino");
+        if (!holdTetromino) {
+            holdTetromino = currentTetromino;
+            currentTetromino = nextTetrominos.shift();
+            nextTetrominos.push(
+                spawnRandomTetromino(player_context, gameArea, player_matrix)
+            );
+            updateNextIcons(true, nextTetrominos);
+        } else {
+            const temp = currentTetromino;
+            currentTetromino = holdTetromino;
+            holdTetromino = temp;
+        }
+        setHoldIcon(true, holdTetromino.getLetter());
+        currentTetromino.draw();
+    }
+
     // setNextIcon(true, 0, "I");
     setNextIcon(false, 1, "Z");
     setScore(true, 123);
     setScore(false, 456);
-    setHoldIcon(true, "O");
+    // setHoldIcon(true, "O");
     setHoldIcon(false, "T");
     setTime(123);
     setLevel(3);
@@ -282,6 +300,7 @@ $(function () {
             nextTetrominos.push(
                 spawnRandomTetromino(player_context, gameArea, player_matrix)
             );
+            // Update next up terminos icons
             updateNextIcons(true, nextTetrominos);
             // Draw current Tetromino
             currentTetromino.draw();
@@ -371,8 +390,12 @@ $(function () {
                 isHardDrop = true;
                 return;
             }
+            if (action == HOLD) {
+                // console.log("keydown: hold");
+                holdCurrentTetromino();
+                return;
+            }
             // TODO: Handle other movements
-            if (action == HOLD) return console.log("keydown: hold");
             if (action == CHEAT_MODE) return console.log("keydown: cheat mode");
         });
 
