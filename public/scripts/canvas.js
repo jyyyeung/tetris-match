@@ -308,6 +308,13 @@ $(function () {
         if (_tetromino) currentTetromino.draw();
     }
 
+    function gameOver() {
+        // sounds.background.pause();
+        // sounds.collect.pause();
+        // sounds.gameover.play();
+        $("#game-over").show();
+    }
+
     /* The main processing of the game */
     /**
      * Performs the main logic for each frame of the game.
@@ -331,6 +338,7 @@ $(function () {
             // sounds.collect.pause();
             // sounds.gameover.play();
             // $("#game-over").show();
+            gameOver();
             return;
         }
 
@@ -344,6 +352,7 @@ $(function () {
                 clearAndRedraw(true, false);
                 // TODO: Show Game Over
                 console.log("hit bottom collision Game Over");
+                gameOver();
                 return;
             }
         }
@@ -362,6 +371,7 @@ $(function () {
                 clearAndRedraw(true, false);
 
                 // TODO: Show Game Over
+                gameOver();
                 console.log("Hit Ceiling Game Over");
                 return;
             }
@@ -383,6 +393,7 @@ $(function () {
             if (!currentTetromino.canSpawn()) {
                 // Game over
                 clearAndRedraw(true, false);
+                gameOver();
                 // TODO: Show Game Over
                 console.log("Cannot Spawn Game Over");
                 return;
