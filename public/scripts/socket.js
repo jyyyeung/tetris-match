@@ -5,6 +5,8 @@
 const Socket = (function () {
     // This stores the current Socket.IO socket
     let socket = null;
+    let opponentGameArea = null;
+    let room = null;
 
     /**
      * Gets the socket from the module
@@ -13,6 +15,8 @@ const Socket = (function () {
     const getSocket = function () {
         return socket;
     };
+
+    let gameInProgress = false;
 
     /**
      * This function connects the server and initializes the socket
@@ -23,10 +27,9 @@ const Socket = (function () {
         // Wait for the socket to connect successfully
         socket.on("connect", () => {
             // Get the online user list
-            socket.emit(GET_USERS);
-
+            socket.emit("get users");
             // Get the chatroom messages
-            socket.emit("get messages");
+            // socket.emit("get messages");
         });
 
         // Set up the users event
@@ -68,6 +71,50 @@ const Socket = (function () {
             // Add the message to the chatroom
             ChatPanel.addMessage(message);
         });
+
+        socket.on("start game", () => {
+            // opponent = JSON.parse(opponent);
+            Game.startGame();
+            gameInProgress = true;
+
+            console.log("start game");
+        });
+
+        socket.on("key down", (key) => {
+            opponentGameArea.translateAction(key, true);
+        });
+
+        socket.on("key up", (key) => {
+            opponentGameArea.translateAction(key, false);
+        });
+
+        socket.on("game over", () => {
+            // Game.gameOver();
+            opponentGameArea.gameOver();
+            gameInProgress = false;
+        });
+
+        socket.on("update score", (score) => {
+            // console.log("Opponent Score: ", score);
+            opponentGameArea.setScore(score);
+        });
+
+        socket.on("on your marks", () => {
+            if (gameInProgress) return;
+            console.log("on your marks");
+            // Start the game
+            opponentGameArea = Game.initialize();
+        });
+
+        socket.on("init game", (firstTetromino, tetrominos) => {
+            if (gameInProgress) return;
+            console.log("init game", firstTetromino, tetrominos);
+            opponentGameArea.initGame(
+                // gameStartTime,
+                firstTetromino,
+                tetrominos
+            );
+        });
     };
 
     /**
@@ -88,5 +135,105 @@ const Socket = (function () {
         }
     };
 
-    return { getSocket, connect, disconnect, postMessage };
+    const joinRoom = function (_room) {
+        // if (socket && socket.connected) {
+        console.log("request to join room");
+        socket.emit("join room", _room);
+        room = _room;
+        // }
+    };
+
+    const leaveRoom = function (_room) {
+        if (socket && socket.connected) {
+            socket.emit("leave room", _room);
+            room = null;
+        }
+    };
+
+    const updateCurrentTetromino = function (tetromino) {
+        if (socket && socket.connected) {
+            socket.broadcast.emit("update current tetromino", tetromino);
+        }
+    };
+
+    const updateTetrominoRotation = function (rotation) {
+        if (socket && socket.connected) {
+            socket.broadcast.emit("update tetromino rotation", rotation);
+        }
+    };
+
+    const updateTetrominoPosition = function (position) {
+        if (socket && socket.connected) {
+            socket.emit("update tetromino position", position);
+        }
+    };
+
+    const holdTetromino = function (tetromino) {
+        if (socket && socket.connected) {
+            socket.emit("hold tetromino", tetromino);
+        }
+    };
+
+    const gameOver = function () {
+        if (socket && socket.connected) {
+            socket.emit("game over");
+        }
+    };
+
+    const updateScore = function (score) {
+        console.log("update score", score);
+        if (socket && socket.connected) {
+            socket.emit("update score", score);
+        }
+    };
+
+    const keyDown = function (key) {
+        if (socket && socket.connected) {
+            socket.emit("key down", key);
+        }
+    };
+
+    const keyUp = function (key) {
+        if (socket && socket.connected) {
+            socket.emit("key up", key);
+        }
+    };
+
+    const initGame = function (currentTetromino, tetrominos) {
+        if (socket && socket.connected) {
+            if (gameInProgress) return;
+            console.log("My game area", currentTetromino, tetrominos);
+            socket.emit(
+                "init game",
+                // gameStartTime,
+                currentTetromino,
+                tetrominos
+            );
+        }
+    };
+
+    const readyToStart = function () {
+        if (socket && socket.connected) {
+            socket.emit("ready to start");
+        }
+    };
+
+    return {
+        getSocket,
+        connect,
+        disconnect,
+        postMessage,
+        joinRoom,
+        leaveRoom,
+        updateCurrentTetromino,
+        updateTetrominoRotation,
+        updateTetrominoPosition,
+        holdTetromino,
+        gameOver,
+        updateScore,
+        keyDown,
+        keyUp,
+        initGame,
+        readyToStart,
+    };
 })();

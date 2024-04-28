@@ -552,7 +552,7 @@ const Tetromino = function (
      */
     function isValidPosition(x, y) {
         const { matrixX, matrixY } = getMatrixXY(x, y);
-        console.log(matrixX, matrixY);
+        // console.log(matrixX, matrixY);
         return isValidMatrixPosition(matrixX, matrixY);
     }
 
