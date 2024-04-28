@@ -146,6 +146,7 @@ form select {
 
 input,
 select {
+    color: black;
     font-size: 1rem;
     background: var(--input-background);
     border: none;
@@ -238,10 +239,14 @@ button.icon:active {
     width: 100vw;
 }
 
-#homepage {
+#homepage{
     height: 100%;
     width: 100%;
     background-size: cover;
+}
+
+#match-page {
+    margin: auto;
 }
 
 @keyframes title-animation {
@@ -290,12 +295,20 @@ button.icon:active {
     color: white;
 }
 
-.homepage-buttons {
+.homepage-buttons, .match-buttons{
     margin: auto;
     font-size: 250%;
     padding: 20px;
     width: 700px;
 }
+
+.match-buttons {
+    width: 900px;
+    margin: 20px;
+    padding: 50px;
+}
+
+
 
 #title .material-icons {
     color: var(--title-color);

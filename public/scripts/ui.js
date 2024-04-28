@@ -2,8 +2,11 @@ const HOME_LOGIN = 0;
 const HOME_REGISTER = 1;
 const HOME_HOWTOPLAY = 2;
 const HOME_PROFILE = 3;
-const HOME_MATCH = 4;
-const HOME_HIDDEN = -1;
+const HOME_HIDDEN = 4;
+
+const TIME_MODE_DESCRIPTION = "Players obtain as many scores as possible in 2 minutes \n with predefined constant difficulty."
+const SURVIVAL_MODE_DESCRIPTION = "No time limit but the game gets more \n difficult as it continues."
+const DESCRIPTION_PLACEHOLDER = "\n\n"
 
 const HomePage = (function () {
     let sidePanelStatus = -1;
@@ -36,6 +39,7 @@ const HomePage = (function () {
     };
 
     const buttonFunc = function (status) {
+        console.log(sidePanelStatus)
         if (sidePanelStatus != status) {
             renderSidePanel(status);
         } else {
@@ -47,6 +51,7 @@ const HomePage = (function () {
         $(".before-login").show();
         $(".after-login").hide();
         $("#home-side-panel").hide();
+        $("#game-container").hide();
 
         $("#register-button").click(function () {
             buttonFunc(HOME_REGISTER);
@@ -65,11 +70,148 @@ const HomePage = (function () {
             buttonFunc(HOME_PROFILE);
         });
         $("#match-button").click(function () {
-            // TODO: Match Page button on click
-            buttonFunc(HOME_MATCH);
-        });
+            MatchPage.show();
+            $("#homepage").hide();
+        })
     };
-    return { initialize, renderSidePanel };
+
+    const show = function() {
+        $(".before-login").show();
+        $(".after-login").hide();
+        $("#home-side-panel").hide();
+        $("#game-container").hide();
+    }
+
+    return {
+        initialize,
+        renderSidePanel,
+        show
+    };
+})();
+
+const MatchPage = (function () {
+    let phase = 1;
+    let gameData = {
+        isPublic: false,
+        invitationCode: "",
+        isGameModeTime: false,
+    }
+    const pageChange = function (newPhase) {
+        /* 
+        When phase is set to the following values, the corresponding page will be displayed when return button is clicked:
+        3 - choose gamemode page
+        2 - "Create private room", "Join private room", "Public Match"
+        1 - home page
+        */
+        switch (newPhase) {
+            case 0:
+                $("#homepage").show();
+                $("#match-page").hide();
+                phase = 1;
+                break;
+            case 1:
+                hideAll();
+                $("#match-content-container").children().first().show();
+                phase = newPhase;
+                break;
+            case 2:
+                hideAll();
+                $("#match-choose-gamemode").show();
+                phase = newPhase;
+                break;
+        }
+    }
+    const initialize = function () {
+        hideAll();
+        $("#match-page").children().each(function () {
+            $(this).hide();
+        })
+        $("#match-content-container").children().first().show();
+
+        $("#create-private-game-button").click(function () {
+            hideAll();
+            phase = 2;
+            gameData.isPublic = false;
+            $("#match-choose-gamemode").show();
+        });
+
+        $("#join-private-game-button").click(function() {
+            hideAll();
+            phase = 2;
+            gameData.isPublic = false;
+            $("#join-private-game-page").show();
+        })
+
+        $("#public-match-button").click(function () {
+            hideAll();
+            phase = 2;
+            gameData.isPublic = true;
+            $("#match-choose-gamemode").show();
+        });
+
+        $("#match-page-return").click(function () {
+            pageChange(phase - 1);
+        });
+
+        $("#time-mode-button").click(function() {
+            hideAll();
+            phase = 3;
+            if (gameData.isPublic) {
+                $("#public-match-page").show();
+            }
+            else {
+                $("#create-private-game-page").show();
+            }
+        });
+
+        $("#survival-mode-button").click(function() {
+            hideAll();
+            phase = 3;
+            if (gameData.isPublic) {
+                $("#public-match-page").show();
+            }
+            else {
+                $("#create-private-game-page").show();
+            }
+        });
+
+        $("#time-mode-button").on("mouseover", function () {
+            $("#match-mode-description").text(TIME_MODE_DESCRIPTION);
+        });
+
+        $("#time-mode-button").on("mouseleave", function () {
+            $("#match-mode-description").text(DESCRIPTION_PLACEHOLDER);
+        });
+
+        $("#survival-mode-button").on("mouseover", function () {
+            $("#match-mode-description").text(SURVIVAL_MODE_DESCRIPTION);
+        });
+
+        $("#survival-mode-button").on("mouseleave", function () {
+            $("#match-mode-description").text(DESCRIPTION_PLACEHOLDER);
+        });
+
+
+
+    };
+    const show = function () {
+        $("#match-page").show();
+        $("#match-page").children().each(function() {
+            $(this).show();
+        })
+        $("#match-content-container").children().first().show();
+    }
+
+    const hideAll = function () {
+        $("#match-content-container").children().each(function () {
+            $(this).hide();
+        });
+    }
+
+    return {
+        initialize,
+        show
+    };
 })();
 
 const SignInForm = (function () {
@@ -161,7 +303,11 @@ const SignInForm = (function () {
         $("#signin-overlay").fadeOut(500);
     };
 
-    return { initialize, show, hide };
+    return {
+        initialize,
+        show,
+        hide
+    };
 })();
 
 const Match = (function () {
@@ -251,9 +397,9 @@ const UserPanel = (function () {
             // Send a signout request
             Authentication.signout(() => {
                 Socket.disconnect();
-                hide();
-                SignInForm.show();
-                HomePage.initialize();
+                //hide();
+                //SignInForm.show();
+                HomePage.show();
             });
         });
     };
@@ -279,7 +425,12 @@ const UserPanel = (function () {
         }
     };
 
-    return { initialize, show, hide, update };
+    return {
+        initialize,
+        show,
+        hide,
+        update
+    };
 })();
 
 const OnlineUsersPanel = (function () {
@@ -336,7 +487,12 @@ const OnlineUsersPanel = (function () {
         if (userDiv.length > 0) userDiv.remove();
     };
 
-    return { initialize, update, addUser, removeUser };
+    return {
+        initialize,
+        update,
+        addUser,
+        removeUser
+    };
 })();
 
 /**
@@ -380,7 +536,7 @@ const ChatPanel = (function () {
 
     // This function adds a new message at the end of the chatroom
     const addMessage = function (message) {
-        const datetime = new Date(message.datetime);
+        /* const datetime = new Date(message.datetime);
         const datetimeString =
             datetime.toLocaleDateString() + " " + datetime.toLocaleTimeString();
 
@@ -405,10 +561,14 @@ const ChatPanel = (function () {
                         )
                 )
         );
-        chatArea.scrollTop(chatArea[0].scrollHeight);
+        chatArea.scrollTop(chatArea[0].scrollHeight); */
     };
 
-    return { initialize, update, addMessage };
+    return {
+        initialize,
+        update,
+        addMessage
+    };
 })();
 
 // Socket.connect();
@@ -479,8 +639,8 @@ const UI = (function () {
             .append(
                 $(
                     "<span class='user-avatar'>" +
-                        Avatar.getCode(user.avatar) +
-                        "</span>"
+                    Avatar.getCode(user.avatar) +
+                    "</span>"
                 )
             )
             .append($("<span class='user-name'>" + user.name + "</span>"));
@@ -493,8 +653,8 @@ const UI = (function () {
         UserPanel,
         OnlineUsersPanel,
         ChatPanel,
-        Match,
         Game,
+        MatchPage
     ];
 
     // This function initializes the UI
@@ -509,5 +669,9 @@ const UI = (function () {
         HomePage.renderSidePanel(status);
     };
 
-    return { getUserDisplay, initialize, renderSidePanel };
+    return {
+        getUserDisplay,
+        initialize,
+        renderSidePanel
+    };
 })();
