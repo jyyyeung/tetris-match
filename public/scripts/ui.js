@@ -2,6 +2,8 @@ const HOME_LOGIN = 0;
 const HOME_REGISTER = 1;
 const HOME_HOWTOPLAY = 2;
 const HOME_PROFILE = 3;
+const HOME_MATCH = 4;
+const HOME_HIDDEN = -1;
 
 const HomePage = (function () {
     let sidePanelStatus = -1;
@@ -25,6 +27,8 @@ const HomePage = (function () {
             $("#register-form"),
             $("#how-to-play"),
             $("#user-panel"),
+            // TODO: Match Page
+            $("#match-page"),
         ];
         contents.forEach((element) => element.hide());
         contents[status].show();
@@ -59,6 +63,10 @@ const HomePage = (function () {
         });
         $("#profile-button").click(function () {
             buttonFunc(HOME_PROFILE);
+        });
+        $("#match-button").click(function () {
+            // TODO: Match Page button on click
+            buttonFunc(HOME_MATCH);
         });
     };
     return { initialize, renderSidePanel };
@@ -154,6 +162,78 @@ const SignInForm = (function () {
     };
 
     return { initialize, show, hide };
+})();
+
+const Match = (function () {
+    const initialize = function () {
+        // Hide it
+        $("#match-page").hide();
+        $("#create-room-btn").on("click", (e) => {
+            // Do not submit the form
+
+            console.log("create room");
+            const createRoomSuccessful = Socket.joinRoom();
+            if (!createRoomSuccessful) {
+                $("#create-room-message").text("You are already a Room.");
+            }
+        });
+        $("#join-room-form").on("submit", (e) => {
+            // Do not submit the form
+            e.preventDefault();
+            const room = $("#join-room-id").val().trim();
+            console.log("join room", room);
+            const joinRoomSuccessful = Socket.joinRoom(room);
+            if (joinRoomSuccessful) {
+                $("#joined-room-id").text(room);
+            } else {
+                $("#join-room-message").text("You are already a Room.");
+            }
+        });
+        $("#public-match-btn").on("click", (e) => {
+            // Do not submit the form
+            console.log("public match");
+            Socket.publicMatch();
+        });
+        $("#leave-room-btn").on("click", (e) => {
+            console.log("leave room");
+            Socket.leaveRoom();
+        });
+    };
+
+    const roomCreated = function (room) {
+        console.log("room created", room);
+        $("#created-room-id").text(room);
+    };
+
+    const roomNotFound = function () {
+        $("#join-room-message").text("Room not found.");
+    };
+
+    const roomFull = function () {
+        $("#join-room-message").text("Room is full.");
+    };
+
+    const waitingForOpponent = function () {
+        $("#join-room-message").text("Waiting for opponent.");
+    };
+
+    const show = function () {
+        $("#match-page").show();
+    };
+
+    const hide = function () {
+        $("#match-page").hide();
+    };
+
+    return {
+        initialize,
+        show,
+        hide,
+        roomCreated,
+        roomFull,
+        roomNotFound,
+        waitingForOpponent,
+    };
 })();
 
 /**
@@ -331,13 +411,63 @@ const ChatPanel = (function () {
     return { initialize, update, addMessage };
 })();
 
-const GameArea = (function () {
-    const initialize = function () {
-        //$("#game-container").hide();
-    };
-    return { initialize };
-})();
+// Socket.connect();
+// Socket.joinRoom("room1");
 
+// Game;
+const Game = (function () {
+    const opponent_cv = $("canvas").get(1);
+    const opponent_context = opponent_cv.getContext("2d");
+    const player_cv = $("canvas").get(0);
+    const player_context = player_cv.getContext("2d", {
+        willReadFrequently: true,
+        alpha: true,
+        // desynchronized: true,
+    });
+
+    player_gameArea = GameArea(player_cv, player_context, true);
+    opponent_gameArea = GameArea(opponent_cv, opponent_context, false);
+
+    function initialize() {
+        $("#countdown").hide();
+        $("#gameover").hide();
+        $("#game-container").hide();
+    }
+
+    const initGame = function () {
+        $("#homepage").hide();
+        $("#countdown").show();
+
+        console.log("ui.js initialize");
+        // Initialize the game area
+        player_gameArea.initialize();
+        opponent_gameArea.initialize();
+        return opponent_gameArea;
+    };
+    let isGameOver = false;
+    const setGameOver = () => (isGameOver = true);
+    const getGameOver = () => isGameOver;
+
+    const gameOver = function () {
+        $("#gameover").show();
+        player_gameArea.gameOver(false, false);
+        opponent_gameArea.gameOver(false, true);
+    };
+
+    const startGame = function () {
+        player_gameArea.startGame();
+        opponent_gameArea.startGame();
+    };
+
+    return {
+        initialize,
+        startGame,
+        initGame,
+        gameOver,
+        getGameOver,
+        setGameOver,
+    };
+})();
 /**
  * UI module for managing user interface components.
  * @module UI
@@ -363,7 +493,8 @@ const UI = (function () {
         UserPanel,
         OnlineUsersPanel,
         ChatPanel,
-        GameArea,
+        Match,
+        Game,
     ];
 
     // This function initializes the UI

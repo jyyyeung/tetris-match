@@ -149,6 +149,7 @@ app.get("/signout", (req, res) => {
 
 const { createServer } = require("http");
 const { Server } = require("socket.io");
+const { Console } = require("console");
 
 const httpServer = createServer(app);
 const io = new Server(httpServer);
@@ -157,12 +158,18 @@ const onlineUsers = {};
 io.use((socket, next) => {
     gameSession(socket.request, {}, next);
 });
+
+const randomId = () => Math.floor(Math.random() * 1000000);
+
+const roomReady = {};
+const publicMatch = [];
 // Use a web server to listen at port 8000
 httpServer.listen(8000, () => {
     console.log("Tetris Match server has started...");
     io.on("connection", (socket) => {
         // Add a new user to the online user list
         const user = socket.request.session.user;
+
         if (user) {
             // User signed in
             onlineUsers[user.username] = user;
@@ -213,6 +220,109 @@ httpServer.listen(8000, () => {
                 io.emit("remove user", JSON.stringify(user));
             });
         }
+
+        let room = null;
+
+        const createRoom = () => {
+            // Create room
+            _room = randomId();
+            // Check if Room already Exist
+            while (io.sockets.adapter.rooms.has(_room)) {
+                _room = randomId();
+            }
+            io.to(socket.id).emit("room created", _room);
+
+            console.log("Joining room: ", _room);
+            socket.join(_room);
+            room = _room;
+            return _room;
+        };
+
+        const joinRoom = (_room = null) => {
+            const thisRoom = io.sockets.adapter.rooms.get(_room);
+            if (_room == null || !thisRoom) {
+                io.to(socket.id).emit("room not found");
+                return;
+            }
+            if (thisRoom.size > 2) {
+                io.to(socket.id).emit("room full");
+                return;
+            }
+
+            console.log("Joining room: ", _room);
+            socket.join(_room);
+            room = _room;
+
+            if (thisRoom.size === 2) {
+                roomReady[room] = 0;
+                console.log("two people");
+                io.to(room).emit("on your marks");
+            }
+        };
+
+        socket.on("public match", () => {
+            if (publicMatch.length === 0) {
+                // publicMatch.push(socket.id);
+                roomId = createRoom();
+                publicMatch.push(roomId);
+
+                io.to(socket.id).emit("waiting for opponent");
+                return;
+            }
+
+            room = publicMatch.shift();
+            joinRoom(room);
+        });
+
+        socket.on("join room", (_room) => {
+            if (_room == null) createRoom();
+            // Join the room
+            else joinRoom(_room);
+        });
+
+        // let room_ready = 0;
+
+        socket.on("ready to start", () => {
+            roomReady[room]++;
+            if (roomReady[room] === 2) {
+                io.to(room).emit("start game");
+            }
+        });
+        socket.on("init game", (firstTetromino, tetrominos) => {
+            // Broadcast the game start time to everyone
+            socket.broadcast
+                .to(room)
+                .emit("init game", firstTetromino, tetrominos);
+        });
+
+        socket.on("push next tetromino", (letter) => {
+            // Broadcast the next tetromino to everyone
+            socket.broadcast.to(room).emit("push next tetromino", letter);
+        });
+
+        socket.on("update score", (score) => {
+            // Update the user's score
+            // user.score = score;
+
+            console.log("Sending update score to everyone");
+            // Broadcast the updated score to everyone
+            socket.broadcast.to(room).emit("update score", score);
+        });
+
+        socket.on("key down", (key) => {
+            // Broadcast the key down event to everyone
+            socket.broadcast.to(room).emit("key down", key);
+        });
+
+        socket.on("key up", (key) => {
+            // Broadcast the key up event to everyone
+            socket.broadcast.to(room).emit("key up", key);
+        });
+
+        socket.on("game over", () => {
+            // Broadcast the game over event to everyone
+            socket.broadcast.to(room).emit("game over");
+        });
 
         socket.on("get users", () => {
             // Send the online users to the browser

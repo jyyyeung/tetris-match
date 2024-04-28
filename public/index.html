@@ -17,7 +17,7 @@
         <!-- Chatroom container -->
         <div id="container" class="col">
             <!-- <div id="header" class="row"></div> -->
-            <div id="homepage" class="row" style="display: none">
+            <div id="homepage" class="row">
                 <div id="home-panel" class="col">
                     <!-- Login Page Game Title -->
                     <div id="title" class="col">Tetris Match</div>
@@ -168,11 +168,44 @@
                     </div>
                     <!-- END: How to play instructions -->
                 </div>
+                <div id="match-page" style="display: none" class="col">
+                    <!-- TODO: Match Page -->
+                    <button id="create-room-btn">Create Room</button>
+                    <div id="created-room-id"></div>
+                    <div id="create-room-message" class="warning center"></div>
+                    <div class="spacer-0"></div>
+                    <form id="join-room-form" class="col">
+                        <div class="caption">Enter Room ID</div>
+                        <div class="spacer-0"></div>
+                        <input id="join-room-id" placeholder="Enter Room ID" />
+
+                        <div class="spacer-0"></div>
+                        <button type="submit">Join Room</button>
+                        <div
+                            id="join-room-message"
+                            class="warning center"
+                        ></div>
+
+                        <div class="spacer-grow"></div>
+                    </form>
+
+                    <button id="public-match-btn">Public Match</button>
+                    <div class="spacer-0"></div>
+                    <button id="leave-room-btn">Leave Room</button>
+                </div>
+            </div>
+            <!-- The countdown screen -->
+            <div id="countdown">3</div>
+            <!-- FIX: For testing only Game over display text -->
+            <div id="gameover">
+                <div>
+                    Game Over!
+                    <span id="player-standing"></span>
+                </div>
             </div>
 
-            <div id="match-page" class="row" style="display: none"></div>
             <!-- Tetris Match game container -->
-            <div id="game-container">
+            <div id="game-container" style="display: none">
                 <div id="game-container-bg-img"></div>
                 <!-- START: Time remaining  -->
                 <box
@@ -316,24 +349,7 @@
                 <text x="50%" y="60%">Click here to start the game</text>
             </svg> -->
 
-                <!-- Game over display text -->
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" id="game-over" style="display: none">
-                <defs>
-                    <linearGradient id="game-over-fill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stop-color="red" />
-                        <stop offset="0.5" stop-color="yellow" />
-                        <stop offset="1" stop-color="red" />
-                    </linearGradient>
-                </defs>
-                <text x="50%" y="50%">
-                    Time's up! You have collected
-                    <tspan id="final-gems">0</tspan>
-                    gem(s).
-                </text>
-            </svg> -->
-            </div>
-
-            <!-- <div id="main-panel" class="row">
+                <!-- <div id="main-panel" class="row">
             <div id="chat-panel" class="col">
                 <div id="chat-area" class="col"></div>
                 <i>
@@ -348,8 +364,8 @@
                 <div id="online-users-area" class="col"></div>
             </div>
         </div> -->
-        </div>
-        <!-- <div id="signin-overlay" class="overlay row">
+            </div>
+            <!-- <div id="signin-overlay" class="overlay row">
         <div class="content shadow row">
             
 
@@ -357,12 +373,20 @@
 
             
         </div> -->
-        <!-- </div> -->
+            <!-- </div> -->
+        </div>
 
         <script src="/socket.io/socket.io.min.js"></script>
+        <script src="scripts/constants/socket_events.js"></script>
         <script src="scripts/socket.js"></script>
-        <script src="scripts/avatar.js"></script>
+        <script src="scripts/sprites/sprite.js"></script>
+        <script src="scripts/sprites/mino.js"></script>
+        <script src="scripts/sprites/tetromino.js"></script>
+        <script src="scripts/bounding_box.js"></script>
+        <script src="scripts/control.js"></script>
+        <script src="scripts/canvas.js"></script>
         <script src="scripts/ui.js"></script>
+        <script src="scripts/auth/avatar.js"></script>
         <script src="scripts/auth/registration.js"></script>
         <script src="scripts/auth/authentication.js"></script>
 
@@ -390,12 +414,6 @@
             });
         </script>
 
-        <script src="scripts/control.js"></script>
-        <script src="scripts/sprites/sprite.js"></script>
-        <script src="scripts/sprites/mino.js"></script>
-        <script src="scripts/sprites/tetromino.js"></script>
-        <script src="scripts/canvas.js"></script>
-        <script src="scripts/bounding_box.js"></script>
         <!-- <script src="scripts/sprites/sprite.js"></script>
     <script src="scripts/sprites/gem.js"></script> -->
     </body>
