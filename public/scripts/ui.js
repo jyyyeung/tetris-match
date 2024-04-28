@@ -331,13 +331,26 @@ const ChatPanel = (function () {
     return { initialize, update, addMessage };
 })();
 
-const GameArea = (function () {
+// Game;
+const Game = (function () {
+    const opponent_cv = $("canvas").get(1);
+    const opponent_context = opponent_cv.getContext("2d");
+    const player_cv = $("canvas").get(0);
+    const player_context = player_cv.getContext("2d", {
+        willReadFrequently: false,
+        alpha: true,
+        desynchronized: true,
+    });
+    player_gameArea = GameArea(player_cv, player_context, true);
+    opponent_gameArea = GameArea(opponent_cv, opponent_context, false);
+
     const initialize = function () {
-        //$("#game-container").hide();
+        // Initialize the game area
+        player_gameArea.initialize();
+        opponent_gameArea.initialize();
     };
     return { initialize };
 })();
-
 /**
  * UI module for managing user interface components.
  * @module UI
@@ -363,7 +376,7 @@ const UI = (function () {
         UserPanel,
         OnlineUsersPanel,
         ChatPanel,
-        GameArea,
+        Game,
     ];
 
     // This function initializes the UI

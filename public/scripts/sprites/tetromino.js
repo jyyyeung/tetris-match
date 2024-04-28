@@ -23,7 +23,6 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
     previousSpawned = randomLetter;
     return tetromino;
 }
-
 /**
  * Represents a Tetromino object.
  * @constructor

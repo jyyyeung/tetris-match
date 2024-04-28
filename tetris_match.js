@@ -214,7 +214,7 @@ httpServer.listen(8000, () => {
             });
         }
 
-        socket.on("get users", () => {
+        socket.on(GET_USERS, () => {
             // Send the online users to the browser
             io.emit("users", JSON.stringify(onlineUsers));
         });

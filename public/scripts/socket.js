@@ -23,7 +23,7 @@ const Socket = (function () {
         // Wait for the socket to connect successfully
         socket.on("connect", () => {
             // Get the online user list
-            socket.emit("get users");
+            socket.emit(GET_USERS);
 
             // Get the chatroom messages
             socket.emit("get messages");
