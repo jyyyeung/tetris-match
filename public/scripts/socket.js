@@ -80,6 +80,10 @@ const Socket = (function () {
             console.log("start game");
         });
 
+        socket.on("push next tetromino", (letter) => {
+            opponentGameArea.pushNextTetromino(letter);
+        });
+
         socket.on("key down", (key) => {
             opponentGameArea.translateAction(key, true);
         });
@@ -150,29 +154,17 @@ const Socket = (function () {
         }
     };
 
-    const updateCurrentTetromino = function (tetromino) {
+    const pushNextTetromino = function (letter) {
         if (socket && socket.connected) {
-            socket.broadcast.emit("update current tetromino", tetromino);
+            socket.emit("push next tetromino", letter);
         }
     };
 
-    const updateTetrominoRotation = function (rotation) {
-        if (socket && socket.connected) {
-            socket.broadcast.emit("update tetromino rotation", rotation);
-        }
-    };
-
-    const updateTetrominoPosition = function (position) {
-        if (socket && socket.connected) {
-            socket.emit("update tetromino position", position);
-        }
-    };
-
-    const holdTetromino = function (tetromino) {
-        if (socket && socket.connected) {
-            socket.emit("hold tetromino", tetromino);
-        }
-    };
+    // const holdTetromino = function (tetromino) {
+    //     if (socket && socket.connected) {
+    //         socket.emit("hold tetromino", tetromino);
+    //     }
+    // };
 
     const gameOver = function () {
         if (socket && socket.connected) {
@@ -225,15 +217,12 @@ const Socket = (function () {
         postMessage,
         joinRoom,
         leaveRoom,
-        updateCurrentTetromino,
-        updateTetrominoRotation,
-        updateTetrominoPosition,
-        holdTetromino,
         gameOver,
         updateScore,
         keyDown,
         keyUp,
         initGame,
         readyToStart,
+        pushNextTetromino,
     };
 })();

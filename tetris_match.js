@@ -249,6 +249,11 @@ httpServer.listen(8000, () => {
                 .emit("init game", firstTetromino, tetrominos);
         });
 
+        socket.on("push next tetromino", (letter) => {
+            // Broadcast the next tetromino to everyone
+            socket.broadcast.to(room).emit("push next tetromino", letter);
+        });
+
         socket.on("update score", (score) => {
             // Update the user's score
             // user.score = score;

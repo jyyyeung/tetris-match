@@ -141,15 +141,9 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         I: "url(../src/res/icon-sprite.png) 256px 96px",
     };
 
-    /**
-     * Represents the ID of the player.
-     * @type {boolean} 0 for player, 1 for opponent
-     */
-    const playerId = !isPlayer;
-    // const playerRole = isPlayer ? "player" : "opponent";
     let gameArea = null;
     const canvas = Canvas(ctx);
-    const { array: matrix, renderMatrix, renderSingle } = Matrix(ctx);
+    const { array: matrix, renderMatrix } = Matrix(ctx);
 
     let score = 0;
     let tetrisCount = 0;
@@ -205,7 +199,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         console.log("Game Area Initialized", { isPlayer });
         gameArea = canvas.gameArea;
         //$("#game-container").hide();
-        canvas.drawGrid();
+        // canvas.drawGrid();
 
         /* Handle the start of the game */
         $("#game-container").show(function () {
@@ -279,14 +273,23 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         } else $("#opponent-hold").children().css("background", icons[block]);
     }
 
+    function pushNextTetromino(letter) {
+        nextTetrominos.push(Tetromino(ctx, gameArea, matrix, letter));
+        updateNextIcons();
+    }
+
     function holdCurrentTetromino() {
         console.log("Hold Tetromino");
         if (!holdTetromino) {
             // If there is no tetromino in hold
             holdTetromino = currentTetromino;
             currentTetromino = nextTetrominos.shift();
-            nextTetrominos.push(spawnRandomTetromino(ctx, gameArea, matrix));
-            updateNextIcons();
+            if (isPlayer) {
+                newTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
+                nextTetrominos.push(newTetromino);
+                Socket.pushNextTetromino(newTetromino.getLetter());
+                updateNextIcons();
+            }
         } else {
             // If there is a tetromino in hold
             const temp = currentTetromino;
@@ -486,10 +489,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             }
         }
 
-        /* Clear the screen */
-        ctx.clearRect(0, 0, cv.width, cv.height);
-        // /* Draw the sprites */
-        canvas.drawGrid();
+        clearAndRedraw(false, false);
 
         if (isHardDrop || hitBottom) {
             // Check for full rows
@@ -511,9 +511,13 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             currentTetromino = nextTetrominos.shift();
 
             // Generate new tetromino and add to nextTetrominos
-            nextTetrominos.push(spawnRandomTetromino(ctx, gameArea, matrix));
-            // Update next up terminos icons
-            updateNextIcons();
+            if (isPlayer) {
+                newTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
+                Socket.pushNextTetromino(newTetromino.getLetter());
+                nextTetrominos.push(newTetromino);
+                // Update next up terminos icons
+                updateNextIcons();
+            }
             // Draw current Tetromino
             currentTetromino.draw();
 
@@ -533,5 +537,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         requestAnimationFrame(doFrame);
     }
 
-    return { initialize, setScore, translateAction, startGame, initGame };
+    return {
+        initialize,
+        setScore,
+        translateAction,
+        startGame,
+        initGame,
+        pushNextTetromino,
+    };
 };
