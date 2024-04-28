@@ -15,8 +15,24 @@ $(function () {
 });
 const MATRIX_WIDTH = 10;
 const MATRIX_HEIGHT = 14;
+const BLOCK_SIZE = 32;
+
+/**
+ * Represents a matrix for rendering tetromino blocks on a canvas.
+ *
+ * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+ * @returns {Object} An object containing methods for manipulating and rendering the matrix.
+ */
 const Matrix = function (ctx) {
     let matrix;
+
+    /**
+     * Creates a 2D array representing the matrix.
+     *
+     * @param {number} [d1=MATRIX_WIDTH] - The width of the matrix.
+     * @param {number} [d2=MATRIX_HEIGHT] - The height of the matrix.
+     * @returns {Array} The created matrix array.
+     */
     function makeArray(d1 = MATRIX_WIDTH, d2 = MATRIX_HEIGHT) {
         var arr = [];
         for (let i = 0; i < d2; i++) {
@@ -25,11 +41,9 @@ const Matrix = function (ctx) {
         matrix = arr;
         return arr;
     }
+
     /**
      * Renders the matrix on the canvas.
-     *
-     * @param {number[][]} matrix - The matrix to be rendered.
-     * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
      */
     function renderMatrix() {
         const colors = {
@@ -47,7 +61,6 @@ const Matrix = function (ctx) {
             for (let x = 0; x < MATRIX_WIDTH; x++) {
                 const n = matrix[y][x];
                 if (n) {
-                    // console.log(n);
                     renderSingle(x, y, colors[n]);
                 }
             }
@@ -57,7 +70,6 @@ const Matrix = function (ctx) {
     /**
      * Renders a single tetromino block on the canvas.
      *
-     * @param {CanvasRenderingContext2D} ctx - The rendering context of the canvas.
      * @param {number} x - The x-coordinate of the block.
      * @param {number} y - The y-coordinate of the block.
      * @param {string} color - The color of the block.
@@ -73,30 +85,34 @@ const Matrix = function (ctx) {
     };
 };
 
+/**
+ * Represents a canvas object.
+ * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of the canvas.
+ * @returns {Object} - The canvas object with various methods.
+ */
 const Canvas = function (ctx) {
     var p = 0;
-    var bw = 320;
-    var bh = 448;
-    const gameArea = BoundingBox(ctx, 0, 0, bh, bw);
+
+    var GA_WIDTH = MATRIX_WIDTH * BLOCK_SIZE;
+    var GA_HEIGHT = MATRIX_HEIGHT * BLOCK_SIZE;
+    const gameArea = BoundingBox(ctx, 0, 0, GA_HEIGHT, GA_WIDTH);
     /**
      * Draws a grid on the canvas.
-     *
-     * @param {CanvasRenderingContext2D} ctx - The rendering context of the canvas.
      */
     function drawGrid() {
-        // ctx.save();
-        for (var x = 0; x <= bw; x += 32) {
+        ctx.beginPath();
+        for (var x = 0; x <= GA_WIDTH; x += BLOCK_SIZE) {
             ctx.moveTo(0.5 + x + p, p);
-            ctx.lineTo(0.5 + x + p, bh + p);
+            ctx.lineTo(0.5 + x + p, GA_HEIGHT + p);
         }
 
-        for (var x = 0; x <= bh; x += 32) {
-            ctx.moveTo(p, 0.5 + x + p);
-            ctx.lineTo(bw + p, 0.5 + x + p);
+        for (var y = 0; y <= GA_HEIGHT; y += BLOCK_SIZE) {
+            ctx.moveTo(p, 0.5 + y + p);
+            ctx.lineTo(GA_WIDTH + p, 0.5 + y + p);
         }
         ctx.strokeStyle = "rgba(0,255,255,0.3)";
         ctx.stroke();
-        // ctx.restore();
+        ctx.closePath();
     }
 
     /**
@@ -118,13 +134,8 @@ const Canvas = function (ctx) {
     return {
         gameArea,
         drawGrid,
-        // clearAndRedraw,
-        // setNextIcon,
-        // updateNextIcons,
-        // setScore,
         setTime,
         setLevel,
-        // setHoldIcon,
     };
 };
 
@@ -211,7 +222,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             // GameArea.initialize();
 
             if (isPlayer) {
-                // startGame();
                 initGame();
 
                 // TODO: Play Packground music
@@ -311,6 +321,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         let triple = 0;
         let tetris = 0;
         let consecuitive = 0;
+
         // Iterate through the rows
         for (let y = MATRIX_HEIGHT - 1; y >= 0; y--) {
             let isFull = true;
@@ -350,11 +361,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     }
     let gameStartTime = 0; // The timestamp when the game starts
 
-    const initGame = (
-        // _gameStartTime = performance.now(),
-        _firstTetromino = "",
-        _tetrominos = []
-    ) => {
+    const initGame = (_firstTetromino = "", _tetrominos = []) => {
         nextTetrominos = [];
 
         if (isPlayer) {
@@ -366,11 +373,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 initTetrominos.push(tetromino.getLetter());
                 nextTetrominos.push(tetromino);
             }
-            Socket.initGame(
-                // gameStartTime,
-                currentTetromino.getLetter(),
-                initTetrominos
-            );
+            Socket.initGame(currentTetromino.getLetter(), initTetrominos);
         } else {
             currentTetromino = Tetromino(
                 ctx,
@@ -388,7 +391,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     function startGame() {
         gameStartTime = performance.now();
 
-        canvas.setTime(123);
+        canvas.setTime(totalGameTime);
         canvas.setLevel(3);
 
         updateNextIcons();
@@ -420,7 +423,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     const checkHitCeiling = () => {
         for (let x = 0; x < MATRIX_WIDTH; x++) {
             if (matrix[MATRIX_HEIGHT - 1][x]) {
-                console.log("Hit Ceiling Game Over");
                 return true;
             }
         }
@@ -489,7 +491,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             }
         }
 
-        clearAndRedraw(false, false);
+        // clearAndRedraw(false, false);
 
         if (isHardDrop || hitBottom) {
             // Check for full rows
