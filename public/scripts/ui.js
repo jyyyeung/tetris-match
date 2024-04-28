@@ -51,6 +51,7 @@ const HomePage = (function () {
         $(".before-login").show();
         $(".after-login").hide();
         $("#home-side-panel").hide();
+        
         $("#game-container").hide();
 
         $("#register-button").click(function () {
@@ -151,6 +152,7 @@ const MatchPage = (function () {
 
         $("#match-page-return").click(function () {
             pageChange(phase - 1);
+            Socket.leaveRoom();
         });
 
         $("#time-mode-button").click(function() {
@@ -158,6 +160,7 @@ const MatchPage = (function () {
             phase = 3;
             if (gameData.isPublic) {
                 $("#public-match-page").show();
+                Socket.publicMatch();
             }
             else {
                 $("#create-private-game-page").show();
@@ -169,6 +172,7 @@ const MatchPage = (function () {
             phase = 3;
             if (gameData.isPublic) {
                 $("#public-match-page").show();
+                Socket.publicMatch();
             }
             else {
                 $("#create-private-game-page").show();
@@ -316,7 +320,6 @@ const Match = (function () {
         $("#match-page").hide();
         $("#create-room-btn").on("click", (e) => {
             // Do not submit the form
-
             console.log("create room");
             const createRoomSuccessful = Socket.joinRoom();
             if (!createRoomSuccessful) {
@@ -591,11 +594,12 @@ const Game = (function () {
     function initialize() {
         $("#countdown").hide();
         $("#gameover").hide();
-        $("#game-container").hide();
+        //$("#game-container").hide();
     }
 
     const initGame = function () {
         $("#homepage").hide();
+        $("#match-page").hide();
         $("#countdown").show();
 
         console.log("ui.js initialize");
