@@ -298,6 +298,12 @@ $(function () {
 
     let isHardDrop = false;
 
+    /**
+     * Clears the screen and redraws the canvas.
+     *
+     * @param {boolean} [_matrix=true] - Indicates whether to render the matrix.
+     * @param {boolean} [_tetromino=true] - Indicates whether to render the current tetromino.
+     */
     function clearAndRedraw(_matrix = true, _tetromino = true) {
         /* Clear the screen */
         player_context.clearRect(0, 0, player_cv.width, player_cv.height);
@@ -308,7 +314,11 @@ $(function () {
         if (_tetromino) currentTetromino.draw();
     }
 
+    /**
+     * Displays the game over screen and plays the game over sound.
+     */
     function gameOver() {
+        // $("#final-gems").text(collectedGems);
         // sounds.background.pause();
         // sounds.collect.pause();
         // sounds.gameover.play();
@@ -333,11 +343,6 @@ $(function () {
 
         // /* Handle the game over situation here */
         if (timeRemaining <= 0) {
-            // $("#final-gems").text(collectedGems);
-            // sounds.background.pause();
-            // sounds.collect.pause();
-            // sounds.gameover.play();
-            // $("#game-over").show();
             gameOver();
             return;
         }
@@ -350,7 +355,7 @@ $(function () {
             const noCollision = fitTetromino.tetrominoToMinos();
             if (!noCollision) {
                 clearAndRedraw(true, false);
-                // TODO: Show Game Over
+                // Show Game Over
                 console.log("hit bottom collision Game Over");
                 gameOver();
                 return;
@@ -370,7 +375,7 @@ $(function () {
             if (checkHitCeiling(player_matrix)) {
                 clearAndRedraw(true, false);
 
-                // TODO: Show Game Over
+                // Show Game Over
                 gameOver();
                 console.log("Hit Ceiling Game Over");
                 return;
@@ -394,7 +399,7 @@ $(function () {
                 // Game over
                 clearAndRedraw(true, false);
                 gameOver();
-                // TODO: Show Game Over
+                // Show Game Over
                 console.log("Cannot Spawn Game Over");
                 return;
             }

@@ -1,5 +1,13 @@
 let previousSpawned = null;
-const spawnRandomTetromino = (player_context, gameArea, player_matrix) => {
+/**
+ * Spawns a random tetromino on the game area.
+ *
+ * @param {CanvasRenderingContext2D} player_context - The rendering context of the player.
+ * @param {HTMLElement} gameArea - The game area element.
+ * @param {Array<Array<number>>} player_matrix - The matrix representing the player's tetromino.
+ * @returns {Tetromino} - The spawned tetromino.
+ */
+function spawnRandomTetromino(player_context, gameArea, player_matrix) {
     const letters = ["I", "J", "L", "O", "S", "T", "Z"];
     if (previousSpawned != null) {
         // Try to avoid two consecuitive tetrominos of the same type
@@ -14,7 +22,7 @@ const spawnRandomTetromino = (player_context, gameArea, player_matrix) => {
     );
     previousSpawned = randomLetter;
     return tetromino;
-};
+}
 
 /**
  * Represents a Tetromino object.
@@ -255,21 +263,74 @@ const Tetromino = function (
         }, // Piece T
     };
 
+    /**
+     * The width of a tetromino block.
+     * @type {number}
+     */
     const MINO_WIDTH = 32;
+    /**
+     * The height of a tetromino block.
+     * @type {number}
+     */
     const MINO_HEIGHT = 32;
+    /**
+     * The height of the canvas.
+     * @type {number}
+     */
     const CANVAS_HEIGHT = 448;
+    /**
+     * The default speed of the tetromino.
+     * @type {number}
+     */
     const DEFAULT_SPEED = 1000;
+    /**
+     * The current speed of the tetromino.
+     * @type {number}
+     */
     let speed = DEFAULT_SPEED;
 
+    /**
+     * The rotation of the tetromino.
+     * @type {number}
+     */
     let rotation = 0;
+
+    /**
+     * Returns the block ID for the current tetromino rotation.
+     * @returns {string} The block ID.
+     */
     const getBlockId = () =>
         letter + (rotation % sequences[`${letter}0`].count);
-    console.log(getBlockId());
 
+    // console.log(getBlockId());
+
+    /**
+     * The count of the current tetromino sequence.
+     * @type {Function}
+     * @returns {number} The count of the current tetromino sequence.
+     */
     const COUNT = () => sequences[getBlockId()].count;
+    /**
+     * The width of the tetromino block.
+     * @type {Function}
+     * @returns {number} The width of the tetromino block.
+     */
     const WIDTH = () => sequences[getBlockId()].width;
+    /**
+     * The height of the tetromino block.
+     * @type {Function}
+     * @returns {number} The height of the tetromino block.
+     */
     const HEIGHT = () => sequences[getBlockId()].height;
+    /**
+     * The width of a single block in the tetromino.
+     * @constant {number}
+     */
     const BLOCK_WIDTH = () => WIDTH() / MINO_WIDTH;
+    /**
+     * The height of a single block in the tetromino, calculated based on the overall height of the tetromino.
+     * @constant {number}
+     */
     const BLOCK_HEIGHT = () => HEIGHT() / MINO_HEIGHT;
 
     /**
@@ -308,7 +369,7 @@ const Tetromino = function (
      * @param {number} [_y] - The y-coordinate in pixels.
      * @returns {Object} - An object containing the matrix coordinates (matrixX, matrixY).
      */
-    const getMatrixXY = (_x = null, _y = null) => {
+    function getMatrixXY(_x = null, _y = null) {
         if (_x == null && _y == null) {
             _x = sprite.getXY().x;
             _y = sprite.getXY().y;
@@ -316,17 +377,29 @@ const Tetromino = function (
 
         const { matrixX, matrixY } = convertPxToMatrix(_x, _y);
         return { matrixX, matrixY };
-    };
+    }
 
-    const setMatrixXY = (_matrixX, _matrixY) => {
+    /**
+     * Sets the matrix coordinates of the tetromino and updates its position on the sprite.
+     *
+     * @param {number} _matrixX - The new matrix X coordinate.
+     * @param {number} _matrixY - The new matrix Y coordinate.
+     */
+    function setMatrixXY(_matrixX, _matrixY) {
         const { matrixX, matrixY } = getValidMatrixXY(_matrixX, _matrixY);
         const { x, y } = convertMatrixToPx(matrixX, matrixY);
         // console.log(x, y, " is the converted values");
         sprite.setXY(x, y);
         // console.log("Set xy to be", sprite.getXY());
-    };
+    }
 
-    const getValidMatrixXY = (_matrixX, _matrixY) => {
+    /**
+     * Returns the valid matrix coordinates for a given matrix position.
+     * @param {number} _matrixX - The x-coordinate of the matrix position.
+     * @param {number} _matrixY - The y-coordinate of the matrix position.
+     * @returns {Object} - An object containing the valid matrix coordinates.
+     */
+    function getValidMatrixXY(_matrixX, _matrixY) {
         if (isValidMatrixPosition(_matrixX, _matrixY)) {
             return { matrixX: _matrixX, matrixY: _matrixY };
         }
@@ -337,7 +410,6 @@ const Tetromino = function (
         //     console.log("hasMinoBelow");
         //     matrixY += 1;
         // }
-
         const mLeft = _matrixX;
         const mRight = _matrixX + BLOCK_WIDTH() - 1;
         const mTop = _matrixY + BLOCK_HEIGHT() - 1;
@@ -352,7 +424,7 @@ const Tetromino = function (
         console.log("Returning cleaned up matrixXY:", matrixX, matrixY);
 
         return { matrixX, matrixY };
-    };
+    }
     // This is the sprite object of the Tetromino created from the Sprite module.
     if (matrixY + BLOCK_HEIGHT() > 14) {
         matrixY = 14 - BLOCK_HEIGHT();
@@ -372,7 +444,15 @@ const Tetromino = function (
         .setScale(1)
         .useSheet("../../src/res/tetrominos_w_rotation.png");
 
-    const set = function (_letter, _matrixX, _matrixY, _rotation = 0) {
+    /**
+     * Sets the properties of the tetromino.
+     *
+     * @param {string} _letter - The letter representing the tetromino.
+     * @param {number} _matrixX - The x-coordinate of the tetromino in the matrix.
+     * @param {number} _matrixY - The y-coordinate of the tetromino in the matrix.
+     * @param {number} [_rotation=0] - The rotation of the tetromino (default is 0).
+     */
+    function set(_letter, _matrixX, _matrixY, _rotation = 0) {
         _rotation = _rotation % sequences[`${_letter}0`].count;
         console.log("new Rotation: ", _rotation);
         const newSequence = sequences[`${_letter}${_rotation}`];
@@ -384,17 +464,26 @@ const Tetromino = function (
 
         // setMatrixXY(0, 0);
         /* birthTime = performance.now(); */
-    };
+    }
 
-    const rotate = (dir) => {
+    /**
+     * Rotates the tetromino in the specified direction.
+     *
+     * @param {number} dir - The direction to rotate the tetromino. Positive values rotate clockwise, negative values rotate counterclockwise.
+     */
+    function rotate(dir) {
         const { matrixX, matrixY } = getMatrixXY();
         // console.log("Trying to keep ", matrixX, matrixY);
         set(letter, matrixX, matrixY, rotation + dir + COUNT()); // added COUNT() to ensure no negative remainder
-    };
+    }
 
     const SOFT_DROP_SPEED = 100;
 
-    const hardDrop = () => {
+    /**
+     * Drops the tetromino to the lowest possible position.
+     * @returns {void}
+     */
+    function hardDrop() {
         console.log("--- START HARD_DROP() ---");
         const { matrixX, matrixY } = getMatrixXY();
         // const { matrixX: _mX, matrixY: _mY } = getValidMatrixXY(matrixX, 0);
@@ -414,9 +503,14 @@ const Tetromino = function (
         }
         // lastUpdate -= DEFAULT_SPEED;
         console.log("--- END HARD_DROP() ---");
-    };
+    }
 
-    const move = function (_action, _isKeyDown = 1) {
+    /**
+     * Moves the tetromino based on the given action.
+     * @param {number} _action - The action to perform. Should be one of the action constants.
+     * @param {number} [_isKeyDown=1] - Indicates whether the key is currently being held down.
+     */
+    function move(_action, _isKeyDown = 1) {
         if (_action != INVALID_KEY) {
             let { x, y } = sprite.getXY();
             let { matrixX, matrixY } = getMatrixXY();
@@ -448,13 +542,20 @@ const Tetromino = function (
                 sprite.setXY(x, y);
             }
         }
-    };
+    }
 
-    const isValidPosition = (x, y) => {
+    /**
+     * Checks if the given position is valid within the tetromino matrix.
+     *
+     * @param {number} x - The x-coordinate of the position.
+     * @param {number} y - The y-coordinate of the position.
+     * @returns {boolean} - True if the position is valid, false otherwise.
+     */
+    function isValidPosition(x, y) {
         const { matrixX, matrixY } = getMatrixXY(x, y);
         console.log(matrixX, matrixY);
         return isValidMatrixPosition(matrixX, matrixY);
-    };
+    }
 
     /**
      * Checks if the given matrix position is valid within the game area.
@@ -477,6 +578,10 @@ const Tetromino = function (
         return true;
     }
 
+    /**
+     * Retrieves the letter associated with the tetromino.
+     * @returns {string} The letter associated with the tetromino.
+     */
     const getLetter = () => letter;
 
     /**
@@ -525,11 +630,10 @@ const Tetromino = function (
 
     let isHardDrop = false;
     let lastUpdate = 0;
-    // This function updates the tetromino depending on its movement.
-    // - `time` - The timestamp when this function is called
+
     /**
      * Drops the tetromino down by one row.
-     * @param {number} time - The current time.
+     * @param {number} time - The timestamp when this function is called
      * @returns {boolean} hitBottom - True if the tetromino's position is fixed, false otherwise.
      */
     const drop = (time) => {
@@ -570,22 +674,32 @@ const Tetromino = function (
         return false;
     };
 
+    /**
+     * Returns the color indices for the specified coordinates.
+     *
+     * @param {number} _x - The x-coordinate.
+     * @param {number} _y - The y-coordinate.
+     * @returns {Object} An object containing the color indices for red, green, blue, and alpha channels.
+     */
     const getColorIndicesForCoord = (_x, _y) => {
         // const red = _y * (CANVAS_WIDTH * 4) + _x * 4;
         const red = _y * (WIDTH() * 4) + _x * 4;
         return { r: red, g: red + 1, b: red + 2, a: red + 3 };
     };
 
-    // const colorIndices = getColorIndicesForCoord(xCoord, yCoord, CANVAS_WIDTH);
+    /**
+     * Retrieves the alpha value of a pixel in the given image data at the specified coordinates.
+     *
+     * @param {ImageData} _imageData - The image data containing the pixel information.
+     * @param {number} _x - The x-coordinate of the pixel.
+     * @param {number} _y - The y-coordinate of the pixel.
+     * @returns {number} The alpha value of the pixel.
+     */
     const getAlpha = (_imageData, _x, _y) => {
         // console.log(_x, _y);
         const { r, g, b, a } = getColorIndicesForCoord(_x, _y);
         return _imageData[a];
     };
-
-    // console.log(myImageData);
-
-    // const getColor = (_x, _y) = getColorIndicesForCoord(_x, _y);
 
     /**
      * Converts the tetromino image data to minos matrix.
@@ -606,11 +720,6 @@ const Tetromino = function (
             _matrixX = matrixX;
             _matrixY = matrixY;
         }
-
-        // console.log("Converting Tetromino to Minos");
-        // const { matrixX, matrixY } = getMatrixXY();
-        // console.log(matrixX, matrixY, BLOCK_WIDTH(), BLOCK_HEIGHT());
-        // console.log(BLOCK_WIDTH(), BLOCK_HEIGHT());
 
         let noCollision = true;
         for (let _w = 0; _w < BLOCK_WIDTH(); _w++) {
@@ -638,6 +747,10 @@ const Tetromino = function (
         return noCollision;
     };
 
+    /**
+     * Checks if a tetromino can spawn at the current position.
+     * @returns {boolean} Returns true if the tetromino can spawn, false otherwise.
+     */
     const canSpawn = () => isValidMatrixPosition(3, 12);
 
     // The methods are returned as an object here.
@@ -649,11 +762,8 @@ const Tetromino = function (
         move: move,
         tetrominoToMinos,
         isValidMatrixPosition,
-        // setColor: setColor,
         drop: drop,
-        /* getAge: getAge, */
         getBoundingBox: sprite.getBoundingBox,
-        // randomize: randomize,
         draw: sprite.draw,
         canSpawn: canSpawn,
     };
