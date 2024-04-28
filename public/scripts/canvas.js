@@ -265,10 +265,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
      */
     function setScore(score) {
         // bool - true if player, false if opponent
-        if (isPlayer) {
-            if (score > 0) Socket.updateScore(score);
-            $("#player-score").text(score);
-        } else $("#opponent-score").text(score);
+        if (isPlayer) $("#player-score").text(score);
+        else $("#opponent-score").text(score);
     }
 
     /**
@@ -278,9 +276,9 @@ const GameArea = function (cv, ctx, isPlayer = true) {
      */
     function setHoldIcon(block) {
         // bool - true if player, false if opponent. block - char (OSLZJTI)
-        if (isPlayer) {
+        if (isPlayer)
             $("#player-hold").children().css("background", icons[block]);
-        } else $("#opponent-hold").children().css("background", icons[block]);
+        else $("#opponent-hold").children().css("background", icons[block]);
     }
 
     function pushNextTetromino(letter) {
@@ -365,7 +363,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         nextTetrominos = [];
 
         if (isPlayer) {
-            setScore(score);
             const initTetrominos = [];
             currentTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
             for (let i = 0; i < 3; i++) {
@@ -393,6 +390,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
         canvas.setTime(totalGameTime);
         canvas.setLevel(3);
+        setScore(score);
 
         updateNextIcons();
 
@@ -437,6 +435,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         // sounds.background.pause();
         // sounds.collect.pause();
         // sounds.gameover.play();
+        const gameStats = {
+            score,
+            tetrisCount,
+        };
+        Socket.setGameStats(gameStats);
+
         $("#game-over").show();
     }
     let isHardDrop = false;
@@ -461,8 +465,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
      * @param {DOMHighResTimeStamp} now - The current timestamp.
      */
     function doFrame(now) {
-        // if (gameStartTime == 0) gameStartTime = now;
-
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;
         const timeRemaining = Math.ceil(

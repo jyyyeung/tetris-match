@@ -5,8 +5,11 @@
 const Socket = (function () {
     // This stores the current Socket.IO socket
     let socket = null;
+    /**
+     * Represents the opponent's game area.
+     * @type {HTMLElement}
+     */
     let opponentGameArea = null;
-    let room = null;
 
     /**
      * Gets the socket from the module
@@ -98,11 +101,6 @@ const Socket = (function () {
             gameInProgress = false;
         });
 
-        socket.on("update score", (score) => {
-            // console.log("Opponent Score: ", score);
-            opponentGameArea.setScore(score);
-        });
-
         socket.on("on your marks", () => {
             if (gameInProgress) return;
             console.log("on your marks");
@@ -112,12 +110,8 @@ const Socket = (function () {
 
         socket.on("init game", (firstTetromino, tetrominos) => {
             if (gameInProgress) return;
-            console.log("init game", firstTetromino, tetrominos);
-            opponentGameArea.initGame(
-                // gameStartTime,
-                firstTetromino,
-                tetrominos
-            );
+            // console.log("init game", firstTetromino, tetrominos);
+            opponentGameArea.initGame(firstTetromino, tetrominos);
         });
     };
 
@@ -127,6 +121,12 @@ const Socket = (function () {
     const disconnect = function () {
         socket.disconnect();
         socket = null;
+    };
+
+    const setGameStats = (stats) => {
+        if (socket && socket.connected) {
+            socket.emit("set game stats", stats);
+        }
     };
 
     /**
@@ -140,11 +140,9 @@ const Socket = (function () {
     };
 
     const joinRoom = function (_room) {
-        // if (socket && socket.connected) {
         console.log("request to join room");
         socket.emit("join room", _room);
         room = _room;
-        // }
     };
 
     const leaveRoom = function (_room) {
@@ -160,22 +158,9 @@ const Socket = (function () {
         }
     };
 
-    // const holdTetromino = function (tetromino) {
-    //     if (socket && socket.connected) {
-    //         socket.emit("hold tetromino", tetromino);
-    //     }
-    // };
-
     const gameOver = function () {
         if (socket && socket.connected) {
             socket.emit("game over");
-        }
-    };
-
-    const updateScore = function (score) {
-        console.log("update score", score);
-        if (socket && socket.connected) {
-            socket.emit("update score", score);
         }
     };
 
@@ -194,13 +179,8 @@ const Socket = (function () {
     const initGame = function (currentTetromino, tetrominos) {
         if (socket && socket.connected) {
             if (gameInProgress) return;
-            console.log("My game area", currentTetromino, tetrominos);
-            socket.emit(
-                "init game",
-                // gameStartTime,
-                currentTetromino,
-                tetrominos
-            );
+            // console.log("My game area", currentTetromino, tetrominos);
+            socket.emit("init game", currentTetromino, tetrominos);
         }
     };
 
@@ -218,11 +198,11 @@ const Socket = (function () {
         joinRoom,
         leaveRoom,
         gameOver,
-        updateScore,
         keyDown,
         keyUp,
         initGame,
         readyToStart,
         pushNextTetromino,
+        setGameStats,
     };
 })();
