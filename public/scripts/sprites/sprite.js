@@ -35,8 +35,8 @@ const Sprite = function (ctx, x, y) {
         y: 0,
         width: 32,
         height: 32,
+        count: 1,
     };
-
 
     /**
      * Represents the index of the sprite.
@@ -256,28 +256,28 @@ const Sprite = function (ctx, x, y) {
      * @param {number} time - The current time in milliseconds.
      * @returns {Object} - The updated sprite object.
      */
-    /* const update = function (time) {
-        if (lastUpdate == 0) lastUpdate = time;
+    // const update = function (time) {
+    //     if (lastUpdate == 0) lastUpdate = time;
 
-        // XXX: Move to the next sprite when the timing is right 
-        if (time - lastUpdate >= sequence.timing) {
-            // Draw the sprite
-            index++;
-            if (index >= sequence.count) {
-                // Repeat the animation from the first sprite only if sequence.loop is true
-                if (sequence.loop) index = 0;
-                else index--;
-            }
+    //     // XXX: Move to the next sprite when the timing is right
+    //     if (sequence.timing && time - lastUpdate >= sequence.timing) {
+    //         // Draw the sprite
+    //         index++;
+    //         if (index >= sequence.count) {
+    //             // Repeat the animation from the first sprite only if sequence.loop is true
+    //             if (sequence.loop) index = 0;
+    //             else index--;
+    //         }
 
-            lastUpdate = time;
-        }
+    //         lastUpdate = time;
+    //     }
 
-        return this;
-    }; */
+    //     return this;
+    // };
 
-    const isLoaded = function() {
+    const isLoaded = function () {
         return loaded;
-    }
+    };
 
     // The methods are returned as an object here.
     return {
@@ -291,6 +291,6 @@ const Sprite = function (ctx, x, y) {
         getBoundingBox: getBoundingBox,
         isReady: isReady,
         draw: draw,
-        /* update: update, */
+        // update: update,
     };
 };

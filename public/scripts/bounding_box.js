@@ -92,6 +92,30 @@ const BoundingBox = function (ctx, top, left, bottom, right) {
 
     /**
      * Checks if this bounding box intersects with another bounding box.
+     * @param {BoundingBox} outerBox - The other bounding box to check against.
+     * @returns {boolean} Returns true if the bounding boxes intersect, otherwise returns false.
+     */
+    const fullyWithinBox = function (outerBox) {
+        // This function checks whether the two bounding boxes intersect.
+        // - `box` - The other bounding box
+
+        /* Check the points of the other box */
+        // let points = outerBox.getPoints();
+        // for (const key in points) {
+        //     if (isPointInBox(...points[key])) return true;
+        // }
+
+        /* Check the points of this box */
+        let points = getPoints();
+        for (const key in points) {
+            if (!outerBox.isPointInBox(...points[key])) return false;
+        }
+
+        return true;
+    };
+
+    /**
+     * Checks if this bounding box intersects with another bounding box.
      * @param {BoundingBox} box - The other bounding box to check against.
      * @returns {boolean} Returns true if the bounding boxes intersect, otherwise returns false.
      */
@@ -135,5 +159,6 @@ const BoundingBox = function (ctx, top, left, bottom, right) {
         isPointInBox: isPointInBox,
         intersect: intersect,
         randomPoint: randomPoint,
+        fullyWithinBox,
     };
 };

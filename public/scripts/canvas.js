@@ -1,10 +1,139 @@
 $(function () {
     /* Get the canvas and 2D context */
-    console.log("canvas.js")
-    const opponent_cv = $("canvas").get(1);
-    const opponent_context = opponent_cv.getContext("2d");
-    const player_cv = $("canvas").get(0);
-    const player_context = player_cv.getContext("2d");
+    console.log("canvas.js");
+
+    /* Create the sprites in the game */
+    // const player = Player(context, 427, 240, gameArea); // The player
+    // const gem = Gem(context, 427, 350, "green"); // The gem
+});
+const MATRIX_WIDTH = 10;
+const MATRIX_HEIGHT = 14;
+const BLOCK_SIZE = 32;
+
+/**
+ * Represents a matrix for rendering tetromino blocks on a canvas.
+ *
+ * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+ * @returns {Object} An object containing methods for manipulating and rendering the matrix.
+ */
+const Matrix = function (ctx) {
+    let matrix;
+
+    /**
+     * Creates a 2D array representing the matrix.
+     *
+     * @param {number} [d1=MATRIX_WIDTH] - The width of the matrix.
+     * @param {number} [d2=MATRIX_HEIGHT] - The height of the matrix.
+     * @returns {Array} The created matrix array.
+     */
+    function makeArray(d1 = MATRIX_WIDTH, d2 = MATRIX_HEIGHT) {
+        var arr = [];
+        for (let i = 0; i < d2; i++) {
+            arr.push(new Array(d1));
+        }
+        matrix = arr;
+        return arr;
+    }
+
+    /**
+     * Renders the matrix on the canvas.
+     */
+    function renderMatrix() {
+        const colors = {
+            0: "empty",
+            O: "red",
+            S: "yellow",
+            L: "green",
+            Z: "lightBlue",
+            J: "pink",
+            T: "darkBlue",
+            I: "purple",
+            1: "grey",
+        };
+        for (let y = 0; y < MATRIX_HEIGHT; y++) {
+            for (let x = 0; x < MATRIX_WIDTH; x++) {
+                const n = matrix[y][x];
+                if (n) {
+                    renderSingle(x, y, colors[n]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Renders a single tetromino block on the canvas.
+     *
+     * @param {number} x - The x-coordinate of the block.
+     * @param {number} y - The y-coordinate of the block.
+     * @param {string} color - The color of the block.
+     */
+    function renderSingle(x, y, color) {
+        Mino(ctx, 16 + 32 * x, 432 - 32 * y, color).draw();
+    }
+
+    return {
+        array: makeArray(MATRIX_WIDTH, MATRIX_HEIGHT + 2),
+        renderMatrix,
+        renderSingle,
+    };
+};
+
+/**
+ * Represents a canvas object.
+ * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of the canvas.
+ * @returns {Object} - The canvas object with various methods.
+ */
+const Canvas = function (ctx) {
+    var p = 0;
+
+    var GA_WIDTH = MATRIX_WIDTH * BLOCK_SIZE;
+    var GA_HEIGHT = MATRIX_HEIGHT * BLOCK_SIZE;
+    const gameArea = BoundingBox(ctx, 0, 0, GA_HEIGHT, GA_WIDTH);
+    /**
+     * Draws a grid on the canvas.
+     */
+    function drawGrid() {
+        ctx.beginPath();
+        for (var x = 0; x <= GA_WIDTH; x += BLOCK_SIZE) {
+            ctx.moveTo(0.5 + x + p, p);
+            ctx.lineTo(0.5 + x + p, GA_HEIGHT + p);
+        }
+
+        for (var y = 0; y <= GA_HEIGHT; y += BLOCK_SIZE) {
+            ctx.moveTo(p, 0.5 + y + p);
+            ctx.lineTo(GA_WIDTH + p, 0.5 + y + p);
+        }
+        ctx.strokeStyle = "rgba(0,255,255,0.3)";
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    /**
+     * Sets the time value in the DOM element with id "time".
+     * @param {number} time - The time value to be set.
+     */
+    function setTime(time) {
+        $("#time").text(time);
+    }
+
+    /**
+     * Sets the level of difficulty.
+     * @param {number} level - The level of difficulty.
+     */
+    function setLevel(level) {
+        $("#difficulty").text(level);
+    }
+
+    return {
+        gameArea,
+        drawGrid,
+        setTime,
+        setLevel,
+    };
+};
+
+const GameArea = function (cv, ctx, isPlayer = true) {
+    const totalGameTime = 10; // Total game time in seconds
 
     const icons = {
         O: "url(../src/res/icon-sprite.png) 0 0",
@@ -14,239 +143,445 @@ $(function () {
         J: "url(../src/res/icon-sprite.png) 0 96px",
         T: "url(../src/res/icon-sprite.png) 384px 96px",
         I: "url(../src/res/icon-sprite.png) 256px 96px",
+    };
+
+    let gameArea = null;
+    const canvas = Canvas(ctx);
+    const { array: matrix, renderMatrix } = Matrix(ctx);
+
+    let score = 0;
+    let tetrisCount = 0;
+
+    let currentTetromino = null;
+    let nextTetrominos = [];
+    let holdTetromino = null;
+
+    const translateAction = function (action, isKeyDown) {
+        if (isKeyDown) {
+            // Invalid Action
+            if (action == INVALID_KEY) return;
+
+            if (action == MOVE_LEFT) {
+                return currentTetromino.move(MOVE_LEFT);
+            }
+            if (action == MOVE_RIGHT) {
+                return currentTetromino.move(MOVE_RIGHT);
+            }
+            if (action == ROTATE_LEFT) {
+                return currentTetromino.move(ROTATE_LEFT);
+            }
+            if (action == ROTATE_RIGHT) {
+                return currentTetromino.move(ROTATE_RIGHT);
+            }
+            if (action == SOFT_DROP) {
+                return currentTetromino.move(SOFT_DROP);
+            }
+            if (action == HARD_DROP) {
+                const fixTetromino = currentTetromino;
+                fixTetromino.move(HARD_DROP);
+                isHardDrop = true;
+                return;
+            }
+            if (action == HOLD) {
+                holdCurrentTetromino();
+                return;
+            }
+            // TODO: Handle other movements
+            if (action == CHEAT_MODE) return console.log("keydown: cheat mode");
+        } else {
+            // Invalid Action
+            if (action == INVALID_KEY) return;
+            // Handle other movements
+            if (action == SOFT_DROP) return currentTetromino.move(SOFT_DROP, 0);
+
+            // TODO: Handle Cheat Mode
+            if (action == CHEAT_MODE) return console.log("keyup: cheat mode");
+        }
+    };
+    timeRemaining = 4;
+
+    function countdown() {
+        // Decrease the remaining time
+        timeRemaining--;
+
+        if (timeRemaining > 0) {
+            // Continue the countdown if there is still time;
+            $("#countdown").text(timeRemaining);
+            // Wait for 1 second, and call countdown() again
+            setTimeout(countdown, 1000);
+        } else {
+            // otherwise, start the game when the time is up
+            $("#countdown").text("Start");
+            // startGame();
+            $("#countdown").hide();
+            initGame();
+        }
     }
+
     /* Create the sounds */
-    /* const sounds = {
-        background: new Audio("background.mp3"),
-        collect: new Audio("collect.mp3"),
-        gameover: new Audio("gameover.mp3"),
-    }; */
+    const sounds = {
+        background: new Audio("src/res/main-bgm.mp3"),
+        // collect: new Audio("collect.mp3"),
+        // gameover: new Audio("gameover.mp3"),
+    };
 
-    const totalGameTime = 20; // Total game time in seconds
-    const gemMaxAge = 3000; // The maximum age of the gems in milliseconds
-    let gameStartTime = 0; // The timestamp when the game starts
-    let collectedGems = 0; // The number of gems collected in the game
+    const initialize = function () {
+        console.log("Game Area Initialized", { isPlayer });
+        gameArea = canvas.gameArea;
+        //$("#game-container").hide();
+        // canvas.drawGrid();
 
-    const MATRIX_WIDTH = 10;
-    const MATRIX_HEIGHT = 14;
+        /* Handle the start of the game */
+        $("#game-container").show(function () {
+            console.log("Game Container Shown");
 
-    // TODO: Create game sprites
+            // $("#game-start").on("click", function () {
+            /* TODO: Hide the start screen */
+            // $("#game-start").hide();
+            // GameArea.initialize();
 
-    /* Create the game area */
-    //const gameArea = BoundingBox(context, 165, 60, 420, 800);
+            if (isPlayer) {
+                countdown();
+            }
+        });
+    };
 
-    /* Create the sprites in the game */
-    // const player = Player(context, 427, 240, gameArea); // The player
-    // const gem = Gem(context, 427, 350, "green"); // The gem
-
-    function makeArray(d1, d2) {
-        var arr = [];
-        for (let i = 0; i < d2; i++) {
-            arr.push(new Array(d1));
-        }
-        return arr;
+    /**
+     * Sets the background of the next icon element based on the provided parameters.
+     *
+     * @param {boolean} bool - Indicates whether the player or opponent is being updated. True for player, false for opponent.
+     * @param {number} index - The index of the next icon element to update. Must be between 0 and 3.
+     * @param {string} block - The character representing the icon to set. Must be one of O, S, L, Z, J, T, or I.
+     */
+    function setNextIcon(index, block) {
+        // bool - true if player, false if opponent. index max 3. block - char (OSLZJTI)
+        if (isPlayer)
+            $("#player-next")
+                .children()
+                .eq(index)
+                .css("background", icons[block]);
+        else
+            $("#opponent-next")
+                .children()
+                .eq(index)
+                .css("background", icons[block]);
     }
 
-    //gameAreaPoints = gameArea.getPoints();
-    //let matrix = makeArray(10, 14);
-
-    var bw = 320;
-    var bh = 448;
-    var p = 0;
-
-    function drawGrid(ctx) {
-        for (var x = 0; x <= bw; x += 32) {
-            ctx.moveTo(0.5 + x + p, p);
-            ctx.lineTo(0.5 + x + p, bh + p);
+    function updateNextIcons() {
+        // bool - true if player, false if opponent
+        for (let i = 0; i < 3; i++) {
+            setNextIcon(i, nextTetrominos[i].getLetter());
         }
-
-        for (var x = 0; x <= bh; x += 32) {
-            ctx.moveTo(p, 0.5 + x + p);
-            ctx.lineTo(bw + p, 0.5 + x + p);
-        }
-        ctx.strokeStyle = "rgba(0,255,255,0.3)";
-        ctx.stroke();
-    }
-    drawGrid(opponent_context);
-    drawGrid(player_context);
-
-    function setNextIcon(bool, index, block) { // bool - true if player, false if opponent. index max 3. block - char (OSLZJTI)
-        if (bool) $("#player-next").children().eq(index).css("background",icons[block])
-        else $("#opponent-next").children().eq(index).css("background",icons[block])
     }
 
-    function setScore(bool, score) { // bool - true if player, false if opponent
-        if (bool) $("#player-score").text(score);
+    /**
+     * Sets the score for the player or opponent.
+     * @param {boolean} bool - True if player, false if opponent.
+     * @param {number} score - The score to set.
+     */
+    function setScore(score) {
+        // bool - true if player, false if opponent
+        if (isPlayer) $("#player-score").text(score);
         else $("#opponent-score").text(score);
     }
 
-    function setTime(time) {
-        $("#time").text(time);
+    /**
+     * Sets the hold icon for the player or opponent.
+     * @param {boolean} bool - True if player, false if opponent.
+     * @param {string} block - The character representing the block (OSLZJTI).
+     */
+    function setHoldIcon(block) {
+        // bool - true if player, false if opponent. block - char (OSLZJTI)
+        if (isPlayer)
+            $("#player-hold").children().css("background", icons[block]);
+        else $("#opponent-hold").children().css("background", icons[block]);
     }
 
-    function setLevel(level) {
-        $("#difficulty").text(level);
+    function pushNextTetromino(letter) {
+        nextTetrominos.push(Tetromino(ctx, gameArea, matrix, letter));
+        updateNextIcons();
     }
 
-    function setHoldIcon(bool, block) { // bool - true if player, false if opponent. block - char (OSLZJTI)
-        if (bool) $("#player-hold").children().css("background",icons[block])
-        else $("#opponent-hold").children().css("background",icons[block])
+    function holdCurrentTetromino() {
+        console.log("Hold Tetromino");
+        if (!holdTetromino) {
+            // If there is no tetromino in hold
+            holdTetromino = currentTetromino;
+            currentTetromino = nextTetrominos.shift();
+            if (isPlayer) {
+                newTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
+                nextTetrominos.push(newTetromino);
+                Socket.pushNextTetromino(newTetromino.getLetter());
+                updateNextIcons();
+            }
+        } else {
+            // If there is a tetromino in hold
+            const temp = currentTetromino;
+            currentTetromino = holdTetromino;
+            holdTetromino = temp;
+        }
+        // Update the hold icon
+        setHoldIcon(holdTetromino.getLetter());
+        currentTetromino.draw();
     }
+    let level = 0;
 
-    const test_matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT);
-    test_matrix[0][0] = 1;
-    test_matrix[3][5] = 2;
-    test_matrix[8][8] = 5;
-    
-    function renderMatrix(matrix, ctx) {
-        const colors = ["empty","red","yellow","green","lightBlue","pink","darkBlue","purple", "grey"];
-        for (let y = 0; y < MATRIX_HEIGHT; y++) {
+    /**
+     * Checks for full rows in the matrix and updates the score accordingly.
+     */
+    function checkFullRows() {
+        let single = 0;
+        let double = 0;
+        let triple = 0;
+        let tetris = 0;
+        let consecuitive = 0;
+
+        // Iterate through the rows
+        for (let y = MATRIX_HEIGHT - 1; y >= 0; y--) {
+            let isFull = true;
+            // Iterate through the columns
             for (let x = 0; x < MATRIX_WIDTH; x++) {
-                const n = matrix[y][x];
-                if (n) {
-                    console.log(n);
-                    renderSingle(ctx, x, y, colors[n])
-                }               
+                if (!matrix[y][x]) {
+                    // If the cell is empty, the row is not full
+                    isFull = false;
+                    break;
+                }
+            }
+            if (isFull) {
+                consecuitive++;
+                // Remove the row
+                for (let i = y; i < MATRIX_HEIGHT - 1; i++) {
+                    matrix[i] = matrix[i + 1];
+                }
+                matrix[MATRIX_HEIGHT - 1] = new Array(MATRIX_WIDTH).fill(
+                    undefined
+                );
+            }
+            if ((!isFull && consecuitive > 0) || y == 0) {
+                if (consecuitive == 1) single++;
+                else if (consecuitive == 2) double++;
+                else if (consecuitive == 3) triple++;
+                else if (consecuitive == 4) tetris++;
+
+                consecuitive = 0;
             }
         }
+        score += 40 * (level + 1) * single;
+        score += 50 * (level + 1) * double * 2;
+        score += 100 * (level + 1) * triple * 3;
+        score += 300 * (level + 1) * tetris * 4;
+        tetrisCount += tetris;
+        setScore(score);
+    }
+    let gameStartTime = 0; // The timestamp when the game starts
+
+    const initGame = (_firstTetromino = "", _tetrominos = []) => {
+        nextTetrominos = [];
+
+        if (isPlayer) {
+            const initTetrominos = [];
+            currentTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
+            for (let i = 0; i < 3; i++) {
+                const tetromino = spawnRandomTetromino(ctx, gameArea, matrix);
+                initTetrominos.push(tetromino.getLetter());
+                nextTetrominos.push(tetromino);
+            }
+            Socket.initGame(currentTetromino.getLetter(), initTetrominos);
+        } else {
+            currentTetromino = Tetromino(
+                ctx,
+                gameArea,
+                matrix,
+                _firstTetromino
+            );
+            nextTetrominos = _tetrominos.map((t) =>
+                Tetromino(ctx, gameArea, matrix, t)
+            );
+            Socket.readyToStart();
+        }
+    };
+
+    function startGame() {
+        gameStartTime = performance.now();
+
+        canvas.setTime(totalGameTime);
+        canvas.setLevel(3);
+        setScore(score);
+
+        updateNextIcons();
+
+        if (isPlayer) {
+            // TODO: Play Packground music
+            sounds.background.play();
+
+            // Handle keydown of controls
+            $(document).on("keydown", function (event) {
+                action = action_from_key(event.keyCode);
+                Socket.keyDown(action);
+                translateAction(action, true);
+            });
+
+            // Handle keyup of controls
+            $(document).on("keyup", function (event) {
+                action = action_from_key(event.keyCode);
+                Socket.keyUp(action);
+                translateAction(action, false);
+            });
+        }
+
+        /* Start the game */
+        requestAnimationFrame(doFrame);
     }
 
-    function renderSingle(ctx, x, y, color) {
-        Tetromino(ctx, 16+32*x, 432-32*y, color).draw();
+    /**
+     * Checks if the tetromino has hit the ceiling.
+     * @returns {boolean} Returns true if the tetromino has hit the ceiling, otherwise returns false.
+     */
+    const checkHitCeiling = () => {
+        for (let x = 0; x < MATRIX_WIDTH; x++) {
+            if (matrix[MATRIX_HEIGHT - 1][x]) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    /**
+     * Displays the game over screen and plays the game over sound.
+     */
+    function gameOver(isDraw = false, isLost = true) {
+        Game.setGameOver();
+        // $("#final-gems").text(collectedGems);
+        sounds.background.pause();
+        // sounds.collect.pause();
+        // sounds.gameover.play();
+        if (!isPlayer) return;
+        const gameStats = {
+            score,
+            tetrisCount,
+        };
+        Socket.setGameStats(gameStats);
+        console.log("Game Over: Lost");
+        if (isDraw) {
+            $("#player-standing").text("Draw! ");
+        } else if (isLost) {
+            Socket.gameOver();
+            $("#player-standing").text("You Lose! ");
+        } else $("#player-standing").text("You Won! ");
+        // else {
+        // }
+
+        $("#gameover").show();
     }
-
-    setNextIcon(true, 0, 'I');
-    setNextIcon(false, 1, 'Z');
-    setScore(true, 123);
-    setScore(false, 456);
-    setHoldIcon(true, 'O');
-    setHoldIcon(false, 'T');
-    setTime(123);
-    setLevel(3);
-
-
-    const test = Tetromino(player_context,16,16,"green"); // This line is for loading the images
-    setTimeout(function() {
-        renderMatrix(test_matrix, player_context);
-    }, 100)
-
-    
-    /* setTimeout(function() {
-        renderSingle(player_context, 0, 0, "red");
-        renderSingle(player_context, 9, 0, "yellow");
-        renderSingle(player_context, 0, 13, "lightBlue");
-        renderSingle(player_context, 9, 13, "pink");
-    }, 100) */
-    
-    //updateNext();
-
+    let isHardDrop = false;
+    /**
+     * Clears the screen and redraws the canvas.
+     *
+     * @param {boolean} [_matrix=true] - Indicates whether to render the matrix.
+     * @param {boolean} [_tetromino=true] - Indicates whether to render the current tetromino.
+     */
+    function clearAndRedraw(_matrix = true, _tetromino = true) {
+        /* Clear the screen */
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        // /* Draw the sprites */
+        canvas.drawGrid(ctx);
+        if (_matrix) renderMatrix();
+        if (_tetromino) currentTetromino.draw();
+    }
 
     /* The main processing of the game */
+    /**
+     * Performs the main logic for each frame of the game.
+     * @param {DOMHighResTimeStamp} now - The current timestamp.
+     */
     function doFrame(now) {
-        if (gameStartTime == 0) gameStartTime = now;
-
+        if (Game.getGameOver()) {
+            sounds.background.pause();
+            return;
+        }
         // /* Update the time remaining */
-        // const gameTimeSoFar = now - gameStartTime;
-        // const timeRemaining = Math.ceil(
-        //     (totalGameTime * 1000 - gameTimeSoFar) / 1000
-        // );
-        // $("#time-remaining").text(timeRemaining);
+        const gameTimeSoFar = now - gameStartTime;
+        const timeRemaining = Math.ceil(
+            (totalGameTime * 1000 - gameTimeSoFar) / 1000
+        );
+
+        canvas.setTime(timeRemaining);
 
         // /* Handle the game over situation here */
-        // if (timeRemaining == 0) {
-        //     $("#final-gems").text(collectedGems);
-        //     sounds.background.pause();
-        //     sounds.collect.pause();
-        //     sounds.gameover.play();
-        //     $("#game-over").show();
-        //     return;
-        // }
+        if (timeRemaining <= 0) {
+            gameOver(true);
+            return;
+        }
 
-        // /* Update the sprites */
-        // gem.update(now);
-        // player.update(now);
-        // fires.forEach((fire) => {
-        //     fire.update(now);
-        // });
+        const hitBottom = currentTetromino.drop(now);
+        if (hitBottom && !isHardDrop) {
+            const fitTetromino = currentTetromino;
+            // Add the tetromino to the matrix
+            const noCollision = fitTetromino.tetrominoToMinos();
+            if (!noCollision) {
+                clearAndRedraw(true, false);
+                // Show Game Over
+                console.log("hit bottom collision Game Over");
+                gameOver(false, true);
+                return;
+            }
+        }
 
-        // /* Randomize the gem and collect the gem here */
-        // if (gem.getAge(now) >= gemMaxAge) {
-        //     gem.randomize(gameArea);
-        // }
+        // clearAndRedraw(false, false);
 
-        // playerBox = player.getBoundingBox();
-        // gemLoc = gem.getXY();
-        // if (playerBox.isPointInBox(gemLoc.x, gemLoc.y)) {
-        //     // Player touched gem
-        //     sounds.collect.currentTime = 0;
-        //     sounds.collect.play();
-        //     collectedGems++;
-        //     gem.randomize(gameArea);
-        // }
+        if (isHardDrop || hitBottom) {
+            // Check for full rows
+            checkFullRows(matrix);
 
-        // /* Clear the screen */
-        // context.clearRect(0, 0, cv.width, cv.height);
+            // Check for game over
+            if (checkHitCeiling(matrix)) {
+                clearAndRedraw(true, false);
 
-        // /* Draw the sprites */
-        // gem.draw();
-        // player.draw();
-        // fires.forEach((fire) => {
-        //     fire.draw();
-        // });
+                // Show Game Over
+                gameOver(false, true);
+                console.log("Hit Ceiling Game Over");
+                return;
+            }
+            // Reset hard drop flag
+            isHardDrop = false;
+
+            // get next tetromino
+            currentTetromino = nextTetrominos.shift();
+
+            // Generate new tetromino and add to nextTetrominos
+            if (isPlayer) {
+                newTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
+                Socket.pushNextTetromino(newTetromino.getLetter());
+                nextTetrominos.push(newTetromino);
+                // Update next up terminos icons
+                updateNextIcons();
+            }
+            // Draw current Tetromino
+            currentTetromino.draw();
+
+            if (!currentTetromino.canSpawn()) {
+                // Game over
+                clearAndRedraw(true, false);
+                gameOver(false, true);
+                // Show Game Over
+                console.log("Cannot Spawn Game Over");
+                return;
+            }
+        }
+
+        clearAndRedraw(true, true);
 
         /* Process the next frame */
         requestAnimationFrame(doFrame);
     }
 
-    /* Handle the start of the game */
-    $("#game-start").on("click", function () {
-        // /* Hide the start screen */
-        // $("#game-start").hide();
-
-        // // Play Packground music
-        // sounds.background.play();
-
-        // // Randomize Gem location and color
-        // gem.randomize(gameArea);
-
-        // TODO: Handle controls
-        // Handle keydown of controls
-        $(document).on("keydown", function (event) {
-            action = action_from_key(event.keyCode);
-            // Invalid Action
-            if (action < 0) return;
-            // TODO: Handle other movements
-
-            if (action == MOVE_LEFT) return console.log("keydown: move left");
-            if (action == MOVE_RIGHT) return console.log("keydown: move right");
-            if (action == ROTATE_LEFT)
-                return console.log("keydown: rotate left");
-            if (action == ROTATE_RIGHT)
-                return console.log("keydown: rotate right");
-            if (action == SOFT_DROP) return console.log("keydown: soft drop");
-            if (action == HARD_DROP) return console.log("keydown: hard drop");
-            if (action == HOLD) return console.log("keydown: hold");
-            if (action == CHEAT_MODE) return console.log("keydown: cheat mode");
-        });
-
-        // Handle keyup of controls
-        $(document).on("keyup", function (event) {
-            action = action_from_key(event.keyCode);
-            // Invalid Action
-            if (action < 0) return;
-            // TODO: Handle other movements
-            if (action == MOVE_LEFT) return console.log("keyup: move left");
-            if (action == MOVE_RIGHT) return console.log("keyup: move right");
-            if (action == ROTATE_LEFT) return console.log("keyup: rotate left");
-            if (action == ROTATE_RIGHT)
-                return console.log("keyup: rotate right");
-            if (action == SOFT_DROP) return console.log("keyup: soft drop");
-            if (action == HARD_DROP) return console.log("keyup: hard drop");
-            if (action == HOLD) return console.log("keyup: hold");
-            if (action == CHEAT_MODE) return console.log("keyup: cheat mode");
-        });
-
-        /* Start the game */
-        requestAnimationFrame(doFrame);
-    });
-});
+    return {
+        initialize,
+        setScore,
+        translateAction,
+        startGame,
+        initGame,
+        pushNextTetromino,
+        gameOver,
+    };
+};
