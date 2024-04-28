@@ -17,7 +17,7 @@
         <!-- Chatroom container -->
         <div id="container" class="col">
             <!-- <div id="header" class="row"></div> -->
-            <div id="homepage" class="row" style="display: none">
+            <div id="homepage" class="row">
                 <div id="home-panel" class="col">
                     <!-- Login Page Game Title -->
                     <div id="title" class="col">Tetris Match</div>
@@ -168,11 +168,36 @@
                     </div>
                     <!-- END: How to play instructions -->
                 </div>
-            </div>
+                <div id="match-page" style="display: none" class="col">
+                    <!-- TODO: Match Page -->
+                    <button id="create-room-btn">Create Room</button>
+                    <div id="created-room-id"></div>
+                    <div id="create-room-message" class="warning center"></div>
+                    <div class="spacer-0"></div>
+                    <form id="join-room-form" class="col">
+                        <div class="caption">Enter Room ID</div>
+                        <div class="spacer-0"></div>
+                        <input id="join-room-id" placeholder="Enter Room ID" />
 
-            <div id="match-page" class="row" style="display: none"></div>
+                        <div class="spacer-0"></div>
+                        <button type="submit">Join Room</button>
+                        <div
+                            id="join-room-message"
+                            class="warning center"
+                        ></div>
+
+                        <div class="spacer-grow"></div>
+                    </form>
+
+                    <button id="public-match-btn">Public Match</button>
+                    <div class="spacer-0"></div>
+                    <button id="leave-room-btn">Leave Room</button>
+                </div>
+            </div>
+            <!-- The countdown screen -->
+            <div id="countdown">3</div>
             <!-- Tetris Match game container -->
-            <div id="game-container">
+            <div id="game-container" style="display: none">
                 <div id="game-container-bg-img"></div>
                 <!-- START: Time remaining  -->
                 <box

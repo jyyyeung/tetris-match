@@ -12,6 +12,13 @@ const Socket = (function () {
     let opponentGameArea = null;
 
     /**
+     * Represents the room the player is in.
+     * @type {string}
+     * @default null
+     */
+    let room = null;
+
+    /**
      * Gets the socket from the module
      * @returns {Socket} The socket object.
      */
@@ -103,15 +110,36 @@ const Socket = (function () {
 
         socket.on("on your marks", () => {
             if (gameInProgress) return;
+
             console.log("on your marks");
             // Start the game
-            opponentGameArea = Game.initialize();
+            opponentGameArea = Game.initGame();
         });
 
         socket.on("init game", (firstTetromino, tetrominos) => {
             if (gameInProgress) return;
             // console.log("init game", firstTetromino, tetrominos);
             opponentGameArea.initGame(firstTetromino, tetrominos);
+        });
+
+        socket.on("room created", (_room) => {
+            console.log("room created", _room);
+            room = _room;
+            Match.roomCreated(_room);
+        });
+
+        socket.on("room full", () => {
+            // TODO: Room Full
+            console.log("room full");
+            Match.roomFull();
+        });
+
+        socket.on("room not found", () => {
+            Match.roomNotFound();
+        });
+
+        socket.on("waiting for opponent", () => {
+            Match.waitingForOpponent();
         });
     };
 
@@ -139,13 +167,21 @@ const Socket = (function () {
         }
     };
 
-    const joinRoom = function (_room) {
+    const joinRoom = function (_room = null) {
+        if (room != null) return false;
         console.log("request to join room");
         socket.emit("join room", _room);
         room = _room;
+        return true;
+    };
+
+    const publicMatch = function () {
+        if (room != null) return false;
+        socket.emit("public match");
     };
 
     const leaveRoom = function (_room) {
+        if (_room == null) _room = room;
         if (socket && socket.connected) {
             socket.emit("leave room", _room);
             room = null;
@@ -204,5 +240,6 @@ const Socket = (function () {
         readyToStart,
         pushNextTetromino,
         setGameStats,
+        publicMatch,
     };
 })();

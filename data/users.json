@@ -58,5 +58,10 @@
   "avatar": "Sauropod",
   "name": "Dino",
   "password": "$2b$10$CAj0ggiMjzPQMM0IJ6Pfze/S4elbdzjr971Eo9UNscJXyZ2eNXp6i"
+ },
+ "s": {
+  "avatar": "Panda",
+  "name": "s",
+  "password": "$2b$10$wz/VrRr9oBJBo.pZAJKzueFfys9sBLWB9Ayky1vorwHwlyzDyaGl6"
  }
 }

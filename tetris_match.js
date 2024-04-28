@@ -159,7 +159,10 @@ io.use((socket, next) => {
     gameSession(socket.request, {}, next);
 });
 
+const randomId = () => Math.floor(Math.random() * 1000000);
+
 const roomReady = {};
+const publicMatch = [];
 // Use a web server to listen at port 8000
 httpServer.listen(8000, () => {
     console.log("Tetris Match server has started...");
@@ -220,18 +223,61 @@ httpServer.listen(8000, () => {
 
         let room = null;
 
-        socket.on("join room", (_room) => {
-            // Join the room
-            console.log("Joined game");
+        const createRoom = () => {
+            // Create room
+            _room = randomId();
+            // Check if Room already Exist
+            while (io.sockets.adapter.rooms.has(_room)) {
+                _room = randomId();
+            }
+            io.to(socket.id).emit("room created", _room);
+
+            console.log("Joining room: ", _room);
+            socket.join(_room);
+            room = _room;
+            return _room;
+        };
+
+        const joinRoom = (_room = null) => {
+            const thisRoom = io.sockets.adapter.rooms.get(_room);
+            if (_room == null || !thisRoom) {
+                io.to(socket.id).emit("room not found");
+                return;
+            }
+            if (thisRoom.size > 2) {
+                io.to(socket.id).emit("room full");
+                return;
+            }
+
+            console.log("Joining room: ", _room);
+            socket.join(_room);
             room = _room;
 
-            socket.join(_room);
-            const thisRoom = io.sockets.adapter.rooms.get(room);
             if (thisRoom.size === 2) {
                 roomReady[room] = 0;
                 console.log("two people");
                 io.to(room).emit("on your marks");
             }
+        };
+
+        socket.on("public match", () => {
+            if (publicMatch.length === 0) {
+                // publicMatch.push(socket.id);
+                roomId = createRoom();
+                publicMatch.push(roomId);
+
+                io.to(socket.id).emit("waiting for opponent");
+                return;
+            }
+
+            room = publicMatch.shift();
+            joinRoom(room);
+        });
+
+        socket.on("join room", (_room) => {
+            if (_room == null) createRoom();
+            // Join the room
+            else joinRoom(_room);
         });
 
         // let room_ready = 0;

@@ -469,6 +469,32 @@ canvas,
     left: 0px;
 } */
 
+/* Set the common style for the countdown and gameover divs */
+#countdown,
+#game-over {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    text-align: center;
+    font-size: 20vh;
+    line-height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* - Set the properties for the countdown div */
+#countdown {
+    color: yellow;
+}
+
+/* - Set the properties for the gameover div */
+/* #gameover {
+    color: red;
+    display: none;
+} */
+
 /* canvas, */
 /* #game-start, */
 #game-over {

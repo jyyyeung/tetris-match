@@ -205,6 +205,25 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             if (action == CHEAT_MODE) return console.log("keyup: cheat mode");
         }
     };
+    timeRemaining = 4;
+
+    function countdown() {
+        // Decrease the remaining time
+        timeRemaining--;
+
+        if (timeRemaining > 0) {
+            // Continue the countdown if there is still time;
+            $("#countdown").text(timeRemaining);
+            // Wait for 1 second, and call countdown() again
+            setTimeout(countdown, 1000);
+        } else {
+            // otherwise, start the game when the time is up
+            $("#countdown").text("Start");
+            // startGame();
+            $("#countdown").hide();
+            initGame();
+        }
+    }
 
     const initialize = function () {
         console.log("Game Area Initialized", { isPlayer });
@@ -222,7 +241,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             // GameArea.initialize();
 
             if (isPlayer) {
-                initGame();
+                countdown();
 
                 // TODO: Play Packground music
                 // sounds.background.play();
