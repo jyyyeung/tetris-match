@@ -2,13 +2,6 @@ $(function () {
     /* Get the canvas and 2D context */
     console.log("canvas.js");
 
-    /* Create the sounds */
-    /* const sounds = {
-        background: new Audio("background.mp3"),
-        collect: new Audio("collect.mp3"),
-        gameover: new Audio("gameover.mp3"),
-    }; */
-
     /* Create the sprites in the game */
     // const player = Player(context, 427, 240, gameArea); // The player
     // const gem = Gem(context, 427, 350, "green"); // The gem
@@ -225,6 +218,13 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         }
     }
 
+    /* Create the sounds */
+    const sounds = {
+        background: new Audio("src/res/main-bgm.mp3"),
+        // collect: new Audio("collect.mp3"),
+        // gameover: new Audio("gameover.mp3"),
+    };
+
     const initialize = function () {
         console.log("Game Area Initialized", { isPlayer });
         gameArea = canvas.gameArea;
@@ -242,9 +242,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
             if (isPlayer) {
                 countdown();
-
-                // TODO: Play Packground music
-                // sounds.background.play();
             }
         });
     };
@@ -414,6 +411,9 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         updateNextIcons();
 
         if (isPlayer) {
+            // TODO: Play Packground music
+            sounds.background.play();
+
             // Handle keydown of controls
             $(document).on("keydown", function (event) {
                 action = action_from_key(event.keyCode);
@@ -452,7 +452,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     function gameOver(isDraw = false, isLost = true) {
         Game.setGameOver();
         // $("#final-gems").text(collectedGems);
-        // sounds.background.pause();
+        sounds.background.pause();
         // sounds.collect.pause();
         // sounds.gameover.play();
         if (!isPlayer) return;
@@ -495,7 +495,10 @@ const GameArea = function (cv, ctx, isPlayer = true) {
      * @param {DOMHighResTimeStamp} now - The current timestamp.
      */
     function doFrame(now) {
-        if (Game.getGameOver()) return;
+        if (Game.getGameOver()) {
+            sounds.background.pause();
+            return;
+        }
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;
         const timeRemaining = Math.ceil(
