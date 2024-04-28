@@ -471,8 +471,8 @@ const Tetromino = function (
         if (!box.fullyWithinBox(gameArea)) return false;
         if (isOverlappingMinos(matrixX, matrixY)) return false;
         // console.log("<0");
-        // if (matrixX < 0 || matrixY < 0) return false;
-        // if (matrixX + BLOCK_WIDTH() > MATRIX_WIDTH) return false;
+        if (matrixX < 0 || matrixY < 0) return false;
+        if (matrixX + BLOCK_WIDTH() > MATRIX_WIDTH) return false;
         // if (matrixY + BLOCK_HEIGHT() > MATRIX_HEIGHT) return false;
         return true;
     }
@@ -653,7 +653,7 @@ const Tetromino = function (
         drop: drop,
         /* getAge: getAge, */
         getBoundingBox: sprite.getBoundingBox,
-        randomize: randomize,
+        // randomize: randomize,
         draw: sprite.draw,
         canSpawn: canSpawn,
     };
