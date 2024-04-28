@@ -430,6 +430,7 @@ const Game = (function () {
 
     function initialize() {
         $("#countdown").hide();
+        $("#gameover").hide();
         $("#game-container").hide();
     }
 
@@ -443,13 +444,29 @@ const Game = (function () {
         opponent_gameArea.initialize();
         return opponent_gameArea;
     };
+    let isGameOver = false;
+    const setGameOver = () => (isGameOver = true);
+    const getGameOver = () => isGameOver;
+
+    const gameOver = function () {
+        $("#gameover").show();
+        player_gameArea.gameOver(false, false);
+        opponent_gameArea.gameOver(false, true);
+    };
 
     const startGame = function () {
         player_gameArea.startGame();
         opponent_gameArea.startGame();
     };
 
-    return { initialize, startGame, initGame };
+    return {
+        initialize,
+        startGame,
+        initGame,
+        gameOver,
+        getGameOver,
+        setGameOver,
+    };
 })();
 /**
  * UI module for managing user interface components.

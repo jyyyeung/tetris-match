@@ -104,7 +104,7 @@ const Socket = (function () {
 
         socket.on("game over", () => {
             // Game.gameOver();
-            opponentGameArea.gameOver();
+            Game.gameOver();
             gameInProgress = false;
         });
 

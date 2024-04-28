@@ -449,18 +449,29 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     /**
      * Displays the game over screen and plays the game over sound.
      */
-    function gameOver() {
+    function gameOver(isDraw = false, isLost = true) {
+        Game.setGameOver();
         // $("#final-gems").text(collectedGems);
         // sounds.background.pause();
         // sounds.collect.pause();
         // sounds.gameover.play();
+        if (!isPlayer) return;
         const gameStats = {
             score,
             tetrisCount,
         };
         Socket.setGameStats(gameStats);
+        console.log("Game Over: Lost");
+        if (isDraw) {
+            $("#player-standing").text("Draw! ");
+        } else if (isLost) {
+            Socket.gameOver();
+            $("#player-standing").text("You Lose! ");
+        } else $("#player-standing").text("You Won! ");
+        // else {
+        // }
 
-        $("#game-over").show();
+        $("#gameover").show();
     }
     let isHardDrop = false;
     /**
@@ -484,6 +495,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
      * @param {DOMHighResTimeStamp} now - The current timestamp.
      */
     function doFrame(now) {
+        if (Game.getGameOver()) return;
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;
         const timeRemaining = Math.ceil(
@@ -494,7 +506,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
         // /* Handle the game over situation here */
         if (timeRemaining <= 0) {
-            gameOver();
+            gameOver(true);
             return;
         }
 
@@ -507,7 +519,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 clearAndRedraw(true, false);
                 // Show Game Over
                 console.log("hit bottom collision Game Over");
-                gameOver();
+                gameOver(false, true);
                 return;
             }
         }
@@ -523,7 +535,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 clearAndRedraw(true, false);
 
                 // Show Game Over
-                gameOver();
+                gameOver(false, true);
                 console.log("Hit Ceiling Game Over");
                 return;
             }
@@ -547,7 +559,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             if (!currentTetromino.canSpawn()) {
                 // Game over
                 clearAndRedraw(true, false);
-                gameOver();
+                gameOver(false, true);
                 // Show Game Over
                 console.log("Cannot Spawn Game Over");
                 return;
@@ -567,5 +579,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         startGame,
         initGame,
         pushNextTetromino,
+        gameOver,
     };
 };
