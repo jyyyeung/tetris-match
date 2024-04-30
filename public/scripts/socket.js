@@ -1,5 +1,3 @@
-const TIME_MODE = 1;
-const SURVIVAL_MODE = 2;
 /**
  * Socket module for handling socket communication with the server.
  * @module Socket
@@ -19,6 +17,7 @@ const Socket = (function () {
      * @default null
      */
     let room = null;
+    let mode = 0;
 
     /**
      * Gets the socket from the module
@@ -112,12 +111,14 @@ const Socket = (function () {
             gameInProgress = false;
         });
 
-        socket.on("on your marks", () => {
+        socket.on("on your marks", (_roomMode) => {
             if (gameInProgress) return;
 
             console.log("on your marks");
+            // Finalize room mode for both players before game starts
+            mode = _roomMode;
             // Start the game
-            opponentGameArea = Game.initGame();
+            opponentGameArea = Game.initGame(mode);
         });
 
         socket.on("init game", (firstTetromino, tetrominos) => {
@@ -126,10 +127,18 @@ const Socket = (function () {
             opponentGameArea.initGame(firstTetromino, tetrominos);
         });
 
-        socket.on("room created", (_room) => {
-            console.log("room created", _room);
+        socket.on("room created", (_room, _mode) => {
+            console.log("room created", _room._mode);
             room = _room;
-            MatchPage.roomCreated(_room);
+            mode = _mode;
+            MatchPage.roomCreated(_room, _mode);
+        });
+
+        socket.on("joined room", (_room, _mode) => {
+            console.log("joined room", _room, _mode);
+            room = _room;
+            mode = _mode;
+            MatchPage.joinedRoom(_room, _mode);
         });
 
         socket.on("room full", () => {
@@ -186,7 +195,7 @@ const Socket = (function () {
         if (room != null) return false;
         console.log("request to join room: ", _room);
         socket.emit("join room", _room);
-        room = _room;
+        // room = _room;
         return true;
     };
 
@@ -202,6 +211,7 @@ const Socket = (function () {
         if (socket && socket.connected) {
             socket.emit("leave room", _room);
             room = null;
+            mode = 0;
         }
     };
 

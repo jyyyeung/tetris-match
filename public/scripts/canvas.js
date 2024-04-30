@@ -132,6 +132,9 @@ const Canvas = function (ctx) {
     };
 };
 
+const TIME_MODE = 1;
+const SURVIVAL_MODE = 2;
+
 const GameArea = function (cv, ctx, isPlayer = true) {
     const totalGameTime = 10; // Total game time in seconds
 
@@ -155,6 +158,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     let currentTetromino = null;
     let nextTetrominos = [];
     let holdTetromino = null;
+
+    /**
+     * Represents the game mode.
+     * @type {number} - The game mode. 1 for time mode, 2 for survival mode.
+     */
+    let gameMode = 0;
 
     const translateAction = function (action, isKeyDown) {
         if (isKeyDown) {
@@ -225,9 +234,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         // gameover: new Audio("gameover.mp3"),
     };
 
-    const initialize = function () {
+    const initialize = function (_mode) {
         console.log("Game Area Initialized", { isPlayer });
         gameArea = canvas.gameArea;
+
+        gameMode = _mode;
+
         //$("#game-container").hide();
         // canvas.drawGrid();
 
@@ -373,7 +385,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         tetrisCount += tetris;
         setScore(score);
     }
-    let gameStartTime = 0; // The timestamp when the game starts
 
     const initGame = (_firstTetromino = "", _tetrominos = []) => {
         nextTetrominos = [];
@@ -401,17 +412,23 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         }
     };
 
+    let gameStartTime = 0; // The timestamp when the game starts
     function startGame() {
         gameStartTime = performance.now();
 
-        canvas.setTime(totalGameTime);
+        // Initialize game time and level
+        if (gameMode == SURVIVAL_MODE) {
+            canvas.setTime(0);
+        } else if (gameMode == TIME_MODE) canvas.setTime(totalGameTime);
+
         canvas.setLevel(3);
+
         setScore(score);
 
         updateNextIcons();
 
         if (isPlayer) {
-            // TODO: Play Packground music
+            // Play Packground music
             sounds.background.play();
 
             // Handle keydown of controls
@@ -502,16 +519,22 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         }
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;
-        const timeRemaining = Math.ceil(
-            (totalGameTime * 1000 - gameTimeSoFar) / 1000
-        );
+        console.log("game time so far", gameTimeSoFar);
+        if (gameMode == TIME_MODE) {
+            const timeRemaining = Math.ceil(
+                (totalGameTime * 1000 - gameTimeSoFar) / 1000
+            );
 
-        canvas.setTime(timeRemaining);
+            canvas.setTime(timeRemaining);
 
-        // /* Handle the game over situation here */
-        if (timeRemaining <= 0) {
-            gameOver(true);
-            return;
+            // /* Handle the game over situation here */
+            if (timeRemaining <= 0) {
+                gameOver(true);
+                return;
+            }
+        }
+        if (gameMode == SURVIVAL_MODE) {
+            canvas.setTime(milisecondsToText(gameTimeSoFar));
         }
 
         const hitBottom = currentTetromino.drop(now);

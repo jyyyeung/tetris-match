@@ -149,7 +149,6 @@ app.get("/signout", (req, res) => {
 
 const { createServer } = require("http");
 const { Server } = require("socket.io");
-const { Console } = require("console");
 
 const httpServer = createServer(app);
 const io = new Server(httpServer);
@@ -167,6 +166,7 @@ const publicMatchTimeMode = [];
 const publicMatchSurvivalMode = [];
 const TIME_MODE = 1;
 const SURVIVAL_MODE = 2;
+const roomMode = {};
 // Use a web server to listen at port 8000
 httpServer.listen(8000, () => {
     console.log("Tetris Match server has started...");
@@ -227,21 +227,32 @@ httpServer.listen(8000, () => {
 
         let room = null;
 
-        const createRoom = () => {
+        /**
+         * Creates a new room for the Tetris match.
+         *
+         * @param {string} _mode - The mode of the Tetris match.
+         * @returns {string} The ID of the created room.
+         */
+        const createRoom = (_mode) => {
             // Create room
             const _room = randomId();
             // Check if Room already Exist
             while (io.sockets.adapter.rooms.has(_room)) {
                 _room = randomId();
             }
-            io.to(socket.id).emit("room created", _room);
+            io.to(socket.id).emit("room created", _room, _mode);
 
+            if (!roomMode[_room]) roomMode[_room] = _mode;
             socket.join(_room);
             console.log("Joined room: ", _room);
             room = _room;
             return _room;
         };
 
+        /**
+         * Joins a room and performs necessary checks before joining.
+         * @param {number} _room - The room number to join.
+         */
         const joinRoom = (_room) => {
             _room = parseInt(_room);
             const thisRoom = io.sockets.adapter.rooms.get(_room);
@@ -256,12 +267,13 @@ httpServer.listen(8000, () => {
 
             console.log("Joining room: ", _room);
             socket.join(_room);
+            socket.join("joined room", _room, roomMode[_room]);
             room = _room;
 
             if (thisRoom.size === 2) {
                 roomReady[room] = 0;
                 console.log("two people");
-                io.to(room).emit("on your marks");
+                io.to(room).emit("on your marks", roomMode[_room]);
             }
         };
 
@@ -270,14 +282,14 @@ httpServer.listen(8000, () => {
                 _mode === SURVIVAL_MODE &&
                 publicMatchSurvivalMode.length === 0
             ) {
-                roomId = createRoom();
+                const roomId = createRoom(SURVIVAL_MODE);
                 if (_mode === SURVIVAL_MODE)
                     publicMatchSurvivalMode.push(roomId);
                 io.to(socket.id).emit("waiting for opponent");
                 return;
             }
             if (_mode === TIME_MODE && publicMatchTimeMode.length === 0) {
-                roomId = createRoom();
+                const roomId = createRoom(TIME_MODE);
                 // publicMatch.push(socket.id);
                 if (_mode === TIME_MODE) publicMatchTimeMode.push(roomId);
 
@@ -298,8 +310,8 @@ httpServer.listen(8000, () => {
             room = null;
         });
 
-        socket.on("create room", () => {
-            createRoom();
+        socket.on("create room", (_mode) => {
+            createRoom(_mode);
         });
 
         socket.on("join room", (_room) => {

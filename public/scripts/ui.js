@@ -749,6 +749,7 @@ const Game = (function () {
         alpha: true,
         // desynchronized: true,
     });
+    let mode = 0;
 
     player_gameArea = GameArea(player_cv, player_context, true);
     opponent_gameArea = GameArea(opponent_cv, opponent_context, false);
@@ -759,16 +760,19 @@ const Game = (function () {
         //$("#game-container").hide();
     }
 
-    const initGame = function () {
+    const initGame = function (_mode) {
         $("#homepage").hide();
         $("#match-page").hide();
         $("#countdown").show();
         $("#join-private-game-page").hide();
 
+        mode = _mode;
+        console.log(mode, _mode);
+
         console.log("ui.js initialize");
         // Initialize the game area
-        player_gameArea.initialize();
-        opponent_gameArea.initialize();
+        player_gameArea.initialize(_mode);
+        opponent_gameArea.initialize(_mode);
         return opponent_gameArea;
     };
     let isGameOver = false;
