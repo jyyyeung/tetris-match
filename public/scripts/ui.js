@@ -4,26 +4,30 @@ const HOME_HOWTOPLAY = 2;
 const HOME_PROFILE = 3;
 const HOME_HIDDEN = 4;
 
-const TIME_MODE_DESCRIPTION = "Players obtain as many scores as possible in 2 minutes \n with predefined constant difficulty."
-const SURVIVAL_MODE_DESCRIPTION = "No time limit but the game gets more \n difficult as it continues."
-const DESCRIPTION_PLACEHOLDER = "\n\n"
+const TIME_MODE_DESCRIPTION =
+    "Players obtain as many scores as possible in 2 minutes \n with predefined constant difficulty.";
+const SURVIVAL_MODE_DESCRIPTION =
+    "No time limit but the game gets more \n difficult as it continues.";
+const DESCRIPTION_PLACEHOLDER = "\n\n";
 
 function hideAllPages() {
-    $("#container").children().each(function () {
-        $(this).hide();
-    })
+    $("#container")
+        .children()
+        .each(function () {
+            $(this).hide();
+        });
 }
 
 function secondsToText(totalSeconds) {
     let minutes = Math.floor(totalSeconds / 60);
-    let seconds = (totalSeconds % 60)
+    let seconds = totalSeconds % 60;
     return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
 }
 
 function milisecondsToText(totalMiliSeconds) {
     let totalSeconds = Math.floor(totalMiliSeconds / 1000);
     let minutes = Math.floor(totalSeconds / 60);
-    let seconds = (totalSeconds % 60)
+    let seconds = totalSeconds % 60;
     return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
 }
 
@@ -57,7 +61,7 @@ const HomePage = (function () {
     };
 
     const buttonFunc = function (status) {
-        console.log(sidePanelStatus)
+        console.log(sidePanelStatus);
         if (sidePanelStatus != status) {
             renderSidePanel(status);
         } else {
@@ -91,7 +95,7 @@ const HomePage = (function () {
         $("#match-button").click(function () {
             MatchPage.show();
             $("#homepage").hide();
-        })
+        });
     };
 
     const show = function () {
@@ -100,13 +104,12 @@ const HomePage = (function () {
         $("#home-side-panel").hide();
         hideAllPages();
         $("#homepage").show();
-
-    }
+    };
 
     return {
         initialize,
         renderSidePanel,
-        show
+        show,
     };
 })();
 
@@ -116,7 +119,7 @@ const MatchPage = (function () {
         isPublic: false,
         invitationCode: "",
         isGameModeTime: false,
-    }
+    };
     let timerID = 0;
     const pageChange = function (newPhase) {
         /* 
@@ -142,12 +145,14 @@ const MatchPage = (function () {
                 phase = newPhase;
                 break;
         }
-    }
+    };
     const initialize = function () {
         hideAll();
-        $("#match-page").children().each(function () {
-            $(this).hide();
-        })
+        $("#match-page")
+            .children()
+            .each(function () {
+                $(this).hide();
+            });
         $("#match-content-container").children().first().show();
 
         $("#create-private-game-button").click(function () {
@@ -162,7 +167,7 @@ const MatchPage = (function () {
             phase = 2;
             gameData.isPublic = false;
             $("#join-private-game-page").show();
-        })
+        });
 
         $("#public-match-button").click(function () {
             hideAll();
@@ -220,7 +225,6 @@ const MatchPage = (function () {
         $("#survival-mode-button").on("mouseleave", function () {
             $("#match-mode-description").text(DESCRIPTION_PLACEHOLDER);
         });
-
     };
 
     const timer = function () {
@@ -229,32 +233,36 @@ const MatchPage = (function () {
             $("#queue-timer").text(secondsToText(totalSeconds));
             totalSeconds++;
         }, 1000);
-    }
+    };
 
     const stopTimer = function () {
         clearInterval(timerID);
         timerID = 0;
         $("#queue-timer").text("0:00");
-    }
+    };
 
     const show = function () {
         $("#match-page").show();
-        $("#match-page").children().each(function () {
-            $(this).show();
-        })
+        $("#match-page")
+            .children()
+            .each(function () {
+                $(this).show();
+            });
         $("#match-content-container").children().first().show();
-    }
+    };
 
     const hideAll = function () {
-        $("#match-content-container").children().each(function () {
-            $(this).hide();
-        });
-    }
+        $("#match-content-container")
+            .children()
+            .each(function () {
+                $(this).hide();
+            });
+    };
 
     return {
         initialize,
         show,
-        stopTimer
+        stopTimer,
     };
 })();
 
@@ -350,7 +358,7 @@ const SignInForm = (function () {
     return {
         initialize,
         show,
-        hide
+        hide,
     };
 })();
 
@@ -426,34 +434,32 @@ const Match = (function () {
 })();
 
 const GameOver = (function () {
-
     const testData = {
-
-        "player1": {
-            "username": "tony",
-            "avatar": "Owl",
-            "name": "Tony Lee",
-            "stat": {
-                "score": "572",
-                "linesOfBlocks": "4",
-                "tetrisCount": "8",
-                "time": "114514"
-            }
+        player1: {
+            username: "tony",
+            avatar: "Owl",
+            name: "Tony Lee",
+            stat: {
+                score: "572",
+                linesOfBlocks: "4",
+                tetrisCount: "8",
+                time: "114514",
+            },
         },
-        "player2": {
-            "username": "john",
-            "avatar": "Hamster",
-            "name": "John Chan",
-            "stat": {
-                "score": "452",
-                "linesOfBlocks": "2",
-                "tetrisCount": "3",
-                "time": "100100"
-            }
+        player2: {
+            username: "john",
+            avatar: "Hamster",
+            name: "John Chan",
+            stat: {
+                score: "452",
+                linesOfBlocks: "2",
+                tetrisCount: "3",
+                time: "100100",
+            },
         },
-        "datetime": "2022-01-01T01:00:00.000Z",
-        "mode": "??"
-    }
+        datetime: "2022-01-01T01:00:00.000Z",
+        mode: "??",
+    };
     let currentPage = 1;
 
     const initialize = function () {
@@ -470,19 +476,19 @@ const GameOver = (function () {
             if (currentPage == 3) {
                 $(this).hide();
             }
-        })
+        });
         $("#rematch-button").click(function () {
             //TODO: rematch
-        })
+        });
 
         $("#gameover-home-button").click(function () {
             $("#homepage").show();
             $("#gameover").hide();
-        })
-    }
+        });
+    };
     const show = function () {
         $("#gameover").css("display", "flex");
-        $("#gameover-title").css("animation-name", "gameover-title-animation")
+        $("#gameover-title").css("animation-name", "gameover-title-animation");
         setTimeout(function () {
             $("#gameover-title").css("transform", "translateY(-300px)");
         }, 745);
@@ -494,11 +500,11 @@ const GameOver = (function () {
             $("#gameover-next").fadeIn();
         }, 1500);
         Socket.setScoreBoard();
-    }
+    };
 
     const update = function (room) {
-        const player = room["player1"]
-        const opponent = room["player2"]
+        const player = room["player1"];
+        const opponent = room["player2"];
         $("#player-stat .user-avatar").html(Avatar.getCode(player.avatar));
         $("#player-stat .user-name").text(player.name);
         $("#opponent-stat .user-avatar").html(Avatar.getCode(opponent.avatar));
@@ -514,23 +520,35 @@ const GameOver = (function () {
         }
 
         for (let i = 0; i < 3; i++) {
-            $("#player-stat").children().eq(i + 2).text(playerData[i]);
+            $("#player-stat")
+                .children()
+                .eq(i + 2)
+                .text(playerData[i]);
         }
         for (let i = 0; i < 3; i++) {
-            $("#opponent-stat").children().eq(i + 2).text(opponentData[i]);
+            $("#opponent-stat")
+                .children()
+                .eq(i + 2)
+                .text(opponentData[i]);
         }
-        $("#player-stat").children().eq(5).text(milisecondsToText(player.stat["time"]))
-        $("#opponent-stat").children().eq(5).text(milisecondsToText(opponent.stat["time"]))
-    }
+        $("#player-stat")
+            .children()
+            .eq(5)
+            .text(milisecondsToText(player.stat["time"]));
+        $("#opponent-stat")
+            .children()
+            .eq(5)
+            .text(milisecondsToText(opponent.stat["time"]));
+    };
     return {
         initialize,
         show,
-        update
+        update,
     };
 })();
 
 const Scoreboard = (function () {
-    const initialize = function () {}
+    const initialize = function () {};
 
     const update = function (players) {
         const playerArray = [];
@@ -544,23 +562,23 @@ const Scoreboard = (function () {
         $(".scoreboard-playerlist").empty();
         $(".scoreboard-scorelist").empty();
 
-        $(".scoreboard-playerlist").append($("<div>Player</div>"))
-        $(".scoreboard-scorelist").append($("<div>Score</div>"))
+        $(".scoreboard-playerlist").append($("<div>Player</div>"));
+        $(".scoreboard-scorelist").append($("<div>Score</div>"));
         for (let i = 0; i < 10; i++) {
             $(".scoreboard-playerlist").append(
                 //$("<div class='row'><span class=\"user-avatar\"></span><div>" + playerArray[i].name + "</div></div>")
                 $("<div>" + playerArray[i].name + "</div>")
-            )
+            );
             //$("#scoreboard-playerlist .user-avatar").html(Avatar.getCode(playerArray[i].avatar));
             $(".scoreboard-scorelist").append(
                 $("<div>" + playerArray[i].score + "</div>")
-            )
+            );
         }
-    }
+    };
     return {
         initialize,
-        update
-    }
+        update,
+    };
 })();
 /**
  * UserPanel represents the user interface for the user panel.
@@ -609,7 +627,7 @@ const UserPanel = (function () {
         initialize,
         show,
         hide,
-        update
+        update,
     };
 })();
 
@@ -671,7 +689,7 @@ const OnlineUsersPanel = (function () {
         initialize,
         update,
         addUser,
-        removeUser
+        removeUser,
     };
 })();
 
@@ -747,7 +765,7 @@ const ChatPanel = (function () {
     return {
         initialize,
         update,
-        addMessage
+        addMessage,
     };
 })();
 
@@ -802,7 +820,7 @@ const Game = (function () {
 
     const hide = function () {
         $("#game-container").hide();
-    }
+    };
 
     return {
         initialize,
@@ -811,7 +829,7 @@ const Game = (function () {
         gameOver,
         getGameOver,
         setGameOver,
-        hide
+        hide,
     };
 })();
 /**
@@ -825,8 +843,8 @@ const UI = (function () {
             .append(
                 $(
                     "<span class='user-avatar'>" +
-                    Avatar.getCode(user.avatar) +
-                    "</span>"
+                        Avatar.getCode(user.avatar) +
+                        "</span>"
                 )
             )
             .append($("<span class='user-name'>" + user.name + "</span>"));
@@ -842,7 +860,7 @@ const UI = (function () {
         Game,
         MatchPage,
         GameOver,
-        Scoreboard
+        Scoreboard,
     ];
 
     // This function initializes the UI
@@ -860,6 +878,6 @@ const UI = (function () {
     return {
         getUserDisplay,
         initialize,
-        renderSidePanel
+        renderSidePanel,
     };
 })();

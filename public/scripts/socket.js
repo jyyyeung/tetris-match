@@ -183,7 +183,7 @@ const Socket = (function () {
     };
 
     const publicMatch = function () {
-        console.log("public match")
+        console.log("public match");
         if (room != null) return false;
         socket.emit("public match");
     };
@@ -238,16 +238,15 @@ const Socket = (function () {
         if (socket && socket.connected) {
             return room;
         }
-    }
+    };
 
     const setScoreBoard = function () {
         if (socket && socket.connected) {
             socket.emit("get scoreboard");
+        } else {
+            console.log("not scoreboard");
         }
-        else {
-            console.log("not scoreboard")
-        }
-    }
+    };
 
     return {
         getSocket,
@@ -264,8 +263,6 @@ const Socket = (function () {
         pushNextTetromino,
         setGameStats,
         publicMatch,
-        setScoreBoard
+        setScoreBoard,
     };
-
-
 })();

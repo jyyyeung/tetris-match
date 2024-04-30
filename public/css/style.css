@@ -95,7 +95,8 @@ body {
     flex-direction: column;
 }
 
-.gamerow, .gamecol {
+.gamerow,
+.gamecol {
     align-items: center;
     justify-content: center;
 }
@@ -244,7 +245,7 @@ button.icon:active {
     width: 100vw;
 }
 
-#homepage{
+#homepage {
     height: 100%;
     width: 100%;
     background-size: cover;
@@ -300,7 +301,8 @@ button.icon:active {
     color: white;
 }
 
-.homepage-buttons, .match-buttons{
+.homepage-buttons,
+.match-buttons {
     margin: auto;
     font-size: 250%;
     padding: 20px;
@@ -312,8 +314,6 @@ button.icon:active {
     margin: 20px;
     padding: 50px;
 }
-
-
 
 #title .material-icons {
     color: var(--title-color);
@@ -525,11 +525,11 @@ canvas,
 
 @keyframes gameover-title-animation {
     from {
-        transform: translateY(0px)
+        transform: translateY(0px);
     }
 
     to {
-        transform: translateY(-300px)
+        transform: translateY(-300px);
     }
 }
 
@@ -541,7 +541,7 @@ canvas,
 
 .gameover-text {
     display: none;
-    font-size: 200%
+    font-size: 200%;
 }
 /* canvas, */
 /* #game-start, */
