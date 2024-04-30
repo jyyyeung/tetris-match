@@ -34,22 +34,23 @@ $ npm start
 
     -   [x] Play Now Button
         -   [x] [front] Play Now Button
-        -   [ ] [back] Play Now Button Logic
-            -   [ ] Invite Code Logic
+        -   [x] [back] Play Now Button Logic
+            -   [x] Invite Code Logic
             -   [x] Matchmaking Logic
 
 -   [ ] Game Page
 
-    -   [ ] Game Board
+    -   [x] Game Board
         -   [x] [front] Game Canvas Component
-        -   [ ] [back] Game Canvas Logic
-    -   [ ] Game Controls
-        -   [x] [back] Game Controls Logic [@jyyyeung DOING]
-                Partially done, need to wait for sprite movement logic to be implemented
-        -   [ ] [back] Cheat key logic
+        -   [x] [back] Game Canvas Logic
+    -   [x] Game Controls
+        -   [x] [back] Game Controls Logic
+        -   [x] [back] Cheat key logic
     -   [ ] Game Sprites
         -   [x] [front] Tetris Piece Component
-        -   [ ] [back] Tetris Piece Logic
+        -   [x] [back] Tetris Piece Logic
+    -   [ ] Game Mechanisms
+        -   [ ] Levels?
 
 -   [x] Game Over Page
     -   [x] [front] Game Over Message
