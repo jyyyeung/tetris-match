@@ -230,7 +230,12 @@ const MatchPage = (function () {
             totalSeconds++;
         }, 1000);
     }
-    
+
+    const stopTimer = function () {
+        clearInterval(timerID);
+        timerID = 0;
+        $("#queue-timer").text("0:00");
+    }
 
     const show = function () {
         $("#match-page").show();
@@ -248,7 +253,8 @@ const MatchPage = (function () {
 
     return {
         initialize,
-        show
+        show,
+        stopTimer
     };
 })();
 
@@ -524,8 +530,7 @@ const GameOver = (function () {
 })();
 
 const Scoreboard = (function () {
-    const initialize = function () {
-    }
+    const initialize = function () {}
 
     const update = function (players) {
         const playerArray = [];
@@ -795,7 +800,7 @@ const Game = (function () {
         opponent_gameArea.startGame();
     };
 
-    const hide = function() {
+    const hide = function () {
         $("#game-container").hide();
     }
 

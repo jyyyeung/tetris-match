@@ -86,6 +86,7 @@ const Socket = (function () {
         socket.on("start game", () => {
             // opponent = JSON.parse(opponent);
             Game.startGame();
+            MatchPage.stopTimer();
             gameInProgress = true;
 
             console.log("start game");
