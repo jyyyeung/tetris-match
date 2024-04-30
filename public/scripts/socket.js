@@ -38,6 +38,7 @@ const Socket = (function () {
         socket.on("connect", () => {
             // Get the online user list
             socket.emit("get users");
+            socket.emit("get scoreboard");
             // Get the chatroom messages
             // socket.emit("get messages");
         });
@@ -85,6 +86,7 @@ const Socket = (function () {
         socket.on("start game", () => {
             // opponent = JSON.parse(opponent);
             Game.startGame();
+            MatchPage.stopTimer();
             gameInProgress = true;
 
             console.log("start game");
@@ -141,6 +143,11 @@ const Socket = (function () {
         socket.on("waiting for opponent", () => {
             Match.waitingForOpponent();
         });
+
+        socket.on("scoreboard", (scoreboard) => {
+            console.log("receive players");
+            Scoreboard.update(scoreboard);
+        });
     };
 
     /**
@@ -176,6 +183,7 @@ const Socket = (function () {
     };
 
     const publicMatch = function () {
+        console.log("public match")
         if (room != null) return false;
         socket.emit("public match");
     };
@@ -226,6 +234,21 @@ const Socket = (function () {
         }
     };
 
+    const getCurrentRoom = function () {
+        if (socket && socket.connected) {
+            return room;
+        }
+    }
+
+    const setScoreBoard = function () {
+        if (socket && socket.connected) {
+            socket.emit("get scoreboard");
+        }
+        else {
+            console.log("not scoreboard")
+        }
+    }
+
     return {
         getSocket,
         connect,
@@ -241,5 +264,8 @@ const Socket = (function () {
         pushNextTetromino,
         setGameStats,
         publicMatch,
+        setScoreBoard
     };
+
+
 })();

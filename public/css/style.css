@@ -95,6 +95,11 @@ body {
     flex-direction: column;
 }
 
+.gamerow, .gamecol {
+    align-items: center;
+    justify-content: center;
+}
+
 .spacer-0 {
     width: 0;
     height: 0;
@@ -146,6 +151,7 @@ form select {
 
 input,
 select {
+    color: black;
     font-size: 1rem;
     background: var(--input-background);
     border: none;
@@ -164,7 +170,7 @@ button {
     color: var(--button-color);
     background: var(--button-background);
     box-shadow: 10px 10px 5px rgb(0, 0, 0, 0.4);
-    padding: 0 20px;
+    padding: 20px;
     transition: 1s background;
 }
 
@@ -238,10 +244,14 @@ button.icon:active {
     width: 100vw;
 }
 
-#homepage {
+#homepage{
     height: 100%;
     width: 100%;
     background-size: cover;
+}
+
+#match-page {
+    margin: auto;
 }
 
 @keyframes title-animation {
@@ -290,12 +300,20 @@ button.icon:active {
     color: white;
 }
 
-.homepage-buttons {
+.homepage-buttons, .match-buttons{
     margin: auto;
     font-size: 250%;
     padding: 20px;
-    width: 700px;
+    width: 95vh;
+    resize: both;
 }
+
+.match-buttons {
+    margin: 20px;
+    padding: 50px;
+}
+
+
 
 #title .material-icons {
     color: var(--title-color);
@@ -368,14 +386,22 @@ button.icon:active {
 
 /* Signin overlay */
 #signin-form {
-    width: 270px;
     align-self: stretch;
 }
 
 #register-form {
     width: 50vw;
-    background: var(--register-form-background);
     padding: 20px;
+}
+
+#profile-header {
+    display: inline-flex;
+    background: black;
+    border: 20px;
+    border-color: cyan;
+    border-radius: 50px;
+    width: 100%;
+    margin: 20px;
 }
 
 /* Edit user overlay */
@@ -394,8 +420,8 @@ button.icon:active {
 }
 
 #game-container {
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
 }
 
 .grid {
@@ -493,8 +519,30 @@ canvas,
 #gameover {
     color: red;
     display: none;
+    margin: auto;
+    gap: 50px;
 }
 
+@keyframes gameover-title-animation {
+    from {
+        transform: translateY(0px)
+    }
+
+    to {
+        transform: translateY(-300px)
+    }
+}
+
+#gameover-title {
+    font-size: 300%;
+    animation-timing-function: linear;
+    animation-duration: 0.75s;
+}
+
+.gameover-text {
+    display: none;
+    font-size: 200%
+}
 /* canvas, */
 /* #game-start, */
 #game-over {

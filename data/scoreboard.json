@@ -1,0 +1,67 @@
+{
+    "123": {
+     "avatar": "Hamster",
+     "name": "123",
+     "score": "100"
+    },
+    "tony": {
+     "avatar": "Owl",
+     "name": "Tony Lee",
+     "score": "120"
+    },
+    "may": {
+     "avatar": "Rabbit",
+     "name": "May Wong",
+     "score": "200"
+    },
+    "x": {
+     "avatar": "Hamster",
+     "name": "z",
+     "score": "114"
+    },
+    "k": {
+     "avatar": "Hamster",
+     "name": "z",
+     "score": "514"
+    },
+    "a": {
+     "avatar": "Hamster",
+     "name": "z",
+     "score": "100"
+    },
+    "q": {
+     "avatar": "Hamster",
+     "name": "z",
+     "score": "100"
+    },
+    "z": {
+     "avatar": "Hamster",
+     "name": "z",
+     "score": "100"
+    },
+    "aasdf": {
+     "avatar": "Bat",
+     "name": "asdf",
+     "score": "100"
+    },
+    "asdf": {
+     "avatar": "Kangaroo",
+     "name": "asdf",
+     "score": "100"
+    },
+    "rex": {
+     "avatar": "T-Rex",
+     "name": "T-Rex",
+     "score": "100"
+    },
+    "Dino_001": {
+     "avatar": "Sauropod",
+     "name": "Dino",
+     "score": "100"
+    },
+    "s": {
+     "avatar": "Panda",
+     "name": "s",
+     "score": "100"
+    }
+   }

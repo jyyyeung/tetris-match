@@ -257,14 +257,14 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         // bool - true if player, false if opponent. index max 3. block - char (OSLZJTI)
         if (isPlayer)
             $("#player-next")
-                .children()
-                .eq(index)
-                .css("background", icons[block]);
+            .children()
+            .eq(index)
+            .css("background", icons[block]);
         else
             $("#opponent-next")
-                .children()
-                .eq(index)
-                .css("background", icons[block]);
+            .children()
+            .eq(index)
+            .css("background", icons[block]);
     }
 
     function updateNextIcons() {
@@ -471,7 +471,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         // else {
         // }
 
-        $("#gameover").show();
+        Game.hide();
+        GameOver.show();
     }
     let isHardDrop = false;
     /**

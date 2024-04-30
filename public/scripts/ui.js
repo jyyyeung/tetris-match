@@ -2,8 +2,30 @@ const HOME_LOGIN = 0;
 const HOME_REGISTER = 1;
 const HOME_HOWTOPLAY = 2;
 const HOME_PROFILE = 3;
-const HOME_MATCH = 4;
-const HOME_HIDDEN = -1;
+const HOME_HIDDEN = 4;
+
+const TIME_MODE_DESCRIPTION = "Players obtain as many scores as possible in 2 minutes \n with predefined constant difficulty."
+const SURVIVAL_MODE_DESCRIPTION = "No time limit but the game gets more \n difficult as it continues."
+const DESCRIPTION_PLACEHOLDER = "\n\n"
+
+function hideAllPages() {
+    $("#container").children().each(function () {
+        $(this).hide();
+    })
+}
+
+function secondsToText(totalSeconds) {
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = (totalSeconds % 60)
+    return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+}
+
+function milisecondsToText(totalMiliSeconds) {
+    let totalSeconds = Math.floor(totalMiliSeconds / 1000);
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = (totalSeconds % 60)
+    return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+}
 
 const HomePage = (function () {
     let sidePanelStatus = -1;
@@ -27,7 +49,6 @@ const HomePage = (function () {
             $("#register-form"),
             $("#how-to-play"),
             $("#user-panel"),
-            // TODO: Match Page
             $("#match-page"),
         ];
         contents.forEach((element) => element.hide());
@@ -36,6 +57,7 @@ const HomePage = (function () {
     };
 
     const buttonFunc = function (status) {
+        console.log(sidePanelStatus)
         if (sidePanelStatus != status) {
             renderSidePanel(status);
         } else {
@@ -47,6 +69,8 @@ const HomePage = (function () {
         $(".before-login").show();
         $(".after-login").hide();
         $("#home-side-panel").hide();
+        hideAllPages();
+        $("#homepage").show();
 
         $("#register-button").click(function () {
             buttonFunc(HOME_REGISTER);
@@ -65,11 +89,173 @@ const HomePage = (function () {
             buttonFunc(HOME_PROFILE);
         });
         $("#match-button").click(function () {
-            // TODO: Match Page button on click
-            buttonFunc(HOME_MATCH);
-        });
+            MatchPage.show();
+            $("#homepage").hide();
+        })
     };
-    return { initialize, renderSidePanel };
+
+    const show = function () {
+        $(".before-login").show();
+        $(".after-login").hide();
+        $("#home-side-panel").hide();
+        hideAllPages();
+        $("#homepage").show();
+
+    }
+
+    return {
+        initialize,
+        renderSidePanel,
+        show
+    };
+})();
+
+const MatchPage = (function () {
+    let phase = 1;
+    let gameData = {
+        isPublic: false,
+        invitationCode: "",
+        isGameModeTime: false,
+    }
+    let timerID = 0;
+    const pageChange = function (newPhase) {
+        /* 
+        When phase is set to the following values, the corresponding page will be displayed when return button is clicked:
+        3 - choose gamemode page
+        2 - "Create private room", "Join private room", "Public Match"
+        1 - home page
+        */
+        switch (newPhase) {
+            case 0:
+                $("#homepage").show();
+                $("#match-page").hide();
+                phase = 1;
+                break;
+            case 1:
+                hideAll();
+                $("#match-content-container").children().first().show();
+                phase = newPhase;
+                break;
+            case 2:
+                hideAll();
+                $("#match-choose-gamemode").show();
+                phase = newPhase;
+                break;
+        }
+    }
+    const initialize = function () {
+        hideAll();
+        $("#match-page").children().each(function () {
+            $(this).hide();
+        })
+        $("#match-content-container").children().first().show();
+
+        $("#create-private-game-button").click(function () {
+            hideAll();
+            phase = 2;
+            gameData.isPublic = false;
+            $("#match-choose-gamemode").show();
+        });
+
+        $("#join-private-game-button").click(function () {
+            hideAll();
+            phase = 2;
+            gameData.isPublic = false;
+            $("#join-private-game-page").show();
+        })
+
+        $("#public-match-button").click(function () {
+            hideAll();
+            phase = 2;
+            gameData.isPublic = true;
+            $("#match-choose-gamemode").show();
+        });
+
+        $("#match-page-return").click(function () {
+            pageChange(phase - 1);
+            if (timerID) {
+                clearInterval(timerID);
+                timerID = 0;
+                $("#queue-timer").text("0:00");
+            }
+            Socket.leaveRoom();
+        });
+
+        $("#time-mode-button").click(function () {
+            hideAll();
+            phase = 3;
+            if (gameData.isPublic) {
+                $("#public-match-page").show();
+                timerID = timer();
+                Socket.publicMatch();
+            } else {
+                $("#create-private-game-page").show();
+            }
+        });
+
+        $("#survival-mode-button").click(function () {
+            hideAll();
+            phase = 3;
+            if (gameData.isPublic) {
+                $("#public-match-page").show();
+                timerID = timer();
+                Socket.publicMatch();
+            } else {
+                $("#create-private-game-page").show();
+            }
+        });
+
+        $("#time-mode-button").on("mouseover", function () {
+            $("#match-mode-description").text(TIME_MODE_DESCRIPTION);
+        });
+
+        $("#time-mode-button").on("mouseleave", function () {
+            $("#match-mode-description").text(DESCRIPTION_PLACEHOLDER);
+        });
+
+        $("#survival-mode-button").on("mouseover", function () {
+            $("#match-mode-description").text(SURVIVAL_MODE_DESCRIPTION);
+        });
+
+        $("#survival-mode-button").on("mouseleave", function () {
+            $("#match-mode-description").text(DESCRIPTION_PLACEHOLDER);
+        });
+
+    };
+
+    const timer = function () {
+        let totalSeconds = 0;
+        return setInterval(() => {
+            $("#queue-timer").text(secondsToText(totalSeconds));
+            totalSeconds++;
+        }, 1000);
+    }
+
+    const stopTimer = function () {
+        clearInterval(timerID);
+        timerID = 0;
+        $("#queue-timer").text("0:00");
+    }
+
+    const show = function () {
+        $("#match-page").show();
+        $("#match-page").children().each(function () {
+            $(this).show();
+        })
+        $("#match-content-container").children().first().show();
+    }
+
+    const hideAll = function () {
+        $("#match-content-container").children().each(function () {
+            $(this).hide();
+        });
+    }
+
+    return {
+        initialize,
+        show,
+        stopTimer
+    };
 })();
 
 const SignInForm = (function () {
@@ -161,7 +347,11 @@ const SignInForm = (function () {
         $("#signin-overlay").fadeOut(500);
     };
 
-    return { initialize, show, hide };
+    return {
+        initialize,
+        show,
+        hide
+    };
 })();
 
 const Match = (function () {
@@ -170,7 +360,6 @@ const Match = (function () {
         $("#match-page").hide();
         $("#create-room-btn").on("click", (e) => {
             // Do not submit the form
-
             console.log("create room");
             const createRoomSuccessful = Socket.joinRoom();
             if (!createRoomSuccessful) {
@@ -236,6 +425,143 @@ const Match = (function () {
     };
 })();
 
+const GameOver = (function () {
+
+    const testData = {
+
+        "player1": {
+            "username": "tony",
+            "avatar": "Owl",
+            "name": "Tony Lee",
+            "stat": {
+                "score": "572",
+                "linesOfBlocks": "4",
+                "tetrisCount": "8",
+                "time": "114514"
+            }
+        },
+        "player2": {
+            "username": "john",
+            "avatar": "Hamster",
+            "name": "John Chan",
+            "stat": {
+                "score": "452",
+                "linesOfBlocks": "2",
+                "tetrisCount": "3",
+                "time": "100100"
+            }
+        },
+        "datetime": "2022-01-01T01:00:00.000Z",
+        "mode": "??"
+    }
+    let currentPage = 1;
+
+    const initialize = function () {
+        $("#gameover").hide();
+        $("#gameover-rematch").hide();
+        $("#scoreboard-page").hide();
+        update(testData);
+        //show();
+        $("#gameover-next").click(function () {
+            $("#gameover").children().eq(currentPage++).fadeOut();
+            setTimeout(function () {
+                $("#gameover").children().eq(currentPage).fadeIn();
+            }, 500);
+            if (currentPage == 3) {
+                $(this).hide();
+            }
+        })
+        $("#rematch-button").click(function () {
+            //TODO: rematch
+        })
+
+        $("#gameover-home-button").click(function () {
+            $("#homepage").show();
+            $("#gameover").hide();
+        })
+    }
+    const show = function () {
+        $("#gameover").css("display", "flex");
+        $("#gameover-title").css("animation-name", "gameover-title-animation")
+        setTimeout(function () {
+            $("#gameover-title").css("transform", "translateY(-300px)");
+        }, 745);
+        setTimeout(function () {
+            $("#gameover-title").fadeOut();
+        }, 800);
+        setTimeout(function () {
+            $(".gameover-text").css("display", "flex");
+            $("#gameover-next").fadeIn();
+        }, 1500);
+        Socket.setScoreBoard();
+    }
+
+    const update = function (room) {
+        const player = room["player1"]
+        const opponent = room["player2"]
+        $("#player-stat .user-avatar").html(Avatar.getCode(player.avatar));
+        $("#player-stat .user-name").text(player.name);
+        $("#opponent-stat .user-avatar").html(Avatar.getCode(opponent.avatar));
+        $("#opponent-stat .user-name").text(opponent.name);
+
+        const playerData = [];
+        const opponentData = [];
+        for (key in player.stat) {
+            playerData.push(player.stat[key]);
+        }
+        for (key in opponent.stat) {
+            opponentData.push(opponent.stat[key]);
+        }
+
+        for (let i = 0; i < 3; i++) {
+            $("#player-stat").children().eq(i + 2).text(playerData[i]);
+        }
+        for (let i = 0; i < 3; i++) {
+            $("#opponent-stat").children().eq(i + 2).text(opponentData[i]);
+        }
+        $("#player-stat").children().eq(5).text(milisecondsToText(player.stat["time"]))
+        $("#opponent-stat").children().eq(5).text(milisecondsToText(opponent.stat["time"]))
+    }
+    return {
+        initialize,
+        show,
+        update
+    };
+})();
+
+const Scoreboard = (function () {
+    const initialize = function () {}
+
+    const update = function (players) {
+        const playerArray = [];
+        const playerObj = JSON.parse(players);
+        for (id in playerObj) {
+            playerArray.push(playerObj[id]);
+        }
+        console.log(playerArray);
+        playerArray.sort((a, b) => b.score - a.score);
+
+        $(".scoreboard-playerlist").empty();
+        $(".scoreboard-scorelist").empty();
+
+        $(".scoreboard-playerlist").append($("<div>Player</div>"))
+        $(".scoreboard-scorelist").append($("<div>Score</div>"))
+        for (let i = 0; i < 10; i++) {
+            $(".scoreboard-playerlist").append(
+                //$("<div class='row'><span class=\"user-avatar\"></span><div>" + playerArray[i].name + "</div></div>")
+                $("<div>" + playerArray[i].name + "</div>")
+            )
+            //$("#scoreboard-playerlist .user-avatar").html(Avatar.getCode(playerArray[i].avatar));
+            $(".scoreboard-scorelist").append(
+                $("<div>" + playerArray[i].score + "</div>")
+            )
+        }
+    }
+    return {
+        initialize,
+        update
+    }
+})();
 /**
  * UserPanel represents the user interface for the user panel.
  * @namespace
@@ -251,9 +577,9 @@ const UserPanel = (function () {
             // Send a signout request
             Authentication.signout(() => {
                 Socket.disconnect();
-                hide();
-                SignInForm.show();
-                HomePage.initialize();
+                //hide();
+                //SignInForm.show();
+                HomePage.show();
             });
         });
     };
@@ -279,7 +605,12 @@ const UserPanel = (function () {
         }
     };
 
-    return { initialize, show, hide, update };
+    return {
+        initialize,
+        show,
+        hide,
+        update
+    };
 })();
 
 const OnlineUsersPanel = (function () {
@@ -336,7 +667,12 @@ const OnlineUsersPanel = (function () {
         if (userDiv.length > 0) userDiv.remove();
     };
 
-    return { initialize, update, addUser, removeUser };
+    return {
+        initialize,
+        update,
+        addUser,
+        removeUser
+    };
 })();
 
 /**
@@ -380,7 +716,7 @@ const ChatPanel = (function () {
 
     // This function adds a new message at the end of the chatroom
     const addMessage = function (message) {
-        const datetime = new Date(message.datetime);
+        /* const datetime = new Date(message.datetime);
         const datetimeString =
             datetime.toLocaleDateString() + " " + datetime.toLocaleTimeString();
 
@@ -405,10 +741,14 @@ const ChatPanel = (function () {
                         )
                 )
         );
-        chatArea.scrollTop(chatArea[0].scrollHeight);
+        chatArea.scrollTop(chatArea[0].scrollHeight); */
     };
 
-    return { initialize, update, addMessage };
+    return {
+        initialize,
+        update,
+        addMessage
+    };
 })();
 
 // Socket.connect();
@@ -431,11 +771,12 @@ const Game = (function () {
     function initialize() {
         $("#countdown").hide();
         $("#gameover").hide();
-        $("#game-container").hide();
+        //$("#game-container").hide();
     }
 
     const initGame = function () {
         $("#homepage").hide();
+        $("#match-page").hide();
         $("#countdown").show();
 
         console.log("ui.js initialize");
@@ -449,7 +790,7 @@ const Game = (function () {
     const getGameOver = () => isGameOver;
 
     const gameOver = function () {
-        $("#gameover").show();
+        GameOver.show();
         player_gameArea.gameOver(false, false);
         opponent_gameArea.gameOver(false, true);
     };
@@ -459,6 +800,10 @@ const Game = (function () {
         opponent_gameArea.startGame();
     };
 
+    const hide = function () {
+        $("#game-container").hide();
+    }
+
     return {
         initialize,
         startGame,
@@ -466,6 +811,7 @@ const Game = (function () {
         gameOver,
         getGameOver,
         setGameOver,
+        hide
     };
 })();
 /**
@@ -479,8 +825,8 @@ const UI = (function () {
             .append(
                 $(
                     "<span class='user-avatar'>" +
-                        Avatar.getCode(user.avatar) +
-                        "</span>"
+                    Avatar.getCode(user.avatar) +
+                    "</span>"
                 )
             )
             .append($("<span class='user-name'>" + user.name + "</span>"));
@@ -493,8 +839,10 @@ const UI = (function () {
         UserPanel,
         OnlineUsersPanel,
         ChatPanel,
-        Match,
         Game,
+        MatchPage,
+        GameOver,
+        Scoreboard
     ];
 
     // This function initializes the UI
@@ -509,5 +857,9 @@ const UI = (function () {
         HomePage.renderSidePanel(status);
     };
 
-    return { getUserDisplay, initialize, renderSidePanel };
+    return {
+        getUserDisplay,
+        initialize,
+        renderSidePanel
+    };
 })();

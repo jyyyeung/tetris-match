@@ -24,6 +24,8 @@ const gameSession = session({
 });
 app.use(gameSession);
 
+
+
 // Handle the /register endpoint
 app.post("/register", (req, res) => {
     // Get the JSON data from the body
@@ -327,6 +329,11 @@ httpServer.listen(8000, () => {
         socket.on("get users", () => {
             // Send the online users to the browser
             io.emit("users", JSON.stringify(onlineUsers));
+        });
+
+        socket.on("get scoreboard", () => {
+            const scoreboard = JSON.parse(fs.readFileSync("data/scoreboard.json"));
+            io.emit("scoreboard", JSON.stringify(scoreboard));
         });
     });
 });
