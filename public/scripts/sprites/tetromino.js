@@ -14,12 +14,7 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
         letters.splice(letters.indexOf(previousSpawned), 1);
     }
     const randomLetter = letters[Math.floor(Math.random() * letters.length)];
-    const tetromino = Tetromino(
-        player_context,
-        gameArea,
-        player_matrix,
-        randomLetter
-    );
+    const tetromino = Tetromino(player_context, gameArea, player_matrix, "I");
     previousSpawned = randomLetter;
     return tetromino;
 }
@@ -418,7 +413,7 @@ const Tetromino = function (
         else if (mRight >= 10) matrixX = 10 - BLOCK_WIDTH();
         if (mBottom < 0) matrixY = 0;
         // TODO: If movement, do not allow, if stacking, game over
-        else if (mTop >= 14) matrixY = 14 - BLOCK_HEIGHT();
+        else if (mTop > 14) matrixY = 14 - BLOCK_HEIGHT();
 
         console.log("Returning cleaned up matrixXY:", matrixX, matrixY);
 
