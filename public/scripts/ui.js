@@ -588,6 +588,10 @@ const UserPanel = (function () {
         $("#user-panel").hide();
     };
 
+    const updateNumberOfUsers = function (num) {
+        $("#num-of-users-online").text(num);
+    };
+
     // This function updates the user panel
     const update = function (user) {
         if (user) {
@@ -604,6 +608,7 @@ const UserPanel = (function () {
         show,
         hide,
         update,
+        updateNumberOfUsers,
     };
 })();
 

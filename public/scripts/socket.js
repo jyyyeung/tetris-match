@@ -48,6 +48,14 @@ const Socket = (function () {
         socket.on("users", (onlineUsers) => {
             onlineUsers = JSON.parse(onlineUsers);
 
+            console.log(
+                "online users",
+                Object.keys(onlineUsers).length,
+                onlineUsers
+            );
+
+            UserPanel.updateNumberOfUsers(Object.keys(onlineUsers).length);
+
             // Show the online users
             OnlineUsersPanel.update(onlineUsers);
         });
