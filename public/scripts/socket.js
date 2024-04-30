@@ -29,6 +29,8 @@ const Socket = (function () {
 
     let gameInProgress = false;
 
+    let num_users_online = 0;
+
     /**
      * This function connects the server and initializes the socket
      */
@@ -53,6 +55,7 @@ const Socket = (function () {
                 Object.keys(onlineUsers).length,
                 onlineUsers
             );
+            num_users_online = Object.keys(onlineUsers).length;
 
             UserPanel.updateNumberOfUsers(Object.keys(onlineUsers).length);
 
@@ -64,6 +67,8 @@ const Socket = (function () {
         socket.on("add user", (user) => {
             user = JSON.parse(user);
 
+            UserPanel.updateNumberOfUsers(++num_users_online);
+
             // Add the online user
             OnlineUsersPanel.addUser(user);
         });
@@ -71,6 +76,8 @@ const Socket = (function () {
         // Set up the remove user event
         socket.on("remove user", (user) => {
             user = JSON.parse(user);
+
+            UserPanel.updateNumberOfUsers(--num_users_online);
 
             // Remove the online user
             OnlineUsersPanel.removeUser(user);

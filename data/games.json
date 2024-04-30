@@ -718,5 +718,31 @@
     "time": 4908.699999988079
    }
   }
+ },
+ "877867-1714485036601": {
+  "player1": {
+   "username": "s",
+   "avatar": "Panda",
+   "name": "s",
+   "stats": {
+    "score": 40,
+    "linesOfBlocks": 1,
+    "tetrisCount": 0,
+    "time": 10738.5
+   }
+  },
+  "mode": 2,
+  "datetime": "2024-04-30T13:50:50.820Z",
+  "player2": {
+   "username": "aasdf",
+   "avatar": "Bat",
+   "name": "asdf",
+   "stats": {
+    "score": 0,
+    "linesOfBlocks": 0,
+    "tetrisCount": 0,
+    "time": 10777.399999976158
+   }
+  }
  }
 }
