@@ -380,6 +380,11 @@ httpServer.listen(8000, () => {
                 socket.broadcast.to(room).emit("key up", key);
             });
 
+            socket.on("add cheat row", () => {
+                // Broadcast the add cheat row event to everyone
+                socket.broadcast.to(room).emit("add cheat row");
+            });
+
             socket.on("game over", () => {
                 // Broadcast the game over event to everyone
                 socket.broadcast.to(room).emit("game over");

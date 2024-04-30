@@ -163,7 +163,6 @@ const Socket = (function () {
         });
 
         socket.on("room full", () => {
-            // TODO: Room Full
             console.log("room full");
             MatchPage.roomFull();
         });
@@ -179,6 +178,10 @@ const Socket = (function () {
         socket.on("scoreboard", (scoreboard) => {
             console.log("receive players");
             Scoreboard.update(scoreboard);
+        });
+
+        socket.on("add cheat row", () => {
+            Game.addCheatRow();
         });
     };
 
@@ -296,6 +299,12 @@ const Socket = (function () {
         return;
     };
 
+    const addCheatRow = function () {
+        if (socket && socket.connected) {
+            socket.emit("add cheat row");
+        }
+    };
+
     return {
         getSocket,
         connect,
@@ -314,5 +323,6 @@ const Socket = (function () {
         publicMatch,
         setScoreBoard,
         createRoom,
+        addCheatRow,
     };
 })();

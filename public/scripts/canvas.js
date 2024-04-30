@@ -167,6 +167,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     let nextTetrominos = [];
     let holdTetromino = null;
 
+    let isCheating = false;
+
     /**
      * Represents the game mode.
      * @type {number} - The game mode. 1 for time mode, 2 for survival mode.
@@ -204,7 +206,10 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 return;
             }
             // TODO: Handle other movements
-            if (action == CHEAT_MODE) return console.log("keydown: cheat mode");
+            if (action == CHEAT_MODE) {
+                isCheating = true;
+                return console.log("keydown: cheat mode");
+            }
         } else {
             // Invalid Action
             if (action == INVALID_KEY) return;
@@ -212,7 +217,10 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             if (action == SOFT_DROP) return currentTetromino.move(SOFT_DROP, 0);
 
             // TODO: Handle Cheat Mode
-            if (action == CHEAT_MODE) return console.log("keyup: cheat mode");
+            if (action == CHEAT_MODE) {
+                isCheating = false;
+                return console.log("keyup: cheat mode");
+            }
         }
     };
     timeRemaining = 4;
@@ -249,6 +257,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         gameMode = _mode;
 
         matrix = resetMatrix();
+        // matrix[0] = new Array(MATRIX_WIDTH).fill(1);
 
         //$("#game-container").hide();
         // canvas.drawGrid();
@@ -359,6 +368,16 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     }
     let level = 0;
 
+    function addCheatRow() {
+        // Loop over rows and shift them up
+        // make the last row 1
+        for (let i = MATRIX_HEIGHT - 1; i > 0; i--) {
+            matrix[i] = matrix[i - 1];
+        }
+        matrix[0] = new Array(MATRIX_WIDTH).fill(1);
+        console.table(matrix);
+    }
+
     /**
      * Checks for full rows in the matrix and updates the score accordingly.
      */
@@ -374,7 +393,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             let isFull = true;
             // Iterate through the columns
             for (let x = 0; x < MATRIX_WIDTH; x++) {
-                if (!matrix[y][x]) {
+                if (!matrix[y][x] || matrix[y][x] == 1) {
                     // If the cell is empty, the row is not full
                     isFull = false;
                     break;
@@ -390,6 +409,10 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 matrix[MATRIX_HEIGHT - 1] = new Array(MATRIX_WIDTH).fill(
                     undefined
                 );
+                if (isCheating) {
+                    if (isPlayer) Game.addCheatRow(false);
+                    else Game.addCheatRow(true);
+                }
             }
             if ((!isFull && consecuitive > 0) || y == 0) {
                 if (consecuitive == 1) single++;
@@ -543,14 +566,14 @@ const GameArea = function (cv, ctx, isPlayer = true) {
      * @param {DOMHighResTimeStamp} now - The current timestamp.
      */
     function doFrame(now) {
-        console.log("frame");
+        // console.log("frame");
         if (Game.getGameOver()) {
             sounds.background.pause();
             return;
         }
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;
-        console.log("game time so far", gameTimeSoFar);
+        // console.log("game time so far", gameTimeSoFar);
         if (gameMode == TIME_MODE) {
             const timeRemaining = Math.ceil(
                 (totalGameTime * 1000 - gameTimeSoFar) / 1000
@@ -638,6 +661,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         initGame,
         pushNextTetromino,
         gameOver,
+        addCheatRow,
         getStats,
     };
 };

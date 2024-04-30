@@ -774,7 +774,15 @@ const Game = (function () {
     });
     let mode = 0;
 
+    /**
+     * Represents the player's game area.
+     * @type {GameArea}
+     */
     let player_gameArea = null;
+    /**
+     * Represents the opponent's game area.
+     * @type {GameArea}
+     */
     let opponent_gameArea = null;
     let opponent = null;
 
@@ -809,6 +817,12 @@ const Game = (function () {
         return opponent_gameArea;
     };
     let isGameOver = false;
+
+    const addCheatRow = (isForPlayer = true) => {
+        console.log("Add cheat row");
+        if (isForPlayer) player_gameArea.addCheatRow();
+        else opponent_gameArea.addCheatRow();
+    };
 
     const setGameOver = () => {
         isGameOver = true;
@@ -873,6 +887,7 @@ const Game = (function () {
         getGameOver,
         setGameOver,
         hide,
+        addCheatRow,
         setOpponent,
     };
 })();
