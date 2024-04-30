@@ -19,12 +19,12 @@ $ npm start
 
     -   [x] Logo?
 
-    -   [ ] Authentication
+    -   [x] Authentication
 
-        -   [ ] [front] Component for Login form
+        -   [x] [front] Component for Login form
         -   [x] [back] Login form logic
 
-        -   [ ] [front] Component for Signup form
+        -   [x] [front] Component for Signup form
         -   [x] [back] Signup form logic
 
     -   [x] How to Play Page
@@ -32,35 +32,35 @@ $ npm start
         -   [x] [front + text] Game Rules
         -   [x] [front + text] Controls
 
-    -   [ ] Play Now Button
-        -   [ ] [front] Play Now Button
+    -   [x] Play Now Button
+        -   [x] [front] Play Now Button
         -   [ ] [back] Play Now Button Logic
-            -   Invite Code Logic
-            -   Matchmaking Logic
+            -   [ ] Invite Code Logic
+            -   [x] Matchmaking Logic
 
 -   [ ] Game Page
 
     -   [ ] Game Board
-        -   [ ] [front] Game Canvas Component
+        -   [x] [front] Game Canvas Component
         -   [ ] [back] Game Canvas Logic
     -   [ ] Game Controls
         -   [x] [back] Game Controls Logic [@jyyyeung DOING]
                 Partially done, need to wait for sprite movement logic to be implemented
         -   [ ] [back] Cheat key logic
     -   [ ] Game Sprites
-        -   [ ] [front] Tetris Piece Component
+        -   [x] [front] Tetris Piece Component
         -   [ ] [back] Tetris Piece Logic
 
--   [ ] Game Over Page
-    -   [ ] [front] Game Over Message
-    -   [ ] [front] Play Again Button
+-   [x] Game Over Page
+    -   [x] [front] Game Over Message
+    -   [x] [front] Play Again Button
     -   [ ] [back] Play Again Button Logic
-    -   [ ] [front] Return to Home Button
-    -   [ ] [back] Return to Home Button Logic
+    -   [x] [front] Return to Home Button
+    -   [x] [back] Return to Home Button Logic
 -   [ ] Leaderboard Page
 
-    -   [ ] [front] Leaderboard Table
+    -   [x] [front] Leaderboard Table
     -   [ ] [back] Leaderboard Logic
 
--   [ ] Profile Page?
+-   [x] Profile Page?
 -   [ ] Settings Page?

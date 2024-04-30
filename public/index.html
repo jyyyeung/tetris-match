@@ -16,7 +16,7 @@
     <div id="container" class="col" content="width=device-width, initial-scale=1">
         <!-- <div id="header" class="row"></div> -->
         <div id="homepage" class="row">
-            <div id="home-panel" class="col">
+            <div id="home-panel" class="col" content="width=device-width, initial-scale=1">
                 <!-- Login Page Game Title -->
                 <div id="title" class="col">Tetris Match</div>
                 <div class="col">
@@ -50,7 +50,7 @@
                 </div>
             </div>
             <!-- home page side panel -->
-            <div id="home-side-panel" class="col">
+            <div id="home-side-panel" class="col" content="width=device-width, initial-scale=1">
                 <div class="before-login">
                     <!-- START: Sign in form -->
                     <form id="signin-form" class="col">
@@ -67,7 +67,7 @@
                     <!-- START: Register form -->
                     <form id="register-form" class="col">
                         <div class="caption">
-                            OR, REGISTER IF YOU DO NOT HAVE ONE
+                            REGISTER AN ACCOUNT
                         </div>
                         <div class="spacer-0"></div>
                         <input id="register-username" maxlength="10" placeholder="Enter your username" />
@@ -84,15 +84,51 @@
                     <!-- END: Register form -->
                 </div>
                 <!-- START: User profile -->
-                <div id="user-panel" class="row">
-                    <div class="field-content row shadow">
-                        <span class="user-avatar"></span>
-                        <span class="user-name">-</span>
+                <div id="user-panel" class="col" style="transform: scale(1.5);">
+                    <div id="profile-header" class="row">
+                        <div>Welcome! </div>
+                        <div class="field-content row shadow">
+                            <span class="user-avatar"></span>
+                            <span class="user-name">-</span>
+                        </div>
+                        <!-- Login Button -->
+                        <button id="signout-button" class="icon">
+                            <span class="material-icons">logout</span>
+                        </button>
                     </div>
-                    <!-- Login Button -->
-                    <button id="signout-button" class="icon">
-                        <span class="material-icons">logout</span>
-                    </button>
+                    <div style="
+                    gap: 20px;
+                    display: flex;
+                    flex-direction: column;
+                ">
+                        <div>Number of users online: <tspan id="num-of-users-online">0</tspan>
+                        </div>
+                        <div>My best score: <tspan id="personal-score">0</tspan>
+                        </div>
+                        <div>Scoreboard position: <tspan id="scoreboard-position">0</tspan>
+                        </div>
+                        <div class="scoreboard row">
+                            <div class="col">
+                                <div>Position</div>
+                                <div>1</div>
+                                <div>2</div>
+                                <div>3</div>
+                                <div>4</div>
+                                <div>5</div>
+                                <div>6</div>
+                                <div>7</div>
+                                <div>8</div>
+                                <div>9</div>
+                                <div>10</div>
+                            </div>
+                            <div class="col scoreboard-playerlist">
+                                <!-- <div>Player</div> -->
+                            </div>
+                            <div class="col scoreboard-scorelist">
+                                <!-- <div>Score</div> -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <!-- START: How to play instructions -->
                 <div id="how-to-play">
@@ -165,8 +201,11 @@
                         <input type="text" maxlength=6 style="color: black; text-align:center;">
                     </div>
                 </div>
-                <div id="public-match-page">
-                    <h1 class="row" style="top: 0%; position: absolute;">Public Match</h1>
+                <div id="public-match-page" class="col">
+                    <h1 style="top: 0%;" id="queue-timer">0:00</h1>
+                    <span style="white-space: pre-line; color: white;">
+                        Matching players for you...
+                    </span>
                 </div>
             </div>
             <button class="row" id="match-page-return" style="bottom: 10%; position: absolute;">return</button>
@@ -313,6 +352,70 @@
                     gem(s).
                 </text>
             </svg> -->
+
+        </div>
+
+        <div id="gameover" class="col">
+            <h1 id="gameover-title">GAME OVER</h1>
+            <div id="gameover-stat" class="row">
+                <div class="col gameover-text">
+                    <br></br>
+                    <div>Score</div>
+                    <div>Lines of Blocks</div>
+                    <div>Tetris count</div>
+                    <div>Time</div>
+                </div>
+                <div id="player-stat" class="col gameover-text">
+                    <span class="user-avatar"></span>
+                    <span class="user-name"></span>
+                    <div>123</div>
+                    <div>123</div>
+                    <div>123</div>
+                    <div>1:23</div>
+                </div>
+                <div id="opponent-stat" class="col gameover-text">
+                    <span class="user-avatar"></span>
+                    <span class="user-name"></span>
+                    <div>123</div>
+                    <div>123</div>
+                    <div>123</div>
+                    <div>1:23</div>
+                </div>
+            </div>
+            <div id="scoreboard-page" class="col">
+                <h1>SCOREBOARD</h1>
+                <div class="row scoreboard" style="
+                transform: scale(0.7) translateY(-50px);
+            ">
+                    <div class="col gameover-text">
+                        <div>Position</div>
+                        <div>1</div>
+                        <div>2</div>
+                        <div>3</div>
+                        <div>4</div>
+                        <div>5</div>
+                        <div>6</div>
+                        <div>7</div>
+                        <div>8</div>
+                        <div>9</div>
+                        <div>10</div>
+                    </div>
+                    <div class="col gameover-text scoreboard-playerlist">
+                        <div>Player</div>
+                    </div>
+                    <div class="col gameover-text scoreboard-scorelist">
+                        <div>Score</div>
+                    </div>
+                </div>
+            </div>
+            <div id="gameover-rematch" class="col">
+                <h1>Rematch?</h1>
+                <div class="row" style="gap: 50px;">
+                    <button id="rematch-button" class="row">Yes</button>
+                    <button id="gameover-home-button" class="row">No, return to homepage</button>
+                </div>
+            </div>
+            <button id="gameover-next" style="bottom: 10%; position: absolute; display: none;">next</button>
         </div>
 
         <!-- <div id="main-panel" class="row">

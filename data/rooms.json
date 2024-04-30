@@ -1,17 +1,28 @@
-[
-  {
+{
+  "123456": {
     "player1": {
       "username": "tony",
       "avatar": "Owl",
-      "name": "Tony Lee"
+      "name": "Tony Lee",
+      "stat": {
+        "score": "572",
+        "linesOfBlocks": "4",
+        "tetrisCount": "8",
+        "time": "114514"
+      }
     },
     "player2": {
-      "username": "tony",
-      "avatar": "Owl",
-      "name": "Tony Lee"
+      "username": "john",
+      "avatar": "Hamster",
+      "name": "John Chan",
+      "stat" : {
+        "score": "452",
+        "linesOfBlocks": "2",
+        "tetrisCount": "3",
+        "time": "100100"
+      }
     },
     "datetime": "2022-01-01T01:00:00.000Z",
-    "mode": "??",
-    "result": {}
+    "mode": "??"
   }
-]
+}

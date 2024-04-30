@@ -170,7 +170,7 @@ button {
     color: var(--button-color);
     background: var(--button-background);
     box-shadow: 10px 10px 5px rgb(0, 0, 0, 0.4);
-    padding: 0 20px;
+    padding: 20px;
     transition: 1s background;
 }
 
@@ -304,7 +304,8 @@ button.icon:active {
     margin: auto;
     font-size: 250%;
     padding: 20px;
-    width: 700px;
+    width: 95vh;
+    resize: both;
 }
 
 .match-buttons {
@@ -386,14 +387,22 @@ button.icon:active {
 
 /* Signin overlay */
 #signin-form {
-    width: 270px;
     align-self: stretch;
 }
 
 #register-form {
     width: 50vw;
-    background: var(--register-form-background);
     padding: 20px;
+}
+
+#profile-header {
+    display: inline-flex;
+    background: black;
+    border: 20px;
+    border-color: cyan;
+    border-radius: 50px;
+    width: 100%;
+    margin: 20px;
 }
 
 /* Edit user overlay */
@@ -511,8 +520,30 @@ canvas,
 #gameover {
     color: red;
     display: none;
+    margin: auto;
+    gap: 50px;
 }
 
+@keyframes gameover-title-animation {
+    from {
+        transform: translateY(0px)
+    }
+
+    to {
+        transform: translateY(-300px)
+    }
+}
+
+#gameover-title {
+    font-size: 300%;
+    animation-timing-function: linear;
+    animation-duration: 0.75s;
+}
+
+.gameover-text {
+    display: none;
+    font-size: 200%
+}
 /* canvas, */
 /* #game-start, */
 #game-over {

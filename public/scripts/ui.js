@@ -8,6 +8,25 @@ const TIME_MODE_DESCRIPTION = "Players obtain as many scores as possible in 2 mi
 const SURVIVAL_MODE_DESCRIPTION = "No time limit but the game gets more \n difficult as it continues."
 const DESCRIPTION_PLACEHOLDER = "\n\n"
 
+function hideAllPages() {
+    $("#container").children().each(function () {
+        $(this).hide();
+    })
+}
+
+function secondsToText(totalSeconds) {
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = (totalSeconds % 60)
+    return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+}
+
+function milisecondsToText(totalMiliSeconds) {
+    let totalSeconds = Math.floor(totalMiliSeconds / 1000);
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = (totalSeconds % 60)
+    return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+}
+
 const HomePage = (function () {
     let sidePanelStatus = -1;
 
@@ -30,7 +49,6 @@ const HomePage = (function () {
             $("#register-form"),
             $("#how-to-play"),
             $("#user-panel"),
-            // TODO: Match Page
             $("#match-page"),
         ];
         contents.forEach((element) => element.hide());
@@ -51,8 +69,8 @@ const HomePage = (function () {
         $(".before-login").show();
         $(".after-login").hide();
         $("#home-side-panel").hide();
-        
-        $("#game-container").hide();
+        hideAllPages();
+        $("#homepage").show();
 
         $("#register-button").click(function () {
             buttonFunc(HOME_REGISTER);
@@ -76,11 +94,13 @@ const HomePage = (function () {
         })
     };
 
-    const show = function() {
+    const show = function () {
         $(".before-login").show();
         $(".after-login").hide();
         $("#home-side-panel").hide();
-        $("#game-container").hide();
+        hideAllPages();
+        $("#homepage").show();
+
     }
 
     return {
@@ -97,6 +117,7 @@ const MatchPage = (function () {
         invitationCode: "",
         isGameModeTime: false,
     }
+    let timerID = 0;
     const pageChange = function (newPhase) {
         /* 
         When phase is set to the following values, the corresponding page will be displayed when return button is clicked:
@@ -136,7 +157,7 @@ const MatchPage = (function () {
             $("#match-choose-gamemode").show();
         });
 
-        $("#join-private-game-button").click(function() {
+        $("#join-private-game-button").click(function () {
             hideAll();
             phase = 2;
             gameData.isPublic = false;
@@ -152,29 +173,34 @@ const MatchPage = (function () {
 
         $("#match-page-return").click(function () {
             pageChange(phase - 1);
+            if (timerID) {
+                clearInterval(timerID);
+                timerID = 0;
+                $("#queue-timer").text("0:00");
+            }
             Socket.leaveRoom();
         });
 
-        $("#time-mode-button").click(function() {
+        $("#time-mode-button").click(function () {
             hideAll();
             phase = 3;
             if (gameData.isPublic) {
                 $("#public-match-page").show();
+                timerID = timer();
                 Socket.publicMatch();
-            }
-            else {
+            } else {
                 $("#create-private-game-page").show();
             }
         });
 
-        $("#survival-mode-button").click(function() {
+        $("#survival-mode-button").click(function () {
             hideAll();
             phase = 3;
             if (gameData.isPublic) {
                 $("#public-match-page").show();
+                timerID = timer();
                 Socket.publicMatch();
-            }
-            else {
+            } else {
                 $("#create-private-game-page").show();
             }
         });
@@ -195,12 +221,20 @@ const MatchPage = (function () {
             $("#match-mode-description").text(DESCRIPTION_PLACEHOLDER);
         });
 
-
-
     };
+
+    const timer = function () {
+        let totalSeconds = 0;
+        return setInterval(() => {
+            $("#queue-timer").text(secondsToText(totalSeconds));
+            totalSeconds++;
+        }, 1000);
+    }
+    
+
     const show = function () {
         $("#match-page").show();
-        $("#match-page").children().each(function() {
+        $("#match-page").children().each(function () {
             $(this).show();
         })
         $("#match-content-container").children().first().show();
@@ -385,6 +419,144 @@ const Match = (function () {
     };
 })();
 
+const GameOver = (function () {
+
+    const testData = {
+
+        "player1": {
+            "username": "tony",
+            "avatar": "Owl",
+            "name": "Tony Lee",
+            "stat": {
+                "score": "572",
+                "linesOfBlocks": "4",
+                "tetrisCount": "8",
+                "time": "114514"
+            }
+        },
+        "player2": {
+            "username": "john",
+            "avatar": "Hamster",
+            "name": "John Chan",
+            "stat": {
+                "score": "452",
+                "linesOfBlocks": "2",
+                "tetrisCount": "3",
+                "time": "100100"
+            }
+        },
+        "datetime": "2022-01-01T01:00:00.000Z",
+        "mode": "??"
+    }
+    let currentPage = 1;
+
+    const initialize = function () {
+        $("#gameover").hide();
+        $("#gameover-rematch").hide();
+        $("#scoreboard-page").hide();
+        update(testData);
+        //show();
+        $("#gameover-next").click(function () {
+            $("#gameover").children().eq(currentPage++).fadeOut();
+            setTimeout(function () {
+                $("#gameover").children().eq(currentPage).fadeIn();
+            }, 500);
+            if (currentPage == 3) {
+                $(this).hide();
+            }
+        })
+        $("#rematch-button").click(function () {
+            //TODO: rematch
+        })
+
+        $("#gameover-home-button").click(function () {
+            $("#homepage").show();
+            $("#gameover").hide();
+        })
+    }
+    const show = function () {
+        $("#gameover").css("display", "flex");
+        $("#gameover-title").css("animation-name", "gameover-title-animation")
+        setTimeout(function () {
+            $("#gameover-title").css("transform", "translateY(-300px)");
+        }, 745);
+        setTimeout(function () {
+            $("#gameover-title").fadeOut();
+        }, 800);
+        setTimeout(function () {
+            $(".gameover-text").css("display", "flex");
+            $("#gameover-next").fadeIn();
+        }, 1500);
+        Socket.setScoreBoard();
+    }
+
+    const update = function (room) {
+        const player = room["player1"]
+        const opponent = room["player2"]
+        $("#player-stat .user-avatar").html(Avatar.getCode(player.avatar));
+        $("#player-stat .user-name").text(player.name);
+        $("#opponent-stat .user-avatar").html(Avatar.getCode(opponent.avatar));
+        $("#opponent-stat .user-name").text(opponent.name);
+
+        const playerData = [];
+        const opponentData = [];
+        for (key in player.stat) {
+            playerData.push(player.stat[key]);
+        }
+        for (key in opponent.stat) {
+            opponentData.push(opponent.stat[key]);
+        }
+
+        for (let i = 0; i < 3; i++) {
+            $("#player-stat").children().eq(i + 2).text(playerData[i]);
+        }
+        for (let i = 0; i < 3; i++) {
+            $("#opponent-stat").children().eq(i + 2).text(opponentData[i]);
+        }
+        $("#player-stat").children().eq(5).text(milisecondsToText(player.stat["time"]))
+        $("#opponent-stat").children().eq(5).text(milisecondsToText(opponent.stat["time"]))
+    }
+    return {
+        initialize,
+        show,
+        update
+    };
+})();
+
+const Scoreboard = (function () {
+    const initialize = function () {
+    }
+
+    const update = function (players) {
+        const playerArray = [];
+        const playerObj = JSON.parse(players);
+        for (id in playerObj) {
+            playerArray.push(playerObj[id]);
+        }
+        console.log(playerArray);
+        playerArray.sort((a, b) => b.score - a.score);
+
+        $(".scoreboard-playerlist").empty();
+        $(".scoreboard-scorelist").empty();
+
+        $(".scoreboard-playerlist").append($("<div>Player</div>"))
+        $(".scoreboard-scorelist").append($("<div>Score</div>"))
+        for (let i = 0; i < 10; i++) {
+            $(".scoreboard-playerlist").append(
+                //$("<div class='row'><span class=\"user-avatar\"></span><div>" + playerArray[i].name + "</div></div>")
+                $("<div>" + playerArray[i].name + "</div>")
+            )
+            //$("#scoreboard-playerlist .user-avatar").html(Avatar.getCode(playerArray[i].avatar));
+            $(".scoreboard-scorelist").append(
+                $("<div>" + playerArray[i].score + "</div>")
+            )
+        }
+    }
+    return {
+        initialize,
+        update
+    }
+})();
 /**
  * UserPanel represents the user interface for the user panel.
  * @namespace
@@ -613,7 +785,7 @@ const Game = (function () {
     const getGameOver = () => isGameOver;
 
     const gameOver = function () {
-        $("#gameover").show();
+        GameOver.show();
         player_gameArea.gameOver(false, false);
         opponent_gameArea.gameOver(false, true);
     };
@@ -623,6 +795,10 @@ const Game = (function () {
         opponent_gameArea.startGame();
     };
 
+    const hide = function() {
+        $("#game-container").hide();
+    }
+
     return {
         initialize,
         startGame,
@@ -630,6 +806,7 @@ const Game = (function () {
         gameOver,
         getGameOver,
         setGameOver,
+        hide
     };
 })();
 /**
@@ -658,7 +835,9 @@ const UI = (function () {
         OnlineUsersPanel,
         ChatPanel,
         Game,
-        MatchPage
+        MatchPage,
+        GameOver,
+        Scoreboard
     ];
 
     // This function initializes the UI

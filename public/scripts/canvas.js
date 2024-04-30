@@ -471,7 +471,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         // else {
         // }
 
-        $("#gameover").show();
+        Game.hide();
+        GameOver.show();
     }
     let isHardDrop = false;
     /**
