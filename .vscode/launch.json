@@ -1,17 +1,47 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}/tetris_match.js"
-    }
-  ]
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Chrome",
+            "port": 8000,
+            "request": "attach",
+            "type": "chrome"
+            // "webRoot": "${workspaceFolder}"
+        },
+        {
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "name": "nodemon",
+            "program": "${workspaceFolder}/tetris_match.js",
+            "request": "launch",
+            "restart": true,
+            "runtimeExecutable": "nodemon",
+            "skipFiles": ["<node_internals>/**"],
+            "type": "node"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/tetris_match.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch with Nodemon",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "${workspaceFolder}/node_modules/nodemon/bin/nodemon.js"
+            ],
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/tetris_match.js",
+            "env": {
+                "DEBUG": "myapp:server"
+            }
+        }
+    ]
 }

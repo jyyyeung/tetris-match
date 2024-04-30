@@ -31,6 +31,8 @@ function milisecondsToText(totalMiliSeconds) {
     return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
 }
 
+let user = null;
+
 const HomePage = (function () {
     let sidePanelStatus = -1;
 
@@ -194,7 +196,7 @@ const MatchPage = (function () {
                 timerID = timer();
                 Socket.publicMatch(1);
             } else {
-                Socket.createRoom(0);
+                Socket.createRoom(1);
                 $("#create-private-game-page").show();
             }
         });
@@ -207,12 +209,13 @@ const MatchPage = (function () {
                 timerID = timer();
                 Socket.publicMatch(2);
             } else {
-                Socket.createRoom(1);
+                Socket.createRoom(2);
                 $("#create-private-game-page").show();
             }
         });
 
         $("#join-room-form").on("submit", (e) => {
+            $("join-room-message").text("");
             // Do not submit the form
             e.preventDefault();
             const room = $("#join-room-id").val().trim();
@@ -301,6 +304,7 @@ const MatchPage = (function () {
         roomFull,
         roomNotFound,
         waitingForOpponent,
+        hideAll,
     };
 })();
 
@@ -332,6 +336,7 @@ const SignInForm = (function () {
                     //hide();
                     console.log("signed in");
                     UserPanel.update(Authentication.getUser());
+                    user = Authentication.getUser();
                     UserPanel.show();
                     $(".before-login").hide();
                     HomePage.renderSidePanel(3);
@@ -428,6 +433,7 @@ const GameOver = (function () {
         mode: "??",
     };
     let currentPage = 1;
+    // BUG: Reset Game Over screen after each match
 
     const initialize = function () {
         $("#gameover").hide();
@@ -449,11 +455,13 @@ const GameOver = (function () {
         });
 
         $("#gameover-home-button").click(function () {
+            Socket.leaveRoom();
             $("#homepage").show();
             $("#gameover").hide();
         });
     };
     const show = function () {
+        currentPage = 1;
         $("#gameover").css("display", "flex");
         $("#gameover-title").css("animation-name", "gameover-title-animation");
         setTimeout(function () {
@@ -562,6 +570,7 @@ const UserPanel = (function () {
             // Send a signout request
             Authentication.signout(() => {
                 Socket.disconnect();
+                user = null;
                 //hide();
                 //SignInForm.show();
                 HomePage.show();
@@ -611,6 +620,7 @@ const OnlineUsersPanel = (function () {
 
         // Get the current user
         const currentUser = Authentication.getUser();
+        user = currentUser;
 
         // Add the user one-by-one
         for (const username in onlineUsers) {
@@ -742,8 +752,16 @@ const ChatPanel = (function () {
 // Game;
 const Game = (function () {
     const opponent_cv = $("canvas").get(1);
-    const opponent_context = opponent_cv.getContext("2d");
+    const opponent_context = opponent_cv.getContext("2d", {
+        willReadFrequently: true,
+        alpha: true,
+    });
     const player_cv = $("canvas").get(0);
+    /**
+     * The context for drawing on the player canvas.
+     *
+     * @type {CanvasRenderingContext2D}
+     */
     const player_context = player_cv.getContext("2d", {
         willReadFrequently: true,
         alpha: true,
@@ -751,8 +769,13 @@ const Game = (function () {
     });
     let mode = 0;
 
-    player_gameArea = GameArea(player_cv, player_context, true);
-    opponent_gameArea = GameArea(opponent_cv, opponent_context, false);
+    let player_gameArea = null;
+    let opponent_gameArea = null;
+    let opponent = null;
+
+    const setOpponent = function (_opponent) {
+        opponent = _opponent;
+    };
 
     function initialize() {
         $("#countdown").hide();
@@ -762,9 +785,14 @@ const Game = (function () {
 
     const initGame = function (_mode) {
         $("#homepage").hide();
-        $("#match-page").hide();
+        MatchPage.hideAll();
         $("#countdown").show();
         $("#join-private-game-page").hide();
+
+        player_gameArea = GameArea(player_cv, player_context, true);
+        opponent_gameArea = GameArea(opponent_cv, opponent_context, false);
+
+        isGameOver = false;
 
         mode = _mode;
         console.log(mode, _mode);
@@ -776,13 +804,51 @@ const Game = (function () {
         return opponent_gameArea;
     };
     let isGameOver = false;
-    const setGameOver = () => (isGameOver = true);
+
+    const setGameOver = () => {
+        isGameOver = true;
+        Socket.setGameOver(true);
+    };
     const getGameOver = () => isGameOver;
 
-    const gameOver = function () {
+    const gameOver = function (playerLost = false) {
+        if (!playerLost) {
+            player_gameArea.gameOver(false, playerLost);
+            opponent_gameArea.gameOver(false, !playerLost);
+        }
+        // Show game statistics
+        const playerStats = player_gameArea.getStats();
+        const opponentStats = opponent_gameArea.getStats();
+        const gameOverData = {
+            player1: {
+                avatar: user.avatar,
+                name: user.name,
+                stat: playerStats,
+            },
+            player2: {
+                avatar: opponent.avatar,
+                name: opponent.name,
+                stat: opponentStats,
+            },
+            mode: mode,
+            datetime: new Date(),
+        };
+        GameOver.update(gameOverData);
+        console.log("GameOver.game over", { playerLost }, { gameOverData });
+
+        Game.hide();
+
+        // Reset all values
+        // isGameOver = false;
+        opponent = null;
+        mode = 0;
+        player_gameArea = null;
+        opponent_gameArea = null;
+
+        player_context.reset();
+        opponent_context.reset();
+
         GameOver.show();
-        player_gameArea.gameOver(false, false);
-        opponent_gameArea.gameOver(false, true);
     };
 
     const startGame = function () {
@@ -802,6 +868,7 @@ const Game = (function () {
         getGameOver,
         setGameOver,
         hide,
+        setOpponent,
     };
 })();
 /**

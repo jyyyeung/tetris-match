@@ -167,6 +167,8 @@ const publicMatchSurvivalMode = [];
 const TIME_MODE = 1;
 const SURVIVAL_MODE = 2;
 const roomMode = {};
+const gameUID = {};
+const roomPlayers = {};
 // Use a web server to listen at port 8000
 httpServer.listen(8000, () => {
     console.log("Tetris Match server has started...");
@@ -223,157 +225,225 @@ httpServer.listen(8000, () => {
                 // Broadcast to Browsers: Remove a disconnected user from the online user list
                 io.emit("remove user", JSON.stringify(user));
             });
-        }
 
-        let room = null;
+            let room = null;
 
-        /**
-         * Creates a new room for the Tetris match.
-         *
-         * @param {string} _mode - The mode of the Tetris match.
-         * @returns {string} The ID of the created room.
-         */
-        const createRoom = (_mode) => {
-            // Create room
-            const _room = randomId();
-            // Check if Room already Exist
-            while (io.sockets.adapter.rooms.has(_room)) {
-                _room = randomId();
-            }
-            io.to(socket.id).emit("room created", _room, _mode);
+            /**
+             * Creates a new room for the Tetris match.
+             *
+             * @param {string} _mode - The mode of the Tetris match.
+             * @returns {string} The ID of the created room.
+             */
+            const createRoom = (_mode) => {
+                // Create room
+                const _room = randomId();
+                // Check if Room already Exist
+                while (io.sockets.adapter.rooms.has(_room)) {
+                    _room = randomId();
+                }
+                io.to(socket.id).emit("room created", _room, _mode);
 
-            if (!roomMode[_room]) roomMode[_room] = _mode;
-            socket.join(_room);
-            console.log("Joined room: ", _room);
-            room = _room;
-            return _room;
-        };
+                if (!roomMode[_room]) roomMode[_room] = _mode;
+                socket.join(_room);
+                roomPlayers[_room] = user.username;
+                console.log("Joined room: ", _room);
+                room = _room;
+                return _room;
+            };
 
-        /**
-         * Joins a room and performs necessary checks before joining.
-         * @param {number} _room - The room number to join.
-         */
-        const joinRoom = (_room) => {
-            _room = parseInt(_room);
-            const thisRoom = io.sockets.adapter.rooms.get(_room);
-            if (_room == null || !thisRoom) {
-                io.to(socket.id).emit("room not found");
-                return;
-            }
-            if (thisRoom.size > 2) {
-                io.to(socket.id).emit("room full");
-                return;
-            }
+            /**
+             * Joins a room and performs necessary checks before joining.
+             * @param {number} _room - The room number to join.
+             */
+            const joinRoom = (_room) => {
+                _room = parseInt(_room);
+                const thisRoom = io.sockets.adapter.rooms.get(_room);
+                if (_room == null || !thisRoom) {
+                    io.to(socket.id).emit("room not found");
+                    return;
+                }
+                if (thisRoom.size > 2) {
+                    io.to(socket.id).emit("room full");
+                    return;
+                }
 
-            console.log("Joining room: ", _room);
-            socket.join(_room);
-            socket.join("joined room", _room, roomMode[_room]);
-            room = _room;
+                console.log("Joining room: ", _room);
+                console.log("Room players: ", roomPlayers[_room]);
+                console.log(onlineUsers);
+                io.to(_room).emit("set opponent", JSON.stringify(user));
+                socket.join(_room);
+                socket.join("joined room", _room, roomMode[_room]);
+                room = _room;
 
-            if (thisRoom.size === 2) {
-                roomReady[room] = 0;
-                console.log("two people");
-                io.to(room).emit("on your marks", roomMode[_room]);
-            }
-        };
+                if (thisRoom.size === 2) {
+                    roomReady[room] = 0;
 
-        socket.on("public match", (_mode) => {
-            if (
-                _mode === SURVIVAL_MODE &&
-                publicMatchSurvivalMode.length === 0
-            ) {
-                const roomId = createRoom(SURVIVAL_MODE);
-                if (_mode === SURVIVAL_MODE)
+                    console.log("two people");
+                    opponent = roomPlayers[room];
+                    // console.log(
+                    //     "Opponent: ",
+                    //     opponent,
+                    //     onlineUsers[opponent],
+                    //     JSON.stringify(onlineUsers[opponent])
+                    // );
+                    io.to(socket.id).emit(
+                        "set opponent",
+                        JSON.stringify(onlineUsers[opponent])
+                    );
+
+                    io.to(room).emit("on your marks", roomMode[_room]);
+
+                    gameUID[room] = room + "-" + Date.now();
+                    delete roomPlayers[_room];
+                }
+            };
+
+            socket.on("public match", (_mode) => {
+                if (
+                    _mode === SURVIVAL_MODE &&
+                    publicMatchSurvivalMode.length === 0
+                ) {
+                    const roomId = createRoom(SURVIVAL_MODE);
+
                     publicMatchSurvivalMode.push(roomId);
-                io.to(socket.id).emit("waiting for opponent");
-                return;
-            }
-            if (_mode === TIME_MODE && publicMatchTimeMode.length === 0) {
-                const roomId = createRoom(TIME_MODE);
-                // publicMatch.push(socket.id);
-                if (_mode === TIME_MODE) publicMatchTimeMode.push(roomId);
+                    io.to(socket.id).emit("waiting for opponent");
+                    return;
+                }
+                if (_mode === TIME_MODE && publicMatchTimeMode.length === 0) {
+                    const roomId = createRoom(TIME_MODE);
+                    // publicMatch.push(socket.id);
+                    publicMatchTimeMode.push(roomId);
 
-                io.to(socket.id).emit("waiting for opponent");
-                return;
-            }
+                    io.to(socket.id).emit("waiting for opponent");
+                    return;
+                }
 
-            if (_mode === TIME_MODE) room = publicMatchTimeMode.shift();
-            else if (_mode === SURVIVAL_MODE)
-                room = publicMatchSurvivalMode.shift();
-            joinRoom(room);
-        });
+                if (_mode === TIME_MODE) room = publicMatchTimeMode.shift();
+                else if (_mode === SURVIVAL_MODE)
+                    room = publicMatchSurvivalMode.shift();
+                joinRoom(room);
+            });
 
-        socket.on("leave room", () => {
-            if (room == null) return;
-            socket.leave(room);
-            console.log("Leaving room: ", room);
-            room = null;
-        });
+            socket.on("leave room", () => {
+                if (room == null) return;
+                socket.leave(room);
+                console.log("Leaving room: ", room);
+                room = null;
+            });
 
-        socket.on("create room", (_mode) => {
-            createRoom(_mode);
-        });
+            socket.on("create room", (_mode) => {
+                createRoom(_mode);
+            });
 
-        socket.on("join room", (_room) => {
-            if (_room == null) createRoom();
-            // Join the room
-            else joinRoom(_room);
-        });
+            socket.on("join room", (_room) => {
+                if (_room == null) createRoom();
+                // Join the room
+                else joinRoom(_room);
+            });
 
-        // let room_ready = 0;
+            // let room_ready = 0;
 
-        socket.on("ready to start", () => {
-            roomReady[room]++;
-            if (roomReady[room] === 2) {
-                io.to(room).emit("start game");
-            }
-        });
-        socket.on("init game", (firstTetromino, tetrominos) => {
-            // Broadcast the game start time to everyone
-            socket.broadcast
-                .to(room)
-                .emit("init game", firstTetromino, tetrominos);
-        });
+            socket.on("ready to start", () => {
+                roomReady[room]++;
+                if (roomReady[room] === 2) {
+                    io.to(room).emit("start game");
+                }
+            });
+            socket.on("init game", (firstTetromino, tetrominos) => {
+                // Broadcast the game start time to everyone
+                socket.broadcast
+                    .to(room)
+                    .emit("init game", firstTetromino, tetrominos);
+            });
 
-        socket.on("push next tetromino", (letter) => {
-            // Broadcast the next tetromino to everyone
-            socket.broadcast.to(room).emit("push next tetromino", letter);
-        });
+            socket.on("push next tetromino", (letter) => {
+                // Broadcast the next tetromino to everyone
+                socket.broadcast.to(room).emit("push next tetromino", letter);
+            });
 
-        socket.on("update score", (score) => {
-            // Update the user's score
-            // user.score = score;
+            socket.on("update score", (score) => {
+                // Update the user's score
+                // user.score = score;
 
-            console.log("Sending update score to everyone");
-            // Broadcast the updated score to everyone
-            socket.broadcast.to(room).emit("update score", score);
-        });
+                console.log("Sending update score to everyone");
+                // Broadcast the updated score to everyone
+                socket.broadcast.to(room).emit("update score", score);
+            });
 
-        socket.on("key down", (key) => {
-            // Broadcast the key down event to everyone
-            socket.broadcast.to(room).emit("key down", key);
-        });
+            socket.on("key down", (key) => {
+                // Broadcast the key down event to everyone
+                socket.broadcast.to(room).emit("key down", key);
+            });
 
-        socket.on("key up", (key) => {
-            // Broadcast the key up event to everyone
-            socket.broadcast.to(room).emit("key up", key);
-        });
+            socket.on("key up", (key) => {
+                // Broadcast the key up event to everyone
+                socket.broadcast.to(room).emit("key up", key);
+            });
 
-        socket.on("game over", () => {
-            // Broadcast the game over event to everyone
-            socket.broadcast.to(room).emit("game over");
-        });
+            socket.on("game over", () => {
+                // Broadcast the game over event to everyone
+                socket.broadcast.to(room).emit("game over");
+            });
 
-        socket.on("get users", () => {
-            // Send the online users to the browser
-            io.emit("users", JSON.stringify(onlineUsers));
-        });
+            socket.on("get users", () => {
+                // Send the online users to the browser
+                io.emit("users", JSON.stringify(onlineUsers));
+            });
 
-        socket.on("get scoreboard", () => {
-            const scoreboard = JSON.parse(
-                fs.readFileSync("data/scoreboard.json")
-            );
-            io.emit("scoreboard", JSON.stringify(scoreboard));
-        });
+            socket.on("get scoreboard", () => {
+                const scoreboard = JSON.parse(
+                    fs.readFileSync("data/scoreboard.json", "utf-8")
+                );
+                io.emit("scoreboard", JSON.stringify(scoreboard));
+            });
+
+            socket.on("set game stats", (_stats) => {
+                const games = JSON.parse(
+                    fs.readFileSync("data/games.json", "utf-8")
+                );
+                if (!games[gameUID[room]])
+                    games[gameUID[room]] = {
+                        player1: {
+                            username: user.username,
+                            ...onlineUsers[user.username],
+                            stats: _stats,
+                        },
+                        // player2: {},
+                        mode: roomMode[room],
+                        datetime: new Date(),
+                    };
+                else {
+                    games[gameUID[room]].player2 = {
+                        username: user.username,
+                        ...onlineUsers[user.username],
+                        stats: _stats,
+                    };
+                }
+
+                // socket.to(room).emit("opponent stats", _stats);
+
+                fs.writeFileSync(
+                    "data/games.json",
+                    JSON.stringify(games, null, " ")
+                );
+
+                // const scoreboard = JSON.parse(
+                //     fs.readFileSync("data/scoreboard.json")
+                // );
+                // if (_stats.username in scoreboard) {
+                //     scoreboard[_stats.username].wins += _stats.wins;
+                //     scoreboard[_stats.username].losses += _stats.losses;
+                // } else {
+                //     scoreboard[_stats.username] = {
+                //         wins: _stats.wins,
+                //         losses: _stats.losses,
+                //     };
+                // }
+                // fs.writeFileSync(
+                //     "data/scoreboard.json",
+                //     JSON.stringify(scoreboard, null, " ")
+                // );
+            });
+        }
     });
 });

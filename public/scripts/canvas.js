@@ -71,10 +71,16 @@ const Matrix = function (ctx) {
         Mino(ctx, 16 + 32 * x, 432 - 32 * y, color).draw();
     }
 
+    function resetMatrix() {
+        matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT + 2);
+        return matrix;
+    }
+
     return {
-        array: makeArray(MATRIX_WIDTH, MATRIX_HEIGHT + 2),
+        array: resetMatrix(),
         renderMatrix,
         renderSingle,
+        resetMatrix,
     };
 };
 
@@ -150,10 +156,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
     let gameArea = null;
     const canvas = Canvas(ctx);
-    const { array: matrix, renderMatrix } = Matrix(ctx);
+    const { array: _matrix, renderMatrix, resetMatrix } = Matrix(ctx);
+    let matrix = _matrix;
 
     let score = 0;
     let tetrisCount = 0;
+    let linesOfBlocks = 0;
 
     let currentTetromino = null;
     let nextTetrominos = [];
@@ -235,10 +243,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     };
 
     const initialize = function (_mode) {
-        console.log("Game Area Initialized", { isPlayer });
+        console.log("Game Area Initialized", { isPlayer }, { _mode });
         gameArea = canvas.gameArea;
 
         gameMode = _mode;
+
+        matrix = resetMatrix();
 
         //$("#game-container").hide();
         // canvas.drawGrid();
@@ -251,6 +261,17 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             /* TODO: Hide the start screen */
             // $("#game-start").hide();
             // GameArea.initialize();
+
+            // Rest all values
+            nextTetrominos = [];
+            currentTetromino = null;
+            linesOfBlocks = 0;
+            score = 0;
+            tetrisCount = 0;
+            gameStartTime = 0;
+            level = 0;
+            holdTetromino = null;
+            clearAndRedraw(false, false);
 
             if (isPlayer) {
                 countdown();
@@ -361,6 +382,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             }
             if (isFull) {
                 consecuitive++;
+                linesOfBlocks++;
                 // Remove the row
                 for (let i = y; i < MATRIX_HEIGHT - 1; i++) {
                     matrix[i] = matrix[i + 1];
@@ -387,8 +409,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     }
 
     const initGame = (_firstTetromino = "", _tetrominos = []) => {
-        nextTetrominos = [];
-
         if (isPlayer) {
             const initTetrominos = [];
             currentTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
@@ -414,6 +434,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
     let gameStartTime = 0; // The timestamp when the game starts
     function startGame() {
+        clearAndRedraw();
         gameStartTime = performance.now();
 
         // Initialize game time and level
@@ -421,7 +442,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             canvas.setTime(0);
         } else if (gameMode == TIME_MODE) canvas.setTime(totalGameTime);
 
-        canvas.setLevel(3);
+        canvas.setLevel(level);
 
         setScore(score);
 
@@ -463,6 +484,15 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         return false;
     };
 
+    const getStats = () => {
+        return {
+            score,
+            linesOfBlocks,
+            tetrisCount,
+            time: performance.now() - gameStartTime,
+        };
+    };
+
     /**
      * Displays the game over screen and plays the game over sound.
      */
@@ -473,23 +503,23 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         // sounds.collect.pause();
         // sounds.gameover.play();
         if (!isPlayer) return;
-        const gameStats = {
-            score,
-            tetrisCount,
-        };
+        const gameStats = getStats();
         Socket.setGameStats(gameStats);
         console.log("Game Over: Lost");
+        Socket.setGameOver(true);
         if (isDraw) {
             $("#player-standing").text("Draw! ");
         } else if (isLost) {
             Socket.gameOver();
             $("#player-standing").text("You Lose! ");
         } else $("#player-standing").text("You Won! ");
+
+        Game.gameOver(true);
         // else {
         // }
 
-        Game.hide();
-        GameOver.show();
+        // Game.hide();
+        // GameOver.show();
     }
     let isHardDrop = false;
     /**
@@ -513,6 +543,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
      * @param {DOMHighResTimeStamp} now - The current timestamp.
      */
     function doFrame(now) {
+        console.log("frame");
         if (Game.getGameOver()) {
             sounds.background.pause();
             return;
@@ -607,5 +638,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         initGame,
         pushNextTetromino,
         gameOver,
+        getStats,
     };
 };

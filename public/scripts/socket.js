@@ -111,6 +111,12 @@ const Socket = (function () {
             gameInProgress = false;
         });
 
+        socket.on("set opponent", (opponent) => {
+            console.log("set opponent", { opponent });
+            opponent = JSON.parse(opponent);
+            Game.setOpponent(opponent);
+        });
+
         socket.on("on your marks", (_roomMode) => {
             if (gameInProgress) return;
 
@@ -123,12 +129,12 @@ const Socket = (function () {
 
         socket.on("init game", (firstTetromino, tetrominos) => {
             if (gameInProgress) return;
-            // console.log("init game", firstTetromino, tetrominos);
+            console.log("init game", firstTetromino, tetrominos);
             opponentGameArea.initGame(firstTetromino, tetrominos);
         });
 
         socket.on("room created", (_room, _mode) => {
-            console.log("room created", _room._mode);
+            console.log("room created", _room, _mode);
             room = _room;
             mode = _mode;
             MatchPage.roomCreated(_room, _mode);
@@ -171,7 +177,7 @@ const Socket = (function () {
 
     const setGameStats = (stats) => {
         if (socket && socket.connected) {
-            socket.emit("set game stats", stats);
+            socket.emit("set game stats", stats, room, mode);
         }
     };
 
@@ -200,16 +206,17 @@ const Socket = (function () {
     };
 
     const publicMatch = function (_mode) {
-        console.log("public match");
+        console.log("public match", { room }, { _mode });
         if (room != null) return false;
         socket.emit("public match", _mode);
     };
 
     const leaveRoom = function (_room) {
         if (_room == null) _room = room;
-        console.log("leave room", room);
+        console.log("leave room", _room);
         if (socket && socket.connected) {
             socket.emit("leave room", _room);
+            gameInProgress = false;
             room = null;
             mode = 0;
         }
@@ -224,6 +231,7 @@ const Socket = (function () {
     const gameOver = function () {
         if (socket && socket.connected) {
             socket.emit("game over");
+            gameInProgress = false;
         }
     };
 
@@ -267,9 +275,16 @@ const Socket = (function () {
         }
     };
 
+    const setGameOver = function (isGameOver) {
+        gameInProgress = !isGameOver;
+        console.log("game over", { gameInProgress });
+        return;
+    };
+
     return {
         getSocket,
         connect,
+        setGameOver,
         disconnect,
         postMessage,
         joinRoom,
