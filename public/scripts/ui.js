@@ -177,13 +177,13 @@ const MatchPage = (function () {
         });
 
         $("#match-page-return").click(function () {
+            if (phase == 3) Socket.leaveRoom();
             pageChange(phase - 1);
             if (timerID) {
                 clearInterval(timerID);
                 timerID = 0;
                 $("#queue-timer").text("0:00");
             }
-            Socket.leaveRoom();
         });
 
         $("#time-mode-button").click(function () {
@@ -192,8 +192,9 @@ const MatchPage = (function () {
             if (gameData.isPublic) {
                 $("#public-match-page").show();
                 timerID = timer();
-                Socket.publicMatch();
+                Socket.publicMatch(1);
             } else {
+                Socket.createRoom(0);
                 $("#create-private-game-page").show();
             }
         });
@@ -204,9 +205,23 @@ const MatchPage = (function () {
             if (gameData.isPublic) {
                 $("#public-match-page").show();
                 timerID = timer();
-                Socket.publicMatch();
+                Socket.publicMatch(2);
             } else {
+                Socket.createRoom(1);
                 $("#create-private-game-page").show();
+            }
+        });
+
+        $("#join-room-form").on("submit", (e) => {
+            // Do not submit the form
+            e.preventDefault();
+            const room = $("#join-room-id").val().trim();
+            console.log("join room", room);
+            const joinRoomSuccessful = Socket.joinRoom(room);
+            if (joinRoomSuccessful) {
+                $("#joined-room-id").text(room);
+            } else {
+                $("#join-room-message").text("You are already a Room.");
             }
         });
 
@@ -228,6 +243,7 @@ const MatchPage = (function () {
     };
 
     const timer = function () {
+        $("#public-match-page").show();
         let totalSeconds = 0;
         return setInterval(() => {
             $("#queue-timer").text(secondsToText(totalSeconds));
@@ -239,6 +255,24 @@ const MatchPage = (function () {
         clearInterval(timerID);
         timerID = 0;
         $("#queue-timer").text("0:00");
+        $("#public-match-page").hide();
+    };
+
+    const roomCreated = function (room) {
+        console.log("room created", room);
+        $("#created-room-id").prop("value", room);
+    };
+
+    const roomNotFound = function () {
+        $("#join-room-message").text("Room not found.");
+    };
+
+    const roomFull = function () {
+        $("#join-room-message").text("Room is full.");
+    };
+
+    const waitingForOpponent = function () {
+        $("#join-room-message").text("Waiting for opponent.");
     };
 
     const show = function () {
@@ -263,6 +297,10 @@ const MatchPage = (function () {
         initialize,
         show,
         stopTimer,
+        roomCreated,
+        roomFull,
+        roomNotFound,
+        waitingForOpponent,
     };
 })();
 
@@ -359,77 +397,6 @@ const SignInForm = (function () {
         initialize,
         show,
         hide,
-    };
-})();
-
-const Match = (function () {
-    const initialize = function () {
-        // Hide it
-        $("#match-page").hide();
-        $("#create-room-btn").on("click", (e) => {
-            // Do not submit the form
-            console.log("create room");
-            const createRoomSuccessful = Socket.joinRoom();
-            if (!createRoomSuccessful) {
-                $("#create-room-message").text("You are already a Room.");
-            }
-        });
-        $("#join-room-form").on("submit", (e) => {
-            // Do not submit the form
-            e.preventDefault();
-            const room = $("#join-room-id").val().trim();
-            console.log("join room", room);
-            const joinRoomSuccessful = Socket.joinRoom(room);
-            if (joinRoomSuccessful) {
-                $("#joined-room-id").text(room);
-            } else {
-                $("#join-room-message").text("You are already a Room.");
-            }
-        });
-        $("#public-match-btn").on("click", (e) => {
-            // Do not submit the form
-            console.log("public match");
-            Socket.publicMatch();
-        });
-        $("#leave-room-btn").on("click", (e) => {
-            console.log("leave room");
-            Socket.leaveRoom();
-        });
-    };
-
-    const roomCreated = function (room) {
-        console.log("room created", room);
-        $("#created-room-id").text(room);
-    };
-
-    const roomNotFound = function () {
-        $("#join-room-message").text("Room not found.");
-    };
-
-    const roomFull = function () {
-        $("#join-room-message").text("Room is full.");
-    };
-
-    const waitingForOpponent = function () {
-        $("#join-room-message").text("Waiting for opponent.");
-    };
-
-    const show = function () {
-        $("#match-page").show();
-    };
-
-    const hide = function () {
-        $("#match-page").hide();
-    };
-
-    return {
-        initialize,
-        show,
-        hide,
-        roomCreated,
-        roomFull,
-        roomNotFound,
-        waitingForOpponent,
     };
 })();
 
@@ -796,6 +763,7 @@ const Game = (function () {
         $("#homepage").hide();
         $("#match-page").hide();
         $("#countdown").show();
+        $("#join-private-game-page").hide();
 
         console.log("ui.js initialize");
         // Initialize the game area
@@ -860,6 +828,7 @@ const UI = (function () {
         Game,
         MatchPage,
         GameOver,
+        // Match,
         Scoreboard,
     ];
 
