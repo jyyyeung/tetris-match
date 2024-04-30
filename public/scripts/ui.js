@@ -830,8 +830,8 @@ const Game = (function () {
     };
     const getGameOver = () => isGameOver;
 
-    const gameOver = function (playerLost = false) {
-        if (!playerLost) {
+    const gameOver = function (playerLost = false, sendGameOverSignal = false) {
+        if (!playerLost || sendGameOverSignal) {
             player_gameArea.gameOver(false, playerLost);
             opponent_gameArea.gameOver(false, !playerLost);
         }

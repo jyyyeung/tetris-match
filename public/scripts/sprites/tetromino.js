@@ -412,7 +412,7 @@ const Tetromino = function (
         if (mLeft < 0) matrixX = 0;
         else if (mRight >= 10) matrixX = 10 - BLOCK_WIDTH();
         if (mBottom < 0) matrixY = 0;
-        // TODO: If movement, do not allow, if stacking, game over
+        // If movement, do not allow, if stacking, game over
         else if (mTop > 14) matrixY = 14 - BLOCK_HEIGHT();
 
         console.log("Returning cleaned up matrixXY:", matrixX, matrixY);
@@ -491,8 +491,9 @@ const Tetromino = function (
 
         const noCollision = tetrominoToMinos(_mX, _mY);
         if (!noCollision) {
-            // TODO: Show game over
+            // Show game over
             console.log("Game Over");
+            Game.gameOver(true, true);
             return;
         }
         // lastUpdate -= DEFAULT_SPEED;
