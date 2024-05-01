@@ -81,18 +81,21 @@ app.post("/register", (req, res) => {
     scoreboard[1][username] = {
         avatar: avatar,
         name: name,
-        score: 0
-    }
+        score: 0,
+    };
 
     scoreboard[2][username] = {
         avatar: avatar,
         name: name,
-        score: 0
-    }
+        score: 0,
+    };
 
     // Saving the users.json file
     fs.writeFileSync("data/users.json", JSON.stringify(users, null, " "));
-    fs.writeFileSync("data/scoreboard.json", JSON.stringify(scoreboard, null, " "));
+    fs.writeFileSync(
+        "data/scoreboard.json",
+        JSON.stringify(scoreboard, null, " ")
+    );
 
     // Sending a success response to the browser
     res.json({ status: "success" });
@@ -351,6 +354,9 @@ httpServer.listen(8000, () => {
                     delete roomPlayers[_room];
                 } else if (alreadyInRoom && thisRoom.size === 1) {
                     roomPlayers[_room] = user.username;
+                    if (roomReady[room] === 0) {
+                        roomReady[room] = 1;
+                    }
                 }
             };
 
@@ -386,17 +392,13 @@ httpServer.listen(8000, () => {
                 if (roomReady[room] < 0) roomReady[room] = 0;
                 socket.leave(room);
                 console.log("Leaving room: ", room);
-                room = null;
                 // If no more players in the room, delete the room
-                /* if (room) {
-                    console.log(room.length)
-                    if (io.sockets.adapter.rooms.get(room).size === 0) {
-                    io.sockets.adapter.rooms.delete(room);
+
+                if (!io.sockets.adapter.rooms.get(room)) {
                     delete roomMode[room];
                     delete roomReady[room];
-                    }
-                    room = null;
-                } */  
+                }
+                room = null;
             });
 
             socket.on("create room", (_mode) => {

@@ -17,7 +17,7 @@ const BLOCK_SIZE = 32;
  * @returns {Object} An object containing methods for manipulating and rendering the matrix.
  */
 const Matrix = function (ctx) {
-    let matrix;
+    let matrix = resetMatrix();
 
     /**
      * Creates a 2D array representing the matrix.
@@ -72,12 +72,11 @@ const Matrix = function (ctx) {
     }
 
     function resetMatrix() {
-        matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT + 2);
-        return matrix;
+        return makeArray(MATRIX_WIDTH, MATRIX_HEIGHT + 2);
     }
 
     return {
-        array: resetMatrix(),
+        array: matrix,
         renderMatrix,
         renderSingle,
         resetMatrix,
@@ -156,13 +155,15 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
     let gameArea = null;
     const canvas = Canvas(ctx);
-    const { array: _matrix, renderMatrix, resetMatrix } = Matrix(ctx);
-    let matrix = _matrix;
 
     let score = 0;
     let tetrisCount = 0;
     let linesOfBlocks = 0;
 
+    /**
+     * Represents the current tetromino.
+     * @type {Tetromino|null}
+     */
     let currentTetromino = null;
     let nextTetrominos = [];
     let holdTetromino = null;
@@ -175,7 +176,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
      */
     let gameMode = 0;
 
-    const translateAction = function (action, isKeyDown) {
+    function translateAction(action, isKeyDown) {
         if (isKeyDown) {
             // Invalid Action
             if (action == INVALID_KEY) return;
@@ -193,11 +194,14 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 return currentTetromino.move(ROTATE_RIGHT);
             }
             if (action == SOFT_DROP) {
+                console.table(currentTetromino.minosMatrix);
                 return currentTetromino.move(SOFT_DROP);
             }
             if (action == HARD_DROP) {
-                const fixTetromino = currentTetromino;
-                fixTetromino.move(HARD_DROP);
+                console.log("keydown: hard drop");
+                console.table(currentTetromino.minosMatrix);
+                // const fixTetromino = currentTetromino;
+                currentTetromino.move(HARD_DROP);
                 isHardDrop = true;
                 return;
             }
@@ -205,7 +209,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 holdCurrentTetromino();
                 return;
             }
-            // TODO: Handle other movements
             if (action == CHEAT_MODE) {
                 isCheating = true;
                 return console.log("keydown: cheat mode");
@@ -215,14 +218,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             if (action == INVALID_KEY) return;
             // Handle other movements
             if (action == SOFT_DROP) return currentTetromino.move(SOFT_DROP, 0);
-
-            // TODO: Handle Cheat Mode
             if (action == CHEAT_MODE) {
                 isCheating = false;
                 return console.log("keyup: cheat mode");
             }
         }
-    };
+    }
     timeRemaining = 4;
 
     function countdown() {
@@ -239,6 +240,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             $("#countdown").text("Start");
             // startGame();
             $("#countdown").hide();
+            $("#countdown").text("3");
+            timeRemaining = 4;
             initGame();
         }
     }
@@ -256,17 +259,91 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         // gameover: new Audio("gameover.mp3"),
     };
 
+    // let matrix = null;
+    // let renderMatrix = null;
+    // let resetMatrix = null;
+
+    let matrix = resetMatrix();
+
+    /**
+     * Creates a 2D array representing the matrix.
+     *
+     * @param {number} [d1=MATRIX_WIDTH] - The width of the matrix.
+     * @param {number} [d2=MATRIX_HEIGHT] - The height of the matrix.
+     * @returns {Array} The created matrix array.
+     */
+    function makeArray(d1 = MATRIX_WIDTH, d2 = MATRIX_HEIGHT) {
+        var arr = [];
+        for (let i = 0; i < d2; i++) {
+            arr.push(new Array(d1));
+        }
+        return arr;
+    }
+
+    /**
+     * Renders the matrix on the canvas.
+     */
+    function renderMatrix() {
+        const colors = {
+            0: "empty",
+            O: "red",
+            S: "yellow",
+            L: "green",
+            Z: "lightBlue",
+            J: "pink",
+            T: "darkBlue",
+            I: "purple",
+            1: "grey",
+        };
+        for (let y = 0; y < MATRIX_HEIGHT; y++) {
+            for (let x = 0; x < MATRIX_WIDTH; x++) {
+                const n = matrix[y][x];
+                if (n) {
+                    renderSingle(x, y, colors[n]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Renders a single tetromino block on the canvas.
+     *
+     * @param {number} x - The x-coordinate of the block.
+     * @param {number} y - The y-coordinate of the block.
+     * @param {string} color - The color of the block.
+     */
+    function renderSingle(x, y, color) {
+        Mino(ctx, 16 + 32 * x, 432 - 32 * y, color).draw();
+    }
+
+    function resetMatrix() {
+        const _matrix = makeArray(MATRIX_WIDTH, MATRIX_HEIGHT + 2);
+        return _matrix;
+    }
+
     const initialize = function (_mode) {
         console.log("Game Area Initialized", { isPlayer }, { _mode });
         gameArea = canvas.gameArea;
 
         gameMode = _mode;
 
-        matrix = resetMatrix();
+        // TODO: Allow tetromino to get the matrix by itself
+        // TODO: Check ui.js to see why using the previous
+        // Log in tetromino.js when created using Tetromino()
+        // const {
+        //     array: _array,
+        //     renderMatrix: _renderMatrix,
+        //     resetMatrix: _resetMatrix,
+        // } = new Matrix(ctx);
+        // matrix = _array;
+        // renderMatrix = _renderMatrix;
+        // resetMatrix = _resetMatrix;
+
         // matrix[0] = new Array(MATRIX_WIDTH).fill(1);
 
         //$("#game-container").hide();
         // canvas.drawGrid();
+        matrix = resetMatrix();
 
         /* Handle the start of the game */
         $("#game-container").show(function () {
@@ -279,16 +356,26 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
             // Rest all values
             nextTetrominos = [];
+            for (let i = 0; i < 3; i++) {
+                setNextIcon(i, null);
+            }
             currentTetromino = null;
             linesOfBlocks = 0;
             score = 0;
+            setScore(0);
             tetrisCount = 0;
             gameStartTime = 0;
             level = 0;
             holdTetromino = null;
+            setHoldIcon(null);
+
+            isHardDrop = false;
+            isCheating = false;
             clearAndRedraw(false, false);
 
             if (isPlayer) {
+                canvas.setTime("000");
+                canvas.setLevel("000");
                 countdown();
             }
         });
@@ -307,12 +394,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             $("#player-next")
                 .children()
                 .eq(index)
-                .css("background", icons[block]);
+                .css("background", block ? icons[block] : "none");
         else
             $("#opponent-next")
                 .children()
                 .eq(index)
-                .css("background", icons[block]);
+                .css("background", block ? icons[block] : "none");
     }
 
     function updateNextIcons() {
@@ -341,12 +428,17 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     function setHoldIcon(block) {
         // bool - true if player, false if opponent. block - char (OSLZJTI)
         if (isPlayer)
-            $("#player-hold").children().css("background", icons[block]);
-        else $("#opponent-hold").children().css("background", icons[block]);
+            $("#player-hold")
+                .children()
+                .css("background", block ? icons[block] : "none");
+        else
+            $("#opponent-hold")
+                .children()
+                .css("background", block ? icons[block] : "none");
     }
 
     function pushNextTetromino(letter) {
-        nextTetrominos.push(Tetromino(ctx, gameArea, matrix, letter));
+        nextTetrominos.push(new Tetromino(ctx, gameArea, matrix, letter));
         updateNextIcons();
     }
 
@@ -443,8 +535,11 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     }
 
     const initGame = (_firstTetromino = "", _tetrominos = []) => {
+        nextTetrominos = [];
         if (isPlayer) {
             const initTetrominos = [];
+            // console.table(matrix);
+            console.log("init", currentTetromino);
             currentTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
             for (let i = 0; i < 3; i++) {
                 const tetromino = spawnRandomTetromino(ctx, gameArea, matrix);
@@ -453,14 +548,15 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             }
             Socket.initGame(currentTetromino.getLetter(), initTetrominos);
         } else {
-            currentTetromino = Tetromino(
+            console.table(matrix);
+            currentTetromino = new Tetromino(
                 ctx,
                 gameArea,
                 matrix,
                 _firstTetromino
             );
-            nextTetrominos = _tetrominos.map((t) =>
-                Tetromino(ctx, gameArea, matrix, t)
+            nextTetrominos = _tetrominos.map(
+                (t) => new Tetromino(ctx, gameArea, matrix, t)
             );
             Socket.readyToStart();
         }
@@ -486,13 +582,19 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             // Play Packground music
             sounds.background.volume = UI.getBGMVolume();
             sounds.background.play();
+            currentTetromino.updateMinosMatrix(matrix);
 
             // Handle keydown of controls
             $(document).on("keydown", function (event) {
+                currentTetromino.updateMinosMatrix(matrix);
                 action = action_from_key(event.keyCode);
-                Socket.keyDown(action);
+                if (action == HARD_DROP) {
+                    console.table(matrix);
+                    console.table(currentTetromino.minosMatrix);
+                }
                 translateAction(action, true);
                 playSounds(action);
+                Socket.keyDown(action);
             });
 
             // Handle keyup of controls
@@ -557,7 +659,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             sound.volume = UI.getSoundsVolume();
             sound.pause();
             sound.currentTime = 0;
-            sound.play();  
+            sound.play();
         }
     }
 
@@ -568,6 +670,11 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         Game.setGameOver();
         // $("#final-gems").text(collectedGems);
         sounds.background.pause();
+        matrix = resetMatrix();
+        currentTetromino.updateMinosMatrix(matrix);
+        for (let i = 0; i < nextTetrominos.length; i++) {
+            nextTetrominos[i].updateMinosMatrix(matrix);
+        }
         // sounds.collect.pause();
         // sounds.gameover.play();
         if (!isPlayer) return;
@@ -614,6 +721,11 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         // console.log("frame");
         if (Game.getGameOver()) {
             sounds.background.pause();
+            matrix = resetMatrix();
+            currentTetromino.updateMinosMatrix(matrix);
+            for (let i = 0; i < nextTetrominos.length; i++) {
+                nextTetrominos[i].updateMinosMatrix(matrix);
+            }
             return;
         }
         // /* Update the time remaining */
@@ -638,9 +750,9 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
         const hitBottom = currentTetromino.drop(now);
         if (hitBottom && !isHardDrop) {
-            const fitTetromino = currentTetromino;
+            // const fitTetromino = currentTetromino;
             // Add the tetromino to the matrix
-            const noCollision = fitTetromino.tetrominoToMinos();
+            const noCollision = currentTetromino.tetrominoToMinos();
             if (!noCollision) {
                 clearAndRedraw(true, false);
                 // Show Game Over
@@ -691,6 +803,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 return;
             }
         }
+        currentTetromino.updateMinosMatrix(matrix);
 
         clearAndRedraw(true, true);
 

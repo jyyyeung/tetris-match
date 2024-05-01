@@ -237,6 +237,7 @@ const Socket = (function () {
     const createRoom = function (_mode) {
         if (socket && socket.connected) {
             socket.emit("create room", _mode);
+            gameInProgress = false;
         }
     };
 
@@ -244,6 +245,7 @@ const Socket = (function () {
         if (room != null) return false;
         console.log("request to join room: ", _room);
         socket.emit("join room", _room);
+        gameInProgress = false;
         // room = _room;
         return true;
     };
@@ -252,6 +254,7 @@ const Socket = (function () {
         console.log("public match", { room }, { _mode });
         if (room != null) return false;
         socket.emit("public match", _mode);
+        gameInProgress = false;
     };
 
     const leaveRoom = function (_room) {
@@ -341,6 +344,7 @@ const Socket = (function () {
     const requestRematch = function () {
         if (socket && socket.connected) {
             socket.emit("request rematch");
+            gameInProgress = false;
         }
     };
 

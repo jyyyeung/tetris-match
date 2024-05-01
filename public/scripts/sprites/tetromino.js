@@ -14,7 +14,7 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
         letters.splice(letters.indexOf(previousSpawned), 1);
     }
     const randomLetter = letters[Math.floor(Math.random() * letters.length)];
-    const tetromino = Tetromino(
+    const tetromino = new Tetromino(
         player_context,
         gameArea,
         player_matrix,
@@ -28,6 +28,7 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
  * @constructor
  * @param {CanvasRenderingContext2D} ctx - The rendering context of the canvas.
  * @param {BoundingBox} gameArea - The game area where the Tetromino is placed.
+ * @param {Array<Array<number>>} _minosMatrix - The matrix representing the minos in the game area.
  * @param {number} matrixX - The x-coordinate of the Tetromino in the game matrix.
  * @param {number} matrixY - The y-coordinate of the Tetromino in the game matrix.
  * @param {string} letter - The letter representing the type of Tetromino.
@@ -35,7 +36,7 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
 const Tetromino = function (
     ctx,
     gameArea,
-    minosMatrix,
+    _minosMatrix,
     letter,
     matrixX = 3,
     matrixY = 12
@@ -261,6 +262,7 @@ const Tetromino = function (
             ],
         }, // Piece T
     };
+    let minosMatrix = _minosMatrix;
 
     /**
      * The width of a tetromino block.
@@ -429,7 +431,8 @@ const Tetromino = function (
     if (matrixY + BLOCK_HEIGHT() > 14) {
         matrixY = 14 - BLOCK_HEIGHT();
     }
-    const sprite = Sprite(
+    // console.table(_minosMatrix);
+    const sprite = new Sprite(
         ctx,
         convertMatrixToPx(matrixX, matrixY).x,
         convertMatrixToPx(matrixX, matrixY).y
@@ -494,12 +497,19 @@ const Tetromino = function (
             _mY -= 1;
             isHardDrop = true;
         }
-
+        console.table(minosMatrix);
         const noCollision = tetrominoToMinos(_mX, _mY);
         if (!noCollision) {
             // Show game over
             console.log("Game Over");
             Game.gameOver(true, true);
+            // reset matrix
+            var arr = [];
+            for (let i = 0; i < d2; i++) {
+                arr.push(new Array(d1));
+            }
+            minosMatrix = arr;
+            isHardDrop = false;
             return;
         }
         // lastUpdate -= DEFAULT_SPEED;
@@ -516,6 +526,7 @@ const Tetromino = function (
             let { x, y } = sprite.getXY();
             let { matrixX, matrixY } = getMatrixXY();
 
+            // console.table(minosMatrix);
             /* Move the player */
             switch (_action) {
                 case MOVE_LEFT:
@@ -534,6 +545,7 @@ const Tetromino = function (
                     speed = _isKeyDown ? SOFT_DROP_SPEED : DEFAULT_SPEED;
                     return;
                 case HARD_DROP:
+                    console.log("Tetromino: Hard Drop");
                     hardDrop();
                     return;
             }
@@ -739,10 +751,18 @@ const Tetromino = function (
                 if (alpha == 255 && !minosMatrix[_mY][_mX]) {
                     minosMatrix[_mY][_mX] = letter;
                 } else if (alpha == 255 && minosMatrix[_mY][_mX]) {
+                    console.log(
+                        "Collision Detected at",
+                        _mX,
+                        _mY,
+                        "with",
+                        minosMatrix[_mY][_mX]
+                    );
                     noCollision = false;
                 }
             }
         }
+        console.table(minosMatrix);
         // console.table(minosMatrix);
         // console.log("--- END TETROMINO_TO_MINOS() ---");
         return noCollision;
@@ -754,18 +774,24 @@ const Tetromino = function (
      */
     const canSpawn = () => isValidMatrixPosition(3, 12);
 
+    const updateMinosMatrix = (_matrix) => {
+        minosMatrix = _matrix;
+    };
+
     // The methods are returned as an object here.
     return {
         getXY: sprite.getXY,
         setXY: sprite.setXY,
-        getLetter: getLetter,
+        getLetter,
         getMatrixXY,
-        move: move,
+        move,
         tetrominoToMinos,
         isValidMatrixPosition,
-        drop: drop,
+        drop,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
-        canSpawn: canSpawn,
+        canSpawn,
+        minosMatrix: _minosMatrix,
+        updateMinosMatrix,
     };
 };

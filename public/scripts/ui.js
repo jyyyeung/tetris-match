@@ -57,7 +57,7 @@ const HomePage = (function () {
             $("#how-to-play"),
             $("#user-panel"),
             $("#setting-page"),
-            $("#match-page")
+            $("#match-page"),
         ];
         contents.forEach((element) => element.hide());
         contents[status].show();
@@ -100,19 +100,19 @@ const HomePage = (function () {
             MatchPage.show();
             $("#homepage").hide();
         });
-        $("#setting-button").click(function() {
+        $("#setting-button").click(function () {
             if (sidePanelStatus != HOME_SETTING) {
                 renderSidePanel(HOME_SETTING);
             } else if (!Authentication.getUser()) {
                 hideSidePanel();
             }
         });
-        $("#bgm-volume").click(function() {
+        $("#bgm-volume").click(function () {
             UI.setBGMVolume($(this).val());
-        })
-        $("#sounds-volume").click(function() {
+        });
+        $("#sounds-volume").click(function () {
             UI.setSoundsVolume($(this).val());
-        })
+        });
     };
 
     const show = function () {
@@ -124,17 +124,17 @@ const HomePage = (function () {
         UI.playBGM();
     };
 
-    const returnHome = function() {
+    const returnHome = function () {
         $("#homepage").show();
         buttonFunc(HOME_PROFILE);
         UI.playBGM();
-    }
+    };
 
     return {
         initialize,
         renderSidePanel,
         show,
-        returnHome
+        returnHome,
     };
 })();
 
@@ -210,7 +210,6 @@ const MatchPage = (function () {
                 $("#queue-timer").text("0:00");
             }
         });
-
 
         $("#time-mode-button").click(function () {
             hideAll();
@@ -321,9 +320,9 @@ const MatchPage = (function () {
             });
     };
 
-    const hide = function() {
+    const hide = function () {
         $("#match-page").hide();
-    }
+    };
 
     return {
         initialize,
@@ -334,7 +333,7 @@ const MatchPage = (function () {
         roomNotFound,
         waitingForOpponent,
         hideAll,
-        hide
+        hide,
     };
 })();
 
@@ -486,11 +485,13 @@ const GameOver = (function () {
         });
 
         $("#rematch-button").click(function () {
-            //TODO: rematch
+            //rematch
             // Show waiting for opponent
-            $("#gameover").children().each(function() {
-                $(this).hide();
-            })
+            $("#gameover")
+                .children()
+                .each(function () {
+                    $(this).hide();
+                });
             $("#gameover-rematch-waiting").show();
             Socket.requestRematch();
             $("#game-container").hide();
@@ -516,18 +517,20 @@ const GameOver = (function () {
         });
     };
 
-    const hideAllChildren = function() {
-        $("#gameover").children().each(function() {
-            $(this).hide();
-        })
-    }
+    const hideAllChildren = function () {
+        $("#gameover")
+            .children()
+            .each(function () {
+                $(this).hide();
+            });
+    };
 
-    const setOpponentLeaveMsg = function() {
+    const setOpponentLeaveMsg = function () {
         console.log("opponent leave");
         $("#rematch-text").text("Opponent has left the room.");
-    }
+    };
 
-    const reset = function() {
+    const reset = function () {
         $("#gameover-rematch").hide();
         $("#scoreboard-page").hide();
         $("#gameover-rematch-waiting").hide();
@@ -537,10 +540,10 @@ const GameOver = (function () {
         $("#gameover-title").css("animation-duration", "5s");
         $("#gameover-title").show();
         $("#gameover-stat").hide();
-    }
+    };
 
     const show = function () {
-        let titleDuration = 8*1000;
+        let titleDuration = 8 * 1000;
         let titleStopTime = 745;
         let titleFadeOutTime = 55;
         let statShowTime = 700;
@@ -552,24 +555,27 @@ const GameOver = (function () {
         gameoverSound.pause();
         gameoverSound.currentTime = 0;
         gameoverSound.play();
-        
+
         $("#gameover").css("display", "flex");
 
-        setTimeout(function() {
-            $("#gameover-title").css("animation-name", "gameover-title-animation");
+        setTimeout(function () {
+            $("#gameover-title").css(
+                "animation-name",
+                "gameover-title-animation"
+            );
         }, 3000);
         setTimeout(function () {
             $("#gameover-title").css("transform", "translateY(-300px)");
-        }, 5000-buffer);
+        }, 5000 - buffer);
         setTimeout(function () {
             $("#gameover-title").fadeOut();
             $("#gameover-title").css("animation-name", "");
-        }, titleDuration+titleStopTime+titleFadeOutTime);
+        }, titleDuration + titleStopTime + titleFadeOutTime);
         setTimeout(function () {
             //$(".gameover-text").css("display", "flex");
             $("#gameover-stat").show();
             $("#gameover-next").fadeIn();
-        }, titleDuration+titleStopTime+titleFadeOutTime+statShowTime);
+        }, titleDuration + titleStopTime + titleFadeOutTime + statShowTime);
         // Socket.setScoreBoard(1, false);
     };
 
@@ -623,7 +629,7 @@ const GameOver = (function () {
         update,
         hide,
         setOpponentLeaveMsg,
-        reset
+        reset,
     };
 })();
 
@@ -931,9 +937,9 @@ const Game = (function () {
         opponent = _opponent;
     };
 
-    const getOpponent = function() {
+    const getOpponent = function () {
         return opponent;
-    }
+    };
 
     function initialize() {
         $("#countdown").hide();
@@ -950,8 +956,8 @@ const Game = (function () {
         $("#countdown").show();
         $("#join-private-game-page").hide();
 
-        player_gameArea = GameArea(player_cv, player_context, true);
-        opponent_gameArea = GameArea(opponent_cv, opponent_context, false);
+        player_gameArea = new GameArea(player_cv, player_context, true);
+        opponent_gameArea = new GameArea(opponent_cv, opponent_context, false);
 
         isGameOver = false;
 
@@ -979,11 +985,10 @@ const Game = (function () {
     const getGameOver = () => isGameOver;
 
     const gameOver = function (playerLost = false, sendGameOverSignal = false) {
-        if (!opponent_gameArea || !player_gameArea) return;
+        // if (!opponent_gameArea || !player_gameArea) return;
         if (!playerLost || sendGameOverSignal) {
-            if (player_gameArea) player_gameArea.gameOver(false, playerLost);
-            if (opponent_gameArea)
-                opponent_gameArea.gameOver(false, !playerLost);
+            player_gameArea.gameOver(false, playerLost);
+            opponent_gameArea.gameOver(false, !playerLost);
         }
         // Show game statistics
         const playerStats = player_gameArea.getStats();
@@ -1006,8 +1011,18 @@ const Game = (function () {
         GameOver.update(gameOverData);
         console.log("GameOver game over", { playerLost }, { gameOverData });
         Game.hide();
+        // Reset all values
+        // isGameOver = false;
+        mode = 0;
+
+        player_gameArea = null;
+        opponent_gameArea = null;
+
+        player_context.reset();
+        opponent_context.reset();
+
         GameOver.show();
-        console.log("UI.js:  Game ended ")
+        console.log("UI.js:  Game ended ");
     };
 
     const startGame = function () {
@@ -1017,15 +1032,6 @@ const Game = (function () {
 
     const hide = function () {
         $("#game-container").hide();
-
-        // Reset all values
-        // isGameOver = false;
-        mode = 0;
-        player_gameArea = null;
-        opponent_gameArea = null;
-
-        player_context.reset();
-        opponent_context.reset();
     };
 
     return {
@@ -1084,17 +1090,16 @@ const UI = (function () {
         bgm.loop = true;
         bgm.play();
 
-        $("button").click(function() {
+        $("button").click(function () {
             buttonClickSoundFunc();
         });
-        $(".homepage-buttons").click(function() {
-            buttonClickSoundFunc();
-        });
-
-        $(".match-buttons").click(function() {
+        $(".homepage-buttons").click(function () {
             buttonClickSoundFunc();
         });
 
+        $(".match-buttons").click(function () {
+            buttonClickSoundFunc();
+        });
 
         for (const component of components) {
             component.initialize();
@@ -1114,45 +1119,43 @@ const UI = (function () {
         HomePage.renderSidePanel(status);
     };
 
-    const stopBGM = function() {
+    const stopBGM = function () {
         bgm.pause();
-    }
+    };
 
-    const playBGM = function() {
+    const playBGM = function () {
         bgm.currentTime = 0;
         bgm.play();
-    }
+    };
 
-    const setBGMVolume = function(v) {
+    const setBGMVolume = function (v) {
         let vv = 0;
         if (v > 0 && v < 1) {
             vv = v;
-        }
-        else {
-            vv = v/100;
+        } else {
+            vv = v / 100;
         }
         bgm.volume = vv;
         BGMVolume = vv;
-    }
+    };
 
-    const setSoundsVolume = function(v) {
+    const setSoundsVolume = function (v) {
         let vv = 0;
         if (v > 0 && v < 1) {
             vv = v;
-        }
-        else {
-            vv = v/100;
+        } else {
+            vv = v / 100;
         }
         soundsVolume = vv;
-    }
+    };
 
-    const getSoundsVolume = function() {
+    const getSoundsVolume = function () {
         return soundsVolume;
-    }
+    };
 
-    const getBGMVolume = function() {
+    const getBGMVolume = function () {
         return BGMVolume;
-    }
+    };
 
     return {
         getUserDisplay,
@@ -1163,6 +1166,6 @@ const UI = (function () {
         setBGMVolume,
         setSoundsVolume,
         getBGMVolume,
-        getSoundsVolume
+        getSoundsVolume,
     };
 })();
