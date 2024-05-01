@@ -54,6 +54,18 @@ const Socket = (function () {
             UserPanel.updatePersonalBestScore(2, _bestScore["2"]);
         });
 
+        socket.on("user scoreboard position", (_position) => {
+            _position = JSON.parse(_position);
+            console.log("scoreboard position", _position);
+
+            for (let mode in _position) {
+                UserPanel.updateScoreboardPosition(
+                    parseInt(mode),
+                    _position[mode]
+                );
+            }
+        });
+
         // Set up the users event
         socket.on("users", (onlineUsers) => {
             onlineUsers = JSON.parse(onlineUsers);

@@ -597,6 +597,11 @@ const UserPanel = (function () {
         if (_mode == 2) $("#survival-mode-score").text(_score);
     };
 
+    const updateScoreboardPosition = function (_mode, _position) {
+        if (_mode == 1) $("#time-mode-position").text(_position);
+        if (_mode == 2) $("#survival-mode-position").text(_position);
+    };
+
     // This function updates the user panel
     const update = function (user) {
         if (user) {
@@ -615,6 +620,7 @@ const UserPanel = (function () {
         update,
         updateNumberOfUsers,
         updatePersonalBestScore,
+        updateScoreboardPosition,
     };
 })();
 

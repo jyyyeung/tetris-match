@@ -176,6 +176,19 @@ const getPersonalBest = (username) => {
         2: scoreboard[2][username].score,
     };
 };
+const getScoreboardPosition = (username) => {
+    const scoreboard = JSON.parse(fs.readFileSync("data/scoreboard.json"));
+    let scoreboardPosition = {};
+    for (let mode in scoreboard) {
+        const mode_scoreboard = scoreboard[mode];
+        mode_sorted = Object.keys(mode_scoreboard).sort(function (a, b) {
+            return mode_scoreboard[a].score - mode_scoreboard[b].score;
+        });
+        scoreboardPosition[mode] = mode_sorted.indexOf(username) + 1;
+    }
+    return scoreboardPosition;
+};
+
 // Use a web server to listen at port 8000
 httpServer.listen(8000, () => {
     console.log("Tetris Match server has started...");
@@ -195,6 +208,10 @@ httpServer.listen(8000, () => {
             io.to(socket.id).emit(
                 "user best score",
                 JSON.stringify(getPersonalBest(user.username))
+            );
+            io.to(socket.id).emit(
+                "user scoreboard position",
+                JSON.stringify(getScoreboardPosition(user.username))
             );
 
             // When browser wants to Get the chatroom messages
@@ -475,21 +492,12 @@ httpServer.listen(8000, () => {
                         "user best score",
                         JSON.stringify(getPersonalBest(user.username))
                     );
+                    io.to(socket.id).emit(
+                        "user scoreboard position",
+                        JSON.stringify(getScoreboardPosition(user.username))
+                    );
+                    // TODO: Also update scoreboard
                 }
-
-                // if (_stats.username in scoreboard) {
-                //     scoreboard[_stats.username].wins += _stats.wins;
-                //     scoreboard[_stats.username].losses += _stats.losses;
-                // } else {
-                //     scoreboard[_stats.username] = {
-                //         wins: _stats.wins,
-                //         losses: _stats.losses,
-                //     };
-                // }
-                // fs.writeFileSync(
-                //     "data/scoreboard.json",
-                //     JSON.stringify(scoreboard, null, " ")
-                // );
             });
         }
     });
