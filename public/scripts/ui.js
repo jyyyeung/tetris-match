@@ -276,6 +276,7 @@ const MatchPage = (function () {
 
     const waitingForOpponent = function () {
         $("#join-room-message").text("Waiting for opponent.");
+        // TODO: Add UI for waiting rematch
     };
 
     const show = function () {
@@ -453,8 +454,11 @@ const GameOver = (function () {
         $("#rematch-button").click(function () {
             //TODO: rematch
             // Show waiting for opponent
-            MatchPage.waitingForOpponent();
             Socket.requestRematch();
+            Game.hide();
+            hide();
+            MatchPage.show();
+            MatchPage.waitingForOpponent();
         });
 
         $("#gameover-home-button").click(function () {
@@ -518,10 +522,17 @@ const GameOver = (function () {
             .eq(5)
             .text(milisecondsToText(opponent.stat["time"]));
     };
+
+    const hide = function () {
+        $("#gameover").hide();
+        $("#gameover-rematch").hide();
+        $("#scoreboard-page").hide();
+    };
     return {
         initialize,
         show,
         update,
+        hide,
     };
 })();
 
