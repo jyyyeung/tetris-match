@@ -142,7 +142,7 @@ const TIME_MODE = 1;
 const SURVIVAL_MODE = 2;
 
 const GameArea = function (cv, ctx, isPlayer = true) {
-    const totalGameTime = 10; // Total game time in seconds
+    const totalGameTime = 30; // Total game time in seconds
 
     const icons = {
         O: "url(../src/res/icon-sprite.png) 0 0",
@@ -245,7 +245,13 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
     /* Create the sounds */
     const sounds = {
-        background: new Audio("src/res/main-bgm.mp3"),
+        background: new Audio("src/res/gameplay-bgm.mp3"),
+        rotate: new Audio("src/res/rotate.wav"),
+        softdrop: new Audio("src/res/softdrop.wav"),
+        harddrop: new Audio("src/res/harddrop.wav"),
+        move: new Audio("src/res/move.wav"),
+        hold: new Audio("src/res/hold.wav"),
+        cheat: new Audio("src/res/cheat.wav"),
         // collect: new Audio("collect.mp3"),
         // gameover: new Audio("gameover.mp3"),
     };
@@ -387,6 +393,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         let triple = 0;
         let tetris = 0;
         let consecuitive = 0;
+        const soundEffect = new Audio("src/res/clear.wav");
+        soundEffect.volume = UI.getSoundsVolume();
 
         // Iterate through the rows
         for (let y = MATRIX_HEIGHT - 1; y >= 0; y--) {
@@ -402,6 +410,9 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             if (isFull) {
                 consecuitive++;
                 linesOfBlocks++;
+                soundEffect.pause();
+                soundEffect.currentTime = 0;
+                soundEffect.play();
                 // Remove the row
                 for (let i = y; i < MATRIX_HEIGHT - 1; i++) {
                     matrix[i] = matrix[i + 1];
@@ -473,6 +484,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
         if (isPlayer) {
             // Play Packground music
+            sounds.background.volume = UI.getBGMVolume();
             sounds.background.play();
 
             // Handle keydown of controls
@@ -480,6 +492,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 action = action_from_key(event.keyCode);
                 Socket.keyDown(action);
                 translateAction(action, true);
+                playSounds(action);
             });
 
             // Handle keyup of controls
@@ -515,6 +528,38 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             time: performance.now() - gameStartTime,
         };
     };
+
+    function playSounds(action) {
+        if (Game.isGameOver) {
+            return;
+        }
+        let sound = null;
+        switch (action) {
+            case HOLD:
+                sound = sounds.hold;
+                break;
+            case MOVE_LEFT:
+            case MOVE_RIGHT:
+                sound = sounds.move;
+                break;
+            case ROTATE_LEFT:
+            case ROTATE_RIGHT:
+                sound = sounds.rotate;
+                break;
+            case SOFT_DROP:
+                sound = sounds.softdrop;
+                break;
+            case HARD_DROP:
+                sound = sounds.harddrop;
+                break;
+        }
+        if (sound) {
+            sound.volume = UI.getSoundsVolume();
+            sound.pause();
+            sound.currentTime = 0;
+            sound.play();  
+        }
+    }
 
     /**
      * Displays the game over screen and plays the game over sound.

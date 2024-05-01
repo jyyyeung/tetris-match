@@ -159,6 +159,7 @@ const Socket = (function () {
             // Finalize room mode for both players before game starts
             mode = _roomMode;
             // Start the game
+            
             opponentGameArea = Game.initGame(mode);
         });
 
@@ -203,6 +204,10 @@ const Socket = (function () {
         socket.on("add cheat row", () => {
             Game.addCheatRow();
         });
+
+        socket.on("leave", () => {
+            GameOver.setOpponentLeaveMsg();
+        })
     };
 
     /**
@@ -260,6 +265,12 @@ const Socket = (function () {
             Game.setOpponent(null);
         }
     };
+
+    const postLeave = function() {
+        if (socket && socket.connected) {
+            socket.emit("post leave");
+        }
+    }
 
     const pushNextTetromino = function (letter) {
         if (socket && socket.connected) {
@@ -353,5 +364,6 @@ const Socket = (function () {
         createRoom,
         addCheatRow,
         requestRematch,
+        postLeave
     };
 })();

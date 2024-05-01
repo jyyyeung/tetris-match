@@ -2,7 +2,8 @@ const HOME_LOGIN = 0;
 const HOME_REGISTER = 1;
 const HOME_HOWTOPLAY = 2;
 const HOME_PROFILE = 3;
-const HOME_HIDDEN = 4;
+const HOME_SETTING = 4;
+const HOME_HIDDEN = 5;
 
 const TIME_MODE_DESCRIPTION =
     "Players obtain as many scores as possible in 2 minutes \n with predefined constant difficulty.";
@@ -45,7 +46,7 @@ const HomePage = (function () {
     };
 
     const renderSidePanel = function (status) {
-        // 0 - login, 1 - register, 2 - how to play, 3 - profile
+        // 0 - login, 1 - register, 2 - how to play, 3 - profile, 4 - setting
         $("#home-panel").css("width", "50vw");
         $("#home-side-panel").css("width", "50vw");
         $("#home-side-panel").show();
@@ -55,7 +56,8 @@ const HomePage = (function () {
             $("#register-form"),
             $("#how-to-play"),
             $("#user-panel"),
-            $("#match-page"),
+            $("#setting-page"),
+            $("#match-page")
         ];
         contents.forEach((element) => element.hide());
         contents[status].show();
@@ -98,6 +100,19 @@ const HomePage = (function () {
             MatchPage.show();
             $("#homepage").hide();
         });
+        $("#setting-button").click(function() {
+            if (sidePanelStatus != HOME_SETTING) {
+                renderSidePanel(HOME_SETTING);
+            } else if (!Authentication.getUser()) {
+                hideSidePanel();
+            }
+        });
+        $("#bgm-volume").click(function() {
+            UI.setBGMVolume($(this).val());
+        })
+        $("#sounds-volume").click(function() {
+            UI.setSoundsVolume($(this).val());
+        })
     };
 
     const show = function () {
@@ -106,12 +121,20 @@ const HomePage = (function () {
         $("#home-side-panel").hide();
         hideAllPages();
         $("#homepage").show();
+        UI.playBGM();
     };
+
+    const returnHome = function() {
+        $("#homepage").show();
+        buttonFunc(HOME_PROFILE);
+        UI.playBGM();
+    }
 
     return {
         initialize,
         renderSidePanel,
         show,
+        returnHome
     };
 })();
 
@@ -187,6 +210,7 @@ const MatchPage = (function () {
                 $("#queue-timer").text("0:00");
             }
         });
+
 
         $("#time-mode-button").click(function () {
             hideAll();
@@ -297,6 +321,10 @@ const MatchPage = (function () {
             });
     };
 
+    const hide = function() {
+        $("#match-page").hide();
+    }
+
     return {
         initialize,
         show,
@@ -306,6 +334,7 @@ const MatchPage = (function () {
         roomNotFound,
         waitingForOpponent,
         hideAll,
+        hide
     };
 })();
 
@@ -340,7 +369,7 @@ const SignInForm = (function () {
                     user = Authentication.getUser();
                     UserPanel.show();
                     $(".before-login").hide();
-                    HomePage.renderSidePanel(3);
+                    HomePage.renderSidePanel(HOME_PROFILE);
                     $(".after-login").show();
 
                     Socket.connect();
@@ -433,6 +462,9 @@ const GameOver = (function () {
         datetime: "2022-01-01T01:00:00.000Z",
         mode: "??",
     };
+
+    const gameoverSound = new Audio("src/res/gameover.wav");
+
     let currentPage = 1;
     // BUG: Reset Game Over screen after each match
 
@@ -440,6 +472,7 @@ const GameOver = (function () {
         $("#gameover").hide();
         $("#gameover-rematch").hide();
         $("#scoreboard-page").hide();
+        $("#gameover-rematch-waiting").hide();
         update(testData);
         //show();
         $("#gameover-next").click(function () {
@@ -451,36 +484,92 @@ const GameOver = (function () {
                 $(this).hide();
             }
         });
+
         $("#rematch-button").click(function () {
             //TODO: rematch
             // Show waiting for opponent
+            $("#gameover").children().each(function() {
+                $(this).hide();
+            })
+            $("#gameover-rematch-waiting").show();
             Socket.requestRematch();
-            Game.hide();
-            hide();
+            $("#game-container").hide();
+            /* hide();
             MatchPage.show();
-            MatchPage.waitingForOpponent();
+            MatchPage.waitingForOpponent(); */
         });
 
         $("#gameover-home-button").click(function () {
+            Socket.postLeave();
             Socket.leaveRoom();
-            $("#homepage").show();
+            HomePage.returnHome();
             $("#gameover").hide();
+            reset();
+        });
+
+        $("#rematch-leave").click(function () {
+            Socket.postLeave();
+            Socket.leaveRoom();
+            HomePage.returnHome();
+            $("#gameover").hide();
+            reset();
         });
     };
+
+    const hideAllChildren = function() {
+        $("#gameover").children().each(function() {
+            $(this).hide();
+        })
+    }
+
+    const setOpponentLeaveMsg = function() {
+        console.log("opponent leave");
+        $("#rematch-text").text("Opponent has left the room.");
+    }
+
+    const reset = function() {
+        $("#gameover-rematch").hide();
+        $("#scoreboard-page").hide();
+        $("#gameover-rematch-waiting").hide();
+        $("#rematch-text").text("Waiting for opponent's response...");
+        $("#gameover-title").css("transform", "");
+        $("#gameover-title").css("animation-name", "");
+        $("#gameover-title").css("animation-duration", "5s");
+        $("#gameover-title").show();
+        $("#gameover-stat").hide();
+    }
+
     const show = function () {
+        let titleDuration = 8*1000;
+        let titleStopTime = 745;
+        let titleFadeOutTime = 55;
+        let statShowTime = 700;
+        let buffer = 100;
+
         currentPage = 1;
+
+        gameoverSound.volume = UI.getSoundsVolume();
+        gameoverSound.pause();
+        gameoverSound.currentTime = 0;
+        gameoverSound.play();
+        
         $("#gameover").css("display", "flex");
-        $("#gameover-title").css("animation-name", "gameover-title-animation");
+
+        setTimeout(function() {
+            $("#gameover-title").css("animation-name", "gameover-title-animation");
+        }, 3000);
         setTimeout(function () {
             $("#gameover-title").css("transform", "translateY(-300px)");
-        }, 745);
+        }, 5000-buffer);
         setTimeout(function () {
             $("#gameover-title").fadeOut();
-        }, 800);
+            $("#gameover-title").css("animation-name", "");
+        }, titleDuration+titleStopTime+titleFadeOutTime);
         setTimeout(function () {
-            $(".gameover-text").css("display", "flex");
+            //$(".gameover-text").css("display", "flex");
+            $("#gameover-stat").show();
             $("#gameover-next").fadeIn();
-        }, 1500);
+        }, titleDuration+titleStopTime+titleFadeOutTime+statShowTime);
         // Socket.setScoreBoard(1, false);
     };
 
@@ -533,6 +622,8 @@ const GameOver = (function () {
         show,
         update,
         hide,
+        setOpponentLeaveMsg,
+        reset
     };
 })();
 
@@ -840,6 +931,10 @@ const Game = (function () {
         opponent = _opponent;
     };
 
+    const getOpponent = function() {
+        return opponent;
+    }
+
     function initialize() {
         $("#countdown").hide();
         $("#gameover").hide();
@@ -848,7 +943,10 @@ const Game = (function () {
 
     const initGame = function (_mode) {
         $("#homepage").hide();
-        MatchPage.hideAll();
+        UI.stopBGM();
+        GameOver.reset();
+        GameOver.hide();
+        MatchPage.hide();
         $("#countdown").show();
         $("#join-private-game-page").hide();
 
@@ -907,10 +1005,9 @@ const Game = (function () {
         };
         GameOver.update(gameOverData);
         console.log("GameOver game over", { playerLost }, { gameOverData });
-
         Game.hide();
-
         GameOver.show();
+        console.log("UI.js:  Game ended ")
     };
 
     const startGame = function () {
@@ -943,6 +1040,7 @@ const Game = (function () {
         setOpponent,
     };
 })();
+
 /**
  * UI module for managing user interface components.
  * @module UI
@@ -961,6 +1059,10 @@ const UI = (function () {
             .append($("<span class='user-name'>" + user.name + "</span>"));
     };
 
+    const bgm = new Audio("src/res/main-bgm.mp3");
+    let soundsVolume = 0.2;
+    let BGMVolume = 0.2;
+
     // The components of the UI are put here
     const components = [
         HomePage,
@@ -978,18 +1080,89 @@ const UI = (function () {
     // This function initializes the UI
     const initialize = function () {
         // Initialize the components
+        bgm.volume = BGMVolume;
+        bgm.loop = true;
+        bgm.play();
+
+        $("button").click(function() {
+            buttonClickSoundFunc();
+        });
+        $(".homepage-buttons").click(function() {
+            buttonClickSoundFunc();
+        });
+
+        $(".match-buttons").click(function() {
+            buttonClickSoundFunc();
+        });
+
+
         for (const component of components) {
             component.initialize();
         }
     };
 
+    const buttonClickSound = new Audio("src/res/click.wav");
+
+    function buttonClickSoundFunc() {
+        buttonClickSound.volume = UI.getSoundsVolume();
+        buttonClickSound.pause();
+        buttonClickSound.currentTime = 0;
+        buttonClickSound.play();
+    }
+
     const renderSidePanel = function (status) {
         HomePage.renderSidePanel(status);
     };
+
+    const stopBGM = function() {
+        bgm.pause();
+    }
+
+    const playBGM = function() {
+        bgm.currentTime = 0;
+        bgm.play();
+    }
+
+    const setBGMVolume = function(v) {
+        let vv = 0;
+        if (v > 0 && v < 1) {
+            vv = v;
+        }
+        else {
+            vv = v/100;
+        }
+        bgm.volume = vv;
+        BGMVolume = vv;
+    }
+
+    const setSoundsVolume = function(v) {
+        let vv = 0;
+        if (v > 0 && v < 1) {
+            vv = v;
+        }
+        else {
+            vv = v/100;
+        }
+        soundsVolume = vv;
+    }
+
+    const getSoundsVolume = function() {
+        return soundsVolume;
+    }
+
+    const getBGMVolume = function() {
+        return BGMVolume;
+    }
 
     return {
         getUserDisplay,
         initialize,
         renderSidePanel,
+        stopBGM,
+        playBGM,
+        setBGMVolume,
+        setSoundsVolume,
+        getBGMVolume,
+        getSoundsVolume
     };
 })();
