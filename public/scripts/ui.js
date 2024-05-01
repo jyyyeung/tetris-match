@@ -474,7 +474,7 @@ const GameOver = (function () {
             $(".gameover-text").css("display", "flex");
             $("#gameover-next").fadeIn();
         }, 1500);
-        Socket.setScoreBoard();
+        // Socket.setScoreBoard(1, false);
     };
 
     const update = function (room) {
@@ -525,30 +525,54 @@ const GameOver = (function () {
 const Scoreboard = (function () {
     const initialize = function () {};
 
-    const update = function (players) {
+    /**
+     *Update the scoreboard with the given players
+     * @param {Number} _mode 0 for game over scorboard, 1 for time mode, 2 for survival mode
+     * @param {string} players JSON object of the scoreboard of this mode
+     */
+    const update = function (_mode, players) {
         const playerArray = [];
         const playerObj = JSON.parse(players);
         for (id in playerObj) {
             playerArray.push(playerObj[id]);
         }
-        console.log(playerArray);
-        playerArray.sort((a, b) => b.score - a.score);
+        console.log("Got new scoreboard", { _mode }, { playerArray });
+        playerArray.sort((a, b) => parseInt(b.score) - parseInt(a.score));
+        switch (_mode) {
+            case 0:
+                _scoreboardId = "scoreboard-page";
+                break;
+            case 1:
+                _scoreboardId = "time-mode-scoreboard";
+                break;
+            case 2:
+                _scoreboardId = "survival-mode-scoreboard";
+                break;
+            default:
+                break;
+        }
 
-        $(".scoreboard-playerlist").empty();
-        $(".scoreboard-scorelist").empty();
+        scoreboard_playerlist = $(`#${_scoreboardId} .scoreboard-playerlist`);
+        scoreboard_scorelist = $(`#${_scoreboardId} .scoreboard-scorelist`);
 
-        $(".scoreboard-playerlist").append($("<div>Player</div>"));
-        $(".scoreboard-scorelist").append($("<div>Score</div>"));
+        console.log({ scoreboard_playerlist }, { scoreboard_scorelist });
+
+        scoreboard_playerlist.empty();
+        scoreboard_scorelist.empty();
+
+        scoreboard_playerlist.append($("<div>Player</div>"));
+        scoreboard_scorelist.append($("<div>Score</div>"));
         for (let i = 0; i < 10; i++) {
-            $(".scoreboard-playerlist").append(
+            scoreboard_playerlist.append(
                 //$("<div class='row'><span class=\"user-avatar\"></span><div>" + playerArray[i].name + "</div></div>")
                 $("<div>" + playerArray[i].name + "</div>")
             );
             //$("#scoreboard-playerlist .user-avatar").html(Avatar.getCode(playerArray[i].avatar));
-            $(".scoreboard-scorelist").append(
+            scoreboard_scorelist.append(
                 $("<div>" + playerArray[i].score + "</div>")
             );
         }
+        console.log("update scoreboard done");
     };
     return {
         initialize,
@@ -850,6 +874,7 @@ const Game = (function () {
         // Show game statistics
         const playerStats = player_gameArea.getStats();
         const opponentStats = opponent_gameArea.getStats();
+        Socket.getScoreBoard(mode, true);
         const gameOverData = {
             player1: {
                 avatar: user.avatar,
@@ -865,7 +890,7 @@ const Game = (function () {
             datetime: new Date(),
         };
         GameOver.update(gameOverData);
-        console.log("GameOver.game over", { playerLost }, { gameOverData });
+        console.log("GameOver game over", { playerLost }, { gameOverData });
 
         Game.hide();
 

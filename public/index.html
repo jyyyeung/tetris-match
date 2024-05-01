@@ -195,25 +195,71 @@
                                     <tspan id="survival-mode-position">0</tspan>
                                 </div>
                             </div>
-                            <div class="scoreboard row">
-                                <div class="col">
-                                    <div>Position</div>
-                                    <div>1</div>
-                                    <div>2</div>
-                                    <div>3</div>
-                                    <div>4</div>
-                                    <div>5</div>
-                                    <div>6</div>
-                                    <div>7</div>
-                                    <div>8</div>
-                                    <div>9</div>
-                                    <div>10</div>
+                            <div id="profile-scoreboard">
+                                View Scoreboard:
+                                <section class="tab row">
+                                    <button
+                                        id="time-mode-scoreboard-button"
+                                        class="tablinks active"
+                                        onclick="openScoreboard(event, 'time')"
+                                    >
+                                        Time Mode
+                                    </button>
+                                    <button
+                                        id="survival-mode-scoreboard-button"
+                                        class="tablinks"
+                                        onclick="openScoreboard(event, 'survival')"
+                                    >
+                                        Survival Mode
+                                    </button>
+                                </section>
+                                <div
+                                    id="time-mode-scoreboard"
+                                    class="scoreboard row tabcontent"
+                                >
+                                    <div class="col">
+                                        <div>Position</div>
+                                        <div>1</div>
+                                        <div>2</div>
+                                        <div>3</div>
+                                        <div>4</div>
+                                        <div>5</div>
+                                        <div>6</div>
+                                        <div>7</div>
+                                        <div>8</div>
+                                        <div>9</div>
+                                        <div>10</div>
+                                    </div>
+                                    <div class="col scoreboard-playerlist">
+                                        <!-- <div>Player</div> -->
+                                    </div>
+                                    <div class="col scoreboard-scorelist">
+                                        <!-- <div>Score</div> -->
+                                    </div>
                                 </div>
-                                <div class="col scoreboard-playerlist">
-                                    <!-- <div>Player</div> -->
-                                </div>
-                                <div class="col scoreboard-scorelist">
-                                    <!-- <div>Score</div> -->
+                                <div
+                                    id="survival-mode-scoreboard"
+                                    class="scoreboard row tabcontent"
+                                >
+                                    <div class="col">
+                                        <div>Position</div>
+                                        <div>1</div>
+                                        <div>2</div>
+                                        <div>3</div>
+                                        <div>4</div>
+                                        <div>5</div>
+                                        <div>6</div>
+                                        <div>7</div>
+                                        <div>8</div>
+                                        <div>9</div>
+                                        <div>10</div>
+                                    </div>
+                                    <div class="col scoreboard-playerlist">
+                                        <!-- <div>Player</div> -->
+                                    </div>
+                                    <div class="col scoreboard-scorelist">
+                                        <!-- <div>Score</div> -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -359,14 +405,7 @@
 
                 <div class="gamerow">
                     <!-- START: Player Next Tetriminos  -->
-                    <box
-                        id="player-next"
-                        class="next-panel"
-                        style="
-                            /* left: 0;
-                        transform-origin: top left;
-                        margin-left: 10px; */
-                        "
+                    <box id="player-next" class="next-panel"
                         >Next
                         <icon></icon>
                         <icon></icon>
@@ -652,6 +691,24 @@
                     }
                 );
             });
+            function openScoreboard(evt, mode) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(
+                        " active",
+                        ""
+                    );
+                }
+                document.getElementById(
+                    mode + "-mode-scoreboard"
+                ).style.display = "flex";
+                evt.currentTarget.className += " active";
+            }
         </script>
     </body>
 </html>

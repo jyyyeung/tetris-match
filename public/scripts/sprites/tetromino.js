@@ -413,12 +413,13 @@ const Tetromino = function (
         const mRight = _matrixX + BLOCK_WIDTH() - 1;
         const mTop = _matrixY + BLOCK_HEIGHT() - 1;
         const mBottom = _matrixY;
+        console.log({ mLeft, mRight, mTop, mBottom });
 
         if (mLeft < 0) matrixX = 0;
         else if (mRight >= 10) matrixX = 10 - BLOCK_WIDTH();
         if (mBottom < 0) matrixY = 0;
         // If movement, do not allow, if stacking, game over
-        else if (mTop > 14) matrixY = 14 - BLOCK_HEIGHT();
+        else if (mTop >= 14) matrixY = 14 - BLOCK_HEIGHT();
 
         console.log("Returning cleaned up matrixXY:", matrixX, matrixY);
 
@@ -453,10 +454,10 @@ const Tetromino = function (
      */
     function set(_letter, _matrixX, _matrixY, _rotation = 0) {
         _rotation = _rotation % sequences[`${_letter}0`].count;
+        rotation = _rotation;
         console.log("new Rotation: ", _rotation);
         const newSequence = sequences[`${_letter}${_rotation}`];
         sprite.setSequence(newSequence);
-        rotation = _rotation;
 
         const { matrixX, matrixY } = getValidMatrixXY(_matrixX, _matrixY);
         setMatrixXY(matrixX, matrixY);

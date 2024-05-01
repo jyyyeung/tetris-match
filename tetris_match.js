@@ -427,12 +427,33 @@ httpServer.listen(8000, () => {
                 io.emit("users", JSON.stringify(onlineUsers));
             });
 
-            socket.on("get scoreboard", (_mode = 0) => {
+            socket.on("get scoreboard", (_mode = 0, isGameOver = false) => {
+                // if (_mode === 0) return;
                 const scoreboard = JSON.parse(
                     fs.readFileSync("data/scoreboard.json", "utf-8")
-                )[1];
+                );
 
-                io.emit("scoreboard", JSON.stringify(scoreboard));
+                if (isGameOver) {
+                    io.emit(
+                        "scoreboard",
+                        _mode,
+                        JSON.stringify(scoreboard[_mode]),
+                        isGameOver
+                    );
+                } else {
+                    io.to(socket.id).emit(
+                        "scoreboard",
+                        1,
+                        JSON.stringify(scoreboard[1]),
+                        isGameOver
+                    );
+                    io.to(socket.id).emit(
+                        "scoreboard",
+                        2,
+                        JSON.stringify(scoreboard[2]),
+                        isGameOver
+                    );
+                }
             });
 
             socket.on("set game stats", (_stats) => {
@@ -468,9 +489,9 @@ httpServer.listen(8000, () => {
                     fs.readFileSync("data/scoreboard.json")
                 );
 
-                const _mode_scoreboard = scoreboard[mode];
                 // Check personal best score
                 const mode = roomMode[room];
+                const _mode_scoreboard = scoreboard[mode];
                 const currentMatchScore = parseInt(_stats["score"]);
                 if (
                     !_mode_scoreboard[user.username] ||
