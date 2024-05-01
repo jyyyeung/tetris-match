@@ -75,10 +75,6 @@ app.post("/register", (req, res) => {
         avatar: avatar,
         name: name,
         password: hash,
-        best_scores: {
-            1: 0,
-            2: 0,
-        },
     };
 
     // Saving the users.json file
@@ -116,7 +112,6 @@ app.post("/signin", (req, res) => {
         username,
         avatar: user.avatar,
         name: user.name,
-        best_scores: user.best_scores,
     };
     req.session.user = user_data;
 
@@ -174,6 +169,13 @@ const SURVIVAL_MODE = 2;
 const roomMode = {};
 const gameUID = {};
 const roomPlayers = {};
+const getPersonalBest = (username) => {
+    const scoreboard = JSON.parse(fs.readFileSync("data/scoreboard.json"));
+    return {
+        1: scoreboard[1][username].score,
+        2: scoreboard[2][username].score,
+    };
+};
 // Use a web server to listen at port 8000
 httpServer.listen(8000, () => {
     console.log("Tetris Match server has started...");
@@ -185,13 +187,14 @@ httpServer.listen(8000, () => {
             // User signed in
             onlineUsers[user.username] = user;
             // Broadcast to Browsers: Add a signed-in user to the online user list
+
             io.emit("add user", JSON.stringify(user));
 
             console.log(user);
             // Send the user's best score to the browser
             io.to(socket.id).emit(
                 "user best score",
-                JSON.stringify(user.best_scores)
+                JSON.stringify(getPersonalBest(user.username))
             );
 
             // When browser wants to Get the chatroom messages
@@ -407,10 +410,11 @@ httpServer.listen(8000, () => {
                 io.emit("users", JSON.stringify(onlineUsers));
             });
 
-            socket.on("get scoreboard", () => {
+            socket.on("get scoreboard", (_mode = 0) => {
                 const scoreboard = JSON.parse(
                     fs.readFileSync("data/scoreboard.json", "utf-8")
-                );
+                )[1];
+
                 io.emit("scoreboard", JSON.stringify(scoreboard));
             });
 
@@ -439,32 +443,40 @@ httpServer.listen(8000, () => {
 
                 // socket.to(room).emit("opponent stats", _stats);
 
-                fs.writeFileSync(
-                    "data/games.json",
-                    JSON.stringify(games, null, " ")
+                // fs.writeFileSync(
+                //     "data/games.json",
+                //     JSON.stringify(games, null, " ")
+                // );
+                const scoreboard = JSON.parse(
+                    fs.readFileSync("data/scoreboard.json")
                 );
 
+                const _mode_scoreboard = scoreboard[mode];
                 // Check personal best score
                 const mode = roomMode[room];
-                if (_stats["score"] > user.best_scores[mode]) {
-                    const users = JSON.parse(
-                        fs.readFileSync("data/users.json", "utf-8")
-                    );
-                    users[user.username].best_scores[mode] = _stats["score"];
+                const currentMatchScore = parseInt(_stats["score"]);
+                if (
+                    !_mode_scoreboard[user.username] ||
+                    currentMatchScore >
+                        parseInt(_mode_scoreboard[user.username].score)
+                ) {
+                    scoreboard[mode][user.username] = {
+                        avatar: user.avatar,
+                        name: user.name,
+                        timestamp: new Date(),
+                        score: currentMatchScore,
+                    };
 
                     fs.writeFileSync(
-                        "data/users.json",
-                        JSON.stringify(users, null, " ")
+                        "data/scoreboard.json",
+                        JSON.stringify(scoreboard, null, " ")
                     );
                     io.to(socket.id).emit(
                         "user best score",
-                        JSON.stringify(users[user.username].best_scores)
+                        JSON.stringify(getPersonalBest(user.username))
                     );
                 }
 
-                // const scoreboard = JSON.parse(
-                //     fs.readFileSync("data/scoreboard.json")
-                // );
                 // if (_stats.username in scoreboard) {
                 //     scoreboard[_stats.username].wins += _stats.wins;
                 //     scoreboard[_stats.username].losses += _stats.losses;
