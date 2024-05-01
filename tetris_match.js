@@ -444,6 +444,24 @@ httpServer.listen(8000, () => {
                     JSON.stringify(games, null, " ")
                 );
 
+                // Check personal best score
+                const mode = roomMode[room];
+                if (_stats["score"] > user.best_scores[mode]) {
+                    const users = JSON.parse(
+                        fs.readFileSync("data/users.json", "utf-8")
+                    );
+                    users[user.username].best_scores[mode] = _stats["score"];
+
+                    fs.writeFileSync(
+                        "data/users.json",
+                        JSON.stringify(users, null, " ")
+                    );
+                    io.to(socket.id).emit(
+                        "user best score",
+                        JSON.stringify(users[user.username].best_scores)
+                    );
+                }
+
                 // const scoreboard = JSON.parse(
                 //     fs.readFileSync("data/scoreboard.json")
                 // );

@@ -14,7 +14,12 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
         letters.splice(letters.indexOf(previousSpawned), 1);
     }
     const randomLetter = letters[Math.floor(Math.random() * letters.length)];
-    const tetromino = Tetromino(player_context, gameArea, player_matrix, "I");
+    const tetromino = Tetromino(
+        player_context,
+        gameArea,
+        player_matrix,
+        randomLetter
+    );
     previousSpawned = randomLetter;
     return tetromino;
 }
