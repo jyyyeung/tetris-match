@@ -452,6 +452,9 @@ const GameOver = (function () {
         });
         $("#rematch-button").click(function () {
             //TODO: rematch
+            // Show waiting for opponent
+            MatchPage.waitingForOpponent();
+            Socket.requestRematch();
         });
 
         $("#gameover-home-button").click(function () {
@@ -867,9 +870,11 @@ const Game = (function () {
     const getGameOver = () => isGameOver;
 
     const gameOver = function (playerLost = false, sendGameOverSignal = false) {
+        if (!opponent_gameArea || !player_gameArea) return;
         if (!playerLost || sendGameOverSignal) {
-            player_gameArea.gameOver(false, playerLost);
-            opponent_gameArea.gameOver(false, !playerLost);
+            if (player_gameArea) player_gameArea.gameOver(false, playerLost);
+            if (opponent_gameArea)
+                opponent_gameArea.gameOver(false, !playerLost);
         }
         // Show game statistics
         const playerStats = player_gameArea.getStats();
@@ -894,16 +899,6 @@ const Game = (function () {
 
         Game.hide();
 
-        // Reset all values
-        // isGameOver = false;
-        opponent = null;
-        mode = 0;
-        player_gameArea = null;
-        opponent_gameArea = null;
-
-        player_context.reset();
-        opponent_context.reset();
-
         GameOver.show();
     };
 
@@ -914,6 +909,15 @@ const Game = (function () {
 
     const hide = function () {
         $("#game-container").hide();
+
+        // Reset all values
+        // isGameOver = false;
+        mode = 0;
+        player_gameArea = null;
+        opponent_gameArea = null;
+
+        player_context.reset();
+        opponent_context.reset();
     };
 
     return {

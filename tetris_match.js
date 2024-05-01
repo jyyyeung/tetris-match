@@ -278,6 +278,7 @@ httpServer.listen(8000, () => {
                 if (!roomMode[_room]) roomMode[_room] = _mode;
                 socket.join(_room);
                 roomPlayers[_room] = user.username;
+                roomReady[_room] = 1;
                 console.log("Joined room: ", _room);
                 room = _room;
                 return _room;
@@ -294,39 +295,48 @@ httpServer.listen(8000, () => {
                     io.to(socket.id).emit("room not found");
                     return;
                 }
-                if (thisRoom.size > 2) {
-                    io.to(socket.id).emit("room full");
-                    return;
+                alreadyInRoom = thisRoom.has(socket.id);
+                // User not already in this room
+                if (!alreadyInRoom) {
+                    if (thisRoom.size > 2) {
+                        io.to(socket.id).emit("room full");
+                        return;
+                    }
+
+                    console.log("Joining room: ", _room);
+                    console.log("Room players: ", roomPlayers[_room]);
+                    socket.join(_room);
+                    socket.join("joined room", _room, roomMode[_room]);
+                    io.to(_room).emit("set opponent", JSON.stringify(user));
+                    console.log(onlineUsers);
                 }
-
-                console.log("Joining room: ", _room);
-                console.log("Room players: ", roomPlayers[_room]);
-                console.log(onlineUsers);
-                io.to(_room).emit("set opponent", JSON.stringify(user));
-                socket.join(_room);
-                socket.join("joined room", _room, roomMode[_room]);
                 room = _room;
+                roomReady[room]++;
 
-                if (thisRoom.size === 2) {
+                if (thisRoom.size === 2 && roomReady[room] === 2) {
                     roomReady[room] = 0;
 
                     console.log("two people");
-                    opponent = roomPlayers[room];
-                    // console.log(
-                    //     "Opponent: ",
-                    //     opponent,
-                    //     onlineUsers[opponent],
-                    //     JSON.stringify(onlineUsers[opponent])
-                    // );
-                    io.to(socket.id).emit(
-                        "set opponent",
-                        JSON.stringify(onlineUsers[opponent])
-                    );
+                    if (!alreadyInRoom) {
+                        opponent = roomPlayers[room];
+                        // console.log(
+                        //     "Opponent: ",
+                        //     opponent,
+                        //     onlineUsers[opponent],
+                        //     JSON.stringify(onlineUsers[opponent])
+                        // );
+                        io.to(socket.id).emit(
+                            "set opponent",
+                            JSON.stringify(onlineUsers[opponent])
+                        );
+                    }
 
                     io.to(room).emit("on your marks", roomMode[_room]);
 
                     gameUID[room] = room + "-" + Date.now();
                     delete roomPlayers[_room];
+                } else if (alreadyInRoom && thisRoom.size === 1) {
+                    roomPlayers[_room] = user.username;
                 }
             };
 
@@ -358,9 +368,17 @@ httpServer.listen(8000, () => {
 
             socket.on("leave room", () => {
                 if (room == null) return;
+                roomReady[room] -= 1;
+                if (roomReady[room] < 0) roomReady[room] = 0;
                 socket.leave(room);
                 console.log("Leaving room: ", room);
                 room = null;
+                // If no more players in the room, delete the room
+                if (io.sockets.adapter.rooms.get(room).size === 0) {
+                    io.sockets.adapter.rooms.delete(room);
+                    delete roomMode[room];
+                    delete roomReady[room];
+                }
             });
 
             socket.on("create room", (_mode) => {
@@ -378,6 +396,7 @@ httpServer.listen(8000, () => {
             socket.on("ready to start", () => {
                 roomReady[room]++;
                 if (roomReady[room] === 2) {
+                    roomReady[room] = 0;
                     io.to(room).emit("start game");
                 }
             });
@@ -479,6 +498,8 @@ httpServer.listen(8000, () => {
                     };
                 }
 
+                delete gameUID[room];
+
                 // socket.to(room).emit("opponent stats", _stats);
 
                 // fs.writeFileSync(
@@ -519,6 +540,13 @@ httpServer.listen(8000, () => {
                     );
                     // TODO: Also update scoreboard
                 }
+            });
+
+            socket.on("request rematch", () => {
+                // io.to(room).emit("request rematch");
+                joinRoom(room);
+                // roomReady[room]++;
+                io.to(socket.id).emit("waiting for opponent");
             });
         }
     });

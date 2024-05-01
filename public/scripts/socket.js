@@ -257,6 +257,7 @@ const Socket = (function () {
             gameInProgress = false;
             room = null;
             mode = 0;
+            Game.setOpponent(null);
         }
     };
 
@@ -326,6 +327,12 @@ const Socket = (function () {
         }
     };
 
+    const requestRematch = function () {
+        if (socket && socket.connected) {
+            socket.emit("request rematch");
+        }
+    };
+
     return {
         getSocket,
         connect,
@@ -345,5 +352,6 @@ const Socket = (function () {
         getScoreBoard: getScoreBoard,
         createRoom,
         addCheatRow,
+        requestRematch,
     };
 })();
