@@ -46,6 +46,14 @@ const Socket = (function () {
             // socket.emit("get messages");
         });
 
+        socket.on("user best score", (_bestScore) => {
+            _bestScore = JSON.parse(_bestScore);
+            console.log("best score", _bestScore);
+
+            UserPanel.updatePersonalBestScore(1, _bestScore["1"]);
+            UserPanel.updatePersonalBestScore(2, _bestScore["2"]);
+        });
+
         // Set up the users event
         socket.on("users", (onlineUsers) => {
             onlineUsers = JSON.parse(onlineUsers);

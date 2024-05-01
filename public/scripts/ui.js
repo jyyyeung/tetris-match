@@ -592,6 +592,11 @@ const UserPanel = (function () {
         $("#num-of-users-online").text(num);
     };
 
+    const updatePersonalBestScore = function (_mode, _score) {
+        if (_mode == 1) $("#time-mode-score").text(_score);
+        if (_mode == 2) $("#survival-mode-score").text(_score);
+    };
+
     // This function updates the user panel
     const update = function (user) {
         if (user) {
@@ -609,6 +614,7 @@ const UserPanel = (function () {
         hide,
         update,
         updateNumberOfUsers,
+        updatePersonalBestScore,
     };
 })();
 

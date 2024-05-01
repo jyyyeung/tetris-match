@@ -75,6 +75,10 @@ app.post("/register", (req, res) => {
         avatar: avatar,
         name: name,
         password: hash,
+        best_scores: {
+            1: 0,
+            2: 0,
+        },
     };
 
     // Saving the users.json file
@@ -112,6 +116,7 @@ app.post("/signin", (req, res) => {
         username,
         avatar: user.avatar,
         name: user.name,
+        best_scores: user.best_scores,
     };
     req.session.user = user_data;
 
@@ -181,6 +186,13 @@ httpServer.listen(8000, () => {
             onlineUsers[user.username] = user;
             // Broadcast to Browsers: Add a signed-in user to the online user list
             io.emit("add user", JSON.stringify(user));
+
+            console.log(user);
+            // Send the user's best score to the browser
+            io.to(socket.id).emit(
+                "user best score",
+                JSON.stringify(user.best_scores)
+            );
 
             // When browser wants to Get the chatroom messages
             socket.on("get messages", () => {
