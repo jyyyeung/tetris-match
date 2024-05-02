@@ -78,13 +78,13 @@ app.post("/register", (req, res) => {
         password: hash,
     };
 
-    scoreboard[1][username] = {
+    scoreboards[1][username] = {
         avatar: avatar,
         name: name,
         score: 0,
     };
 
-    scoreboard[2][username] = {
+    scoreboards[2][username] = {
         avatar: avatar,
         name: name,
         score: 0,
@@ -94,7 +94,7 @@ app.post("/register", (req, res) => {
     fs.writeFileSync("data/users.json", JSON.stringify(users, null, " "));
     fs.writeFileSync(
         "data/scoreboard.json",
-        JSON.stringify(scoreboard, null, " ")
+        JSON.stringify(scoreboards, null, " ")
     );
 
     // Sending a success response to the browser
