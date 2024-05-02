@@ -811,6 +811,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         if (isCheating) {
             isCheating = false;
             if (isPlayer) {
+                //DEBUG: uncomment addCheatRow and remove addPunishRow when finish debugging
                 //Game.addCheatRow(false);
                 Game.addPunishRow(false);
             }
