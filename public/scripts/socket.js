@@ -209,9 +209,15 @@ const Socket = (function () {
             Game.addCheatRow();
         });
 
+        socket.on("punish row", (hole) => {
+            console.log("punish row");
+            Game.addPunishRow(true, hole);
+            //opponentGameArea.addPunishRow(hole);
+        });
+
         socket.on("leave", () => {
             GameOver.setOpponentLeaveMsg();
-        })
+        });
     };
 
     /**
@@ -345,6 +351,12 @@ const Socket = (function () {
         }
     };
 
+    const addPunishRow = function (hole) {
+        if (socket && socket.connected) {
+            socket.emit("add punish row", hole);
+        }
+    };
+
     const requestRematch = function () {
         if (socket && socket.connected) {
             socket.emit("request rematch");
@@ -371,6 +383,7 @@ const Socket = (function () {
         getScoreBoard: getScoreBoard,
         createRoom,
         addCheatRow,
+        addPunishRow,
         requestRematch,
         postLeave
     };

@@ -12,6 +12,7 @@ const SOFT_DROP = 5;
 const HARD_DROP = 6;
 
 const CHEAT_MODE = 7;
+const PUNISH_DEBUG = 8;
 
 /**
  * Array of possible movements in the game.
@@ -30,6 +31,7 @@ const ACTIONS = [
     HARD_DROP,
 
     CHEAT_MODE,
+    PUNISH_DEBUG
 ];
 
 /**
@@ -55,6 +57,7 @@ function action_from_key(key) {
     const KEY_Z = 90;
     const KEY_C = 67;
     const KEY_X = 88;
+    const KEY_Y = 89;
 
     if (key == KEY_C) return HOLD;
 
@@ -68,6 +71,9 @@ function action_from_key(key) {
     if (key == SPACEBAR) return HARD_DROP;
 
     if (key == KEY_X) return CHEAT_MODE;
+
+    // DEBUG
+    if (key == KEY_Y) return PUNISH_DEBUG;
 
     return -1;
 }

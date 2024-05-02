@@ -978,9 +978,9 @@ const Game = (function () {
         else opponent_gameArea.addCheatRow();
     };
 
-    const addPunishRow = (isForPlayer = true) => {
-        if (isForPlayer) player_gameArea.addPunishRow();
-        else opponent_gameArea.addPunishRow();
+    const addPunishRow = (isForPlayer = true, hole) => {
+        if (isForPlayer) player_gameArea.addPunishRow(hole);
+        else opponent_gameArea.addPunishRow(hole);
     };
 
     const setGameOver = () => {

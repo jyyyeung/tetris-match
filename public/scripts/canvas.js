@@ -10,6 +10,12 @@ const MATRIX_WIDTH = 10;
 const MATRIX_HEIGHT = 14;
 const BLOCK_SIZE = 32;
 
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 /**
  * Represents a matrix for rendering tetromino blocks on a canvas.
  *
@@ -169,6 +175,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     let holdTetromino = null;
 
     let isCheating = false;
+    let isTetris = false;
     let lastKeyUpAt = 0;
     let keyDownAt = 0;
 
@@ -226,6 +233,10 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                         isCheating = false;
                 }, 1000);
                 return console.log("keydown: cheat mode");
+            }
+            if (action == PUNISH_DEBUG) {
+                console.log("y is pressed")
+                isTetris = true;
             }
         } else {
             // Invalid Action
@@ -479,13 +490,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         console.table(matrix);
     }
 
-    function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    
-    const addPunishRow = function() {
+    const addPunishRow = function(hole) {
         // Loop over rows and shift them up
         // make the last row 1
         console.log("adding punish row");
@@ -493,8 +498,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             matrix[i] = matrix[i - 1];
         }
         matrix[0] = new Array(MATRIX_WIDTH).fill('O');
-        const randomHole = getRandomInt(0, MATRIX_WIDTH-1);
-        matrix[0][randomHole] = 0;
+        matrix[0][hole] = undefined;
         sounds.cheat.pause();
         sounds.cheat.currentTime = 0;
         sounds.cheat.play();
@@ -553,7 +557,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         score += 300 * (level + 1) * tetris * 4;
         tetrisCount += tetris;
         if (tetris) {
-            Game.addPunishRow(false);
+            isTetris = true;
+            //Game.addPunishRow(false, hole);
         }
         setScore(score);
     }
@@ -811,14 +816,31 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         if (isCheating) {
             isCheating = false;
             if (isPlayer) {
-                //DEBUG: uncomment addCheatRow and remove addPunishRow when finish debugging
-                //Game.addCheatRow(false);
-                Game.addPunishRow(false);
+                Game.addCheatRow(false);
             }
             else {
-                //Game.addCheatRow(true);
-                Game.addPunishRow(true);
+                Game.addCheatRow(true);
             }
+        }
+
+        //TODO: punish row debug
+        if (isTetris) {
+            isTetris = false;
+            let hole = getRandomInt(0, MATRIX_WIDTH-1);
+            if (isPlayer) {
+                Game.addPunishRow(false, hole);
+                Socket.addPunishRow(hole);
+            }
+            //
+            
+            /* let hole = getRandomInt(0, MATRIX_WIDTH-1);
+            console.log(hole);
+            if (isPlayer) {
+                Game.addPunishRow(false, hole);
+            }
+            else {
+                Game.addPunishRow(true, hole);
+            } */
         }
 
         // clearAndRedraw(false, false);

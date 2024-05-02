@@ -460,6 +460,11 @@ httpServer.listen(8000, () => {
                 socket.broadcast.to(room).emit("add cheat row");
             });
 
+            socket.on("add punish row", (hole) => {
+                // Broadcast the add cheat row event to everyone
+                socket.broadcast.to(room).emit("punish row", hole);
+            });
+
             socket.on("game over", () => {
                 // Broadcast the game over event to everyone
                 socket.broadcast.to(room).emit("game over");
