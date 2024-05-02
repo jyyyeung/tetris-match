@@ -299,7 +299,6 @@ const MatchPage = (function () {
 
     const waitingForOpponent = function () {
         $("#join-room-message").text("Waiting for opponent.");
-        // TODO: Add UI for waiting rematch
     };
 
     const show = function () {

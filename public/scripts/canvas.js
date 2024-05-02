@@ -823,7 +823,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             }
         }
 
-        //TODO: punish row debug
         if (isTetris) {
             isTetris = false;
             let hole = getRandomInt(0, MATRIX_WIDTH-1);

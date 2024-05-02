@@ -91,8 +91,8 @@ in a card game are considered one type of thing
 can be interacted counts as one type of thing
         -   [ ] Static objects / text do not count
         - Tetrominoes, (TODO: cloud, clock, sun)
-    -   [ ] Players’ interaction 20
-        -   [ ] Some kind of players’ interaction is shown 
+    -   [x] Players’ interaction 20
+        -   [x] Some kind of players’ interaction is shown 
 in almost real-time
         -   [x] WebSocket is used for the real-time communication
     -   [x] Game controls 10
