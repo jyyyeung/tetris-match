@@ -205,6 +205,7 @@ const Socket = (function () {
         });
 
         socket.on("add cheat row", () => {
+            console.log("add cheat row")
             Game.addCheatRow();
         });
 

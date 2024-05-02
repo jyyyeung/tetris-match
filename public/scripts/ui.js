@@ -978,6 +978,11 @@ const Game = (function () {
         else opponent_gameArea.addCheatRow();
     };
 
+    const addPunishRow = (isForPlayer = true) => {
+        if (isForPlayer) player_gameArea.addPunishRow();
+        else opponent_gameArea.addPunishRow();
+    };
+
     const setGameOver = () => {
         isGameOver = true;
         // Socket.setGameOver(true);
@@ -1047,6 +1052,7 @@ const Game = (function () {
         setGameOver,
         hide,
         addCheatRow,
+        addPunishRow,
         setOpponent,
     };
 })();

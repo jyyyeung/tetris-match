@@ -141,7 +141,7 @@ const TIME_MODE = 1;
 const SURVIVAL_MODE = 2;
 
 const GameArea = function (cv, ctx, isPlayer = true) {
-    const totalGameTime = 30; // Total game time in seconds
+    const totalGameTime = 120; // Total game time in seconds
 
     const icons = {
         O: "url(../src/res/icon-sprite.png) 0 0",
@@ -169,6 +169,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     let holdTetromino = null;
 
     let isCheating = false;
+    let lastKeyUpAt = 0;
+    let keyDownAt = 0;
 
     /**
      * Represents the game mode.
@@ -210,7 +212,19 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 return;
             }
             if (action == CHEAT_MODE) {
-                isCheating = true;
+                keyDownAt = new Date();
+                setTimeout(function() {
+                    // Compare key down time with key up time
+                    if (keyDownAt > lastKeyUpAt)
+                        // Key has been held down for x seconds
+                        {
+                            isCheating = true;
+                            lastKeyUpAt = new Date();
+                        }   
+                    else
+                        // Key has not been held down for x seconds
+                        isCheating = false;
+                }, 1000);
                 return console.log("keydown: cheat mode");
             }
         } else {
@@ -221,6 +235,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 return currentTetromino.move(SOFT_DROP, isPlayer, false);
             if (action == CHEAT_MODE) {
                 isCheating = false;
+                lastKeyUpAt = new Date();
                 return console.log("keyup: cheat mode");
             }
         }
@@ -323,6 +338,10 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     }
 
     const initialize = function (_mode) {
+        for (sound in sounds) {
+            sound.volume = UI.getSoundsVolume();
+        }
+
         console.log("Game Area Initialized", { isPlayer }, { _mode });
         gameArea = canvas.gameArea;
 
@@ -446,13 +465,39 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     }
     let level = 0;
 
-    function addCheatRow() {
+    const addCheatRow = function() {
         // Loop over rows and shift them up
         // make the last row 1
+        console.log("adding cheat row");
         for (let i = MATRIX_HEIGHT - 1; i > 0; i--) {
             matrix[i] = matrix[i - 1];
         }
         matrix[0] = new Array(MATRIX_WIDTH).fill(1);
+        sounds.cheat.pause();
+        sounds.cheat.currentTime = 0;
+        sounds.cheat.play();
+        console.table(matrix);
+    }
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    const addPunishRow = function() {
+        // Loop over rows and shift them up
+        // make the last row 1
+        console.log("adding punish row");
+        for (let i = MATRIX_HEIGHT - 1; i > 0; i--) {
+            matrix[i] = matrix[i - 1];
+        }
+        matrix[0] = new Array(MATRIX_WIDTH).fill('O');
+        const randomHole = getRandomInt(0, MATRIX_WIDTH-1);
+        matrix[0][randomHole] = 0;
+        sounds.cheat.pause();
+        sounds.cheat.currentTime = 0;
+        sounds.cheat.play();
         console.table(matrix);
     }
 
@@ -492,10 +537,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 matrix[MATRIX_HEIGHT - 1] = new Array(MATRIX_WIDTH).fill(
                     undefined
                 );
-                if (isCheating) {
-                    if (isPlayer) Game.addCheatRow(false);
-                    else Game.addCheatRow(true);
-                }
             }
             if ((!isFull && consecuitive > 0) || y == 0) {
                 if (consecuitive == 1) single++;
@@ -511,6 +552,9 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         score += 100 * (level + 1) * triple * 3;
         score += 300 * (level + 1) * tetris * 4;
         tetrisCount += tetris;
+        if (tetris) {
+            Game.addPunishRow(false);
+        }
         setScore(score);
     }
 
@@ -764,6 +808,18 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             }
         }
 
+        if (isCheating) {
+            isCheating = false;
+            if (isPlayer) {
+                //Game.addCheatRow(false);
+                Game.addPunishRow(false);
+            }
+            else {
+                //Game.addCheatRow(true);
+                Game.addPunishRow(true);
+            }
+        }
+
         // clearAndRedraw(false, false);
 
         if (isHardDrop || hitBottom) {
@@ -822,6 +878,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         pushNextTetromino,
         gameOver,
         addCheatRow,
+        addPunishRow,
         getStats,
         sendStats: sendStatsAndReset,
     };
