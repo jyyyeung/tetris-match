@@ -15,7 +15,7 @@ $ npm start
 
 ## Tasks
 
--   [ ] Landing Page
+-   [x] Landing Page
 
     -   [x] Logo?
 
@@ -55,13 +55,13 @@ $ npm start
 -   [x] Game Over Page
     -   [x] [front] Game Over Message
     -   [x] [front] Play Again Button
-    -   [ ] [back] Play Again Button Logic
+    -   [x] [back] Play Again Button Logic
     -   [x] [front] Return to Home Button
     -   [x] [back] Return to Home Button Logic
--   [ ] Leaderboard Page
+-   [x] Leaderboard Page
 
     -   [x] [front] Leaderboard Table
-    -   [ ] [back] Leaderboard Logic
+    -   [x] [back] Leaderboard Logic
 
 -   [x] Profile Page?
--   [ ] Settings Page?
+-   [x] Settings Page?
