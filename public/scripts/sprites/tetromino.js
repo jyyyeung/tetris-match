@@ -290,6 +290,9 @@ const Tetromino = function (
      */
     let speed = DEFAULT_SPEED;
 
+    const MATRIX_WIDTH = 10;
+    const MATRIX_HEIGHT = 14;
+
     /**
      * The rotation of the tetromino.
      * @type {number}
@@ -484,9 +487,10 @@ const Tetromino = function (
 
     /**
      * Drops the tetromino to the lowest possible position.
+     * @param {boolean} _isPlayer - Indicates whether the action is performed by the player.
      * @returns {void}
      */
-    function hardDrop() {
+    function hardDrop(_isPlayer) {
         console.log("--- START HARD_DROP() ---");
         const { matrixX, matrixY } = getMatrixXY();
         // const { matrixX: _mX, matrixY: _mY } = getValidMatrixXY(matrixX, 0);
@@ -497,19 +501,21 @@ const Tetromino = function (
             _mY -= 1;
             isHardDrop = true;
         }
-        console.table(minosMatrix);
+        // console.table(minosMatrix);
         const noCollision = tetrominoToMinos(_mX, _mY);
         if (!noCollision) {
             // Show game over
             console.log("Game Over");
-            Game.gameOver(true, true);
+            // BUG: Only send game over signal if is player
             // reset matrix
             var arr = [];
-            for (let i = 0; i < d2; i++) {
-                arr.push(new Array(d1));
+            for (let i = 0; i < MATRIX_HEIGHT + 2; i++) {
+                arr.push(new Array(MATRIX_WIDTH));
             }
             minosMatrix = arr;
             isHardDrop = false;
+            if (!_isPlayer) return;
+            Game.gameOver(true, true);
             return;
         }
         // lastUpdate -= DEFAULT_SPEED;
@@ -519,9 +525,10 @@ const Tetromino = function (
     /**
      * Moves the tetromino based on the given action.
      * @param {number} _action - The action to perform. Should be one of the action constants.
-     * @param {number} [_isKeyDown=1] - Indicates whether the key is currently being held down.
+     * @param {boolean} _isPlayer - Indicates whether the action is performed by the player.
+     * @param {boolean} [_isKeyDown=true] - Indicates whether the key is currently being held down.
      */
-    function move(_action, _isKeyDown = 1) {
+    function move(_action, _isPlayer, _isKeyDown = true) {
         if (_action != INVALID_KEY) {
             let { x, y } = sprite.getXY();
             let { matrixX, matrixY } = getMatrixXY();
@@ -546,7 +553,7 @@ const Tetromino = function (
                     return;
                 case HARD_DROP:
                     console.log("Tetromino: Hard Drop");
-                    hardDrop();
+                    hardDrop(_isPlayer);
                     return;
             }
 
@@ -577,9 +584,6 @@ const Tetromino = function (
      * @returns {boolean} - Returns true if the matrix position is valid, otherwise false.
      */
     function isValidMatrixPosition(matrixX, matrixY) {
-        const MATRIX_WIDTH = 10;
-        const MATRIX_HEIGHT = 14;
-
         // console.log("fullyWIthinBox");
         const box = sprite.getBoundingBox();
         if (!box.fullyWithinBox(gameArea)) return false;
@@ -762,7 +766,7 @@ const Tetromino = function (
                 }
             }
         }
-        console.table(minosMatrix);
+        // console.table(minosMatrix);
         // console.table(minosMatrix);
         // console.log("--- END TETROMINO_TO_MINOS() ---");
         return noCollision;

@@ -3,7 +3,11 @@
  * @module Socket
  */
 const Socket = (function () {
-    // This stores the current Socket.IO socket
+    /**
+     *  This stores the current Socket.IO socket
+     * @type {WebSocket|null}
+     */
+    // let socket = null;
     let socket = null;
     /**
      * Represents the opponent's game area.
@@ -141,7 +145,6 @@ const Socket = (function () {
         });
 
         socket.on("game over", () => {
-            // Game.gameOver();
             Game.gameOver();
             gameInProgress = false;
         });
@@ -288,17 +291,17 @@ const Socket = (function () {
         }
     };
 
-    const keyDown = function (key) {
+    function keyDown(key) {
         if (socket && socket.connected) {
             socket.emit("key down", key);
         }
-    };
+    }
 
-    const keyUp = function (key) {
+    function keyUp(key) {
         if (socket && socket.connected) {
             socket.emit("key up", key);
         }
-    };
+    }
 
     const initGame = function (currentTetromino, tetrominos) {
         if (socket && socket.connected) {

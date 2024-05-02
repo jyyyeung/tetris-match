@@ -182,26 +182,26 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             if (action == INVALID_KEY) return;
 
             if (action == MOVE_LEFT) {
-                return currentTetromino.move(MOVE_LEFT);
+                return currentTetromino.move(MOVE_LEFT, isPlayer);
             }
             if (action == MOVE_RIGHT) {
-                return currentTetromino.move(MOVE_RIGHT);
+                return currentTetromino.move(MOVE_RIGHT, isPlayer);
             }
             if (action == ROTATE_LEFT) {
-                return currentTetromino.move(ROTATE_LEFT);
+                return currentTetromino.move(ROTATE_LEFT, isPlayer);
             }
             if (action == ROTATE_RIGHT) {
-                return currentTetromino.move(ROTATE_RIGHT);
+                return currentTetromino.move(ROTATE_RIGHT, isPlayer);
             }
             if (action == SOFT_DROP) {
-                console.table(currentTetromino.minosMatrix);
-                return currentTetromino.move(SOFT_DROP);
+                // console.table(currentTetromino.minosMatrix);
+                return currentTetromino.move(SOFT_DROP, isPlayer);
             }
             if (action == HARD_DROP) {
                 console.log("keydown: hard drop");
-                console.table(currentTetromino.minosMatrix);
+                // console.table(currentTetromino.minosMatrix);
                 // const fixTetromino = currentTetromino;
-                currentTetromino.move(HARD_DROP);
+                currentTetromino.move(HARD_DROP, isPlayer);
                 isHardDrop = true;
                 return;
             }
@@ -217,7 +217,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             // Invalid Action
             if (action == INVALID_KEY) return;
             // Handle other movements
-            if (action == SOFT_DROP) return currentTetromino.move(SOFT_DROP, 0);
+            if (action == SOFT_DROP)
+                return currentTetromino.move(SOFT_DROP, isPlayer, false);
             if (action == CHEAT_MODE) {
                 isCheating = false;
                 return console.log("keyup: cheat mode");
@@ -327,32 +328,11 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
         gameMode = _mode;
 
-        // TODO: Allow tetromino to get the matrix by itself
-        // TODO: Check ui.js to see why using the previous
-        // Log in tetromino.js when created using Tetromino()
-        // const {
-        //     array: _array,
-        //     renderMatrix: _renderMatrix,
-        //     resetMatrix: _resetMatrix,
-        // } = new Matrix(ctx);
-        // matrix = _array;
-        // renderMatrix = _renderMatrix;
-        // resetMatrix = _resetMatrix;
-
-        // matrix[0] = new Array(MATRIX_WIDTH).fill(1);
-
-        //$("#game-container").hide();
-        // canvas.drawGrid();
         matrix = resetMatrix();
 
         /* Handle the start of the game */
         $("#game-container").show(function () {
             console.log("Game Container Shown");
-
-            // $("#game-start").on("click", function () {
-            /* TODO: Hide the start screen */
-            // $("#game-start").hide();
-            // GameArea.initialize();
 
             // Rest all values
             nextTetrominos = [];
@@ -562,6 +542,25 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         }
     };
 
+    const handleKeyDown = (event) => {
+        currentTetromino.updateMinosMatrix(matrix);
+        action = action_from_key(event.keyCode);
+        if (action == HARD_DROP) {
+            // console.table(matrix);
+            // console.table(currentTetromino.minosMatrix);
+        }
+        console.log("Send Key Down", action);
+        Socket.keyDown(action);
+        playSounds(action);
+        translateAction(action, true);
+    };
+
+    const handleKeyUp = function (event) {
+        action = action_from_key(event.keyCode);
+        Socket.keyUp(action);
+        translateAction(action, false);
+    };
+
     let gameStartTime = 0; // The timestamp when the game starts
     function startGame() {
         clearAndRedraw();
@@ -585,24 +584,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             currentTetromino.updateMinosMatrix(matrix);
 
             // Handle keydown of controls
-            $(document).on("keydown", function (event) {
-                currentTetromino.updateMinosMatrix(matrix);
-                action = action_from_key(event.keyCode);
-                if (action == HARD_DROP) {
-                    console.table(matrix);
-                    console.table(currentTetromino.minosMatrix);
-                }
-                translateAction(action, true);
-                playSounds(action);
-                Socket.keyDown(action);
-            });
+            // $(document).on("keydown", handleKeyDown);
+            document.addEventListener("keydown", handleKeyDown);
 
             // Handle keyup of controls
-            $(document).on("keyup", function (event) {
-                action = action_from_key(event.keyCode);
-                Socket.keyUp(action);
-                translateAction(action, false);
-            });
+            // $(document).on("keyup");
+            document.addEventListener("keyup", handleKeyUp);
         }
 
         /* Start the game */
@@ -663,24 +650,39 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         }
     }
 
-    /**
-     * Displays the game over screen and plays the game over sound.
-     */
-    function gameOver(isDraw = false, isLost = true) {
-        Game.setGameOver();
-        // $("#final-gems").text(collectedGems);
+    function sendStatsAndReset() {
         sounds.background.pause();
         matrix = resetMatrix();
         currentTetromino.updateMinosMatrix(matrix);
         for (let i = 0; i < nextTetrominos.length; i++) {
             nextTetrominos[i].updateMinosMatrix(matrix);
         }
-        // sounds.collect.pause();
-        // sounds.gameover.play();
-        if (!isPlayer) return;
+        document.removeEventListener("keydown", handleKeyDown);
+        document.removeEventListener("keyup", handleKeyUp);
         const gameStats = getStats();
         Socket.setGameStats(gameStats);
-        console.log("Game Over: Lost");
+    }
+
+    /**
+     * Displays the game over screen and plays the game over sound.
+     */
+    function gameOver(isDraw = false, isLost = true) {
+        console.log("Game Over: ", { isLost }, { isDraw });
+        // Game.setGameOver();
+        // $("#final-gems").text(collectedGems);
+        // sounds.background.pause();
+
+        if (!isPlayer || !isLost) return;
+        // matrix = resetMatrix();
+        // currentTetromino.updateMinosMatrix(matrix);
+        // for (let i = 0; i < nextTetrominos.length; i++) {
+        //     nextTetrominos[i].updateMinosMatrix(matrix);
+        // }
+        // sounds.collect.pause();
+        // sounds.gameover.play();
+
+        // Socket.setGameOver(true);
+
         Socket.setGameOver(true);
         if (isDraw) {
             $("#player-standing").text("Draw! ");
@@ -821,5 +823,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         gameOver,
         addCheatRow,
         getStats,
+        sendStats: sendStatsAndReset,
     };
 };

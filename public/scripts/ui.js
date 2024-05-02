@@ -980,16 +980,21 @@ const Game = (function () {
 
     const setGameOver = () => {
         isGameOver = true;
-        Socket.setGameOver(true);
+        // Socket.setGameOver(true);
     };
     const getGameOver = () => isGameOver;
 
     const gameOver = function (playerLost = false, sendGameOverSignal = false) {
+        console.log("game over from ui.js called");
+        // Note: Each browser should only call this function once
         // if (!opponent_gameArea || !player_gameArea) return;
-        if (!playerLost || sendGameOverSignal) {
-            player_gameArea.gameOver(false, playerLost);
-            opponent_gameArea.gameOver(false, !playerLost);
-        }
+        if (sendGameOverSignal) Socket.setGameOver(true);
+        setGameOver();
+        console.log("");
+
+        opponent_gameArea.sendStats();
+        player_gameArea.sendStats();
+
         // Show game statistics
         const playerStats = player_gameArea.getStats();
         const opponentStats = opponent_gameArea.getStats();
@@ -1015,9 +1020,8 @@ const Game = (function () {
         // isGameOver = false;
         mode = 0;
 
-        player_gameArea = null;
         opponent_gameArea = null;
-
+        player_gameArea = null;
         player_context.reset();
         opponent_context.reset();
 
