@@ -165,6 +165,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     let score = 0;
     let tetrisCount = 0;
     let linesOfBlocks = 0;
+    let level = 1;
 
     /**
      * Represents the current tetromino.
@@ -191,26 +192,26 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             if (action == INVALID_KEY) return;
 
             if (action == MOVE_LEFT) {
-                return currentTetromino.move(MOVE_LEFT, isPlayer);
+                return currentTetromino.move(MOVE_LEFT, isPlayer, level);
             }
             if (action == MOVE_RIGHT) {
-                return currentTetromino.move(MOVE_RIGHT, isPlayer);
+                return currentTetromino.move(MOVE_RIGHT, isPlayer, level);
             }
             if (action == ROTATE_LEFT) {
-                return currentTetromino.move(ROTATE_LEFT, isPlayer);
+                return currentTetromino.move(ROTATE_LEFT, isPlayer, level);
             }
             if (action == ROTATE_RIGHT) {
-                return currentTetromino.move(ROTATE_RIGHT, isPlayer);
+                return currentTetromino.move(ROTATE_RIGHT, isPlayer, level);
             }
             if (action == SOFT_DROP) {
                 // console.table(currentTetromino.minosMatrix);
-                return currentTetromino.move(SOFT_DROP, isPlayer);
+                return currentTetromino.move(SOFT_DROP, isPlayer, level);
             }
             if (action == HARD_DROP) {
                 console.log("keydown: hard drop");
                 // console.table(currentTetromino.minosMatrix);
                 // const fixTetromino = currentTetromino;
-                currentTetromino.move(HARD_DROP, isPlayer);
+                currentTetromino.move(HARD_DROP, isPlayer, level);
                 isHardDrop = true;
                 return;
             }
@@ -241,7 +242,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             if (action == INVALID_KEY) return;
             // Handle other movements
             if (action == SOFT_DROP)
-                return currentTetromino.move(SOFT_DROP, isPlayer, false);
+                return currentTetromino.move(SOFT_DROP, isPlayer, level, false);
             if (action == CHEAT_MODE) {
                 isCheating = false;
                 lastKeyUpAt = new Date();
@@ -373,7 +374,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             setScore(0);
             tetrisCount = 0;
             gameStartTime = 0;
-            level = 0;
+            level = 1;
             holdTetromino = null;
             setHoldIcon(null);
 
@@ -383,7 +384,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
             if (isPlayer) {
                 canvas.setTime("000");
-                canvas.setLevel("000");
+                canvas.setLevel(1);
                 countdown();
             }
         });
@@ -473,7 +474,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         setHoldIcon(holdTetromino.getLetter());
         currentTetromino.draw();
     }
-    let level = 0;
 
     const addCheatRow = function () {
         // Loop over rows and shift them up
@@ -503,6 +503,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         sounds.cheat.play();
         console.table(matrix);
     };
+
+    const setLevel = (level) => canvas.setLevel(level);
 
     /**
      * Checks for full rows in the matrix and updates the score accordingly.
@@ -549,11 +551,18 @@ const GameArea = function (cv, ctx, isPlayer = true) {
 
                 consecuitive = 0;
             }
+            // Increase the level if either player has cleared 5 lines
+            if (linesOfBlocks % 5 == 0) {
+                const newLevel = Math.floor(linesOfBlocks / 5) + 1;
+                if (newLevel > level) {
+                    Game.setLevel(newLevel);
+                }
+            }
         }
-        score += 40 * (level + 1) * single;
-        score += 50 * (level + 1) * double * 2;
-        score += 100 * (level + 1) * triple * 3;
-        score += 300 * (level + 1) * tetris * 4;
+        score += 40 * level * single;
+        score += 50 * level * double * 2;
+        score += 100 * level * triple * 3;
+        score += 300 * level * tetris * 4;
         tetrisCount += tetris;
         if (tetris) {
             isTetris = true;
@@ -568,7 +577,12 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             const initTetrominos = [];
             // console.table(matrix);
             console.log("init", currentTetromino);
-            currentTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
+            currentTetromino = spawnRandomTetromino(
+                ctx,
+                gameArea,
+                matrix,
+                level
+            );
             for (let i = 0; i < 3; i++) {
                 const tetromino = spawnRandomTetromino(ctx, gameArea, matrix);
                 initTetrominos.push(tetromino.getLetter());
@@ -581,7 +595,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 ctx,
                 gameArea,
                 matrix,
-                _firstTetromino
+                _firstTetromino,
+                level
             );
             nextTetrominos = _tetrominos.map(
                 (t) => new Tetromino(ctx, gameArea, matrix, t)
@@ -798,7 +813,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             canvas.setTime(milisecondsToText(gameTimeSoFar));
         }
 
-        const hitBottom = currentTetromino.drop(now);
+        const hitBottom = currentTetromino.drop(now, level);
         if (hitBottom && !isHardDrop) {
             // const fitTetromino = currentTetromino;
             // Add the tetromino to the matrix
@@ -901,5 +916,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         addPunishRow,
         getStats,
         sendStats: sendStatsAndReset,
+        setLevel,
     };
 };

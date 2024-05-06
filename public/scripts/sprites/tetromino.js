@@ -18,7 +18,7 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
         player_context,
         gameArea,
         player_matrix,
-        randomLetter
+        "I"
     );
     previousSpawned = randomLetter;
     return tetromino;
@@ -280,15 +280,11 @@ const Tetromino = function (
      */
     const CANVAS_HEIGHT = 448;
     /**
-     * The default speed of the tetromino.
-     * @type {number}
-     */
-    const DEFAULT_SPEED = 1000;
-    /**
      * The current speed of the tetromino.
      * @type {number}
      */
-    let speed = DEFAULT_SPEED;
+    // let speed = getSpeedFromLevel(levelWhenSpawned);
+    const SOFT_DROP_SPEED = 100;
 
     const MATRIX_WIDTH = 10;
     const MATRIX_HEIGHT = 14;
@@ -336,6 +332,10 @@ const Tetromino = function (
      * @constant {number}
      */
     const BLOCK_HEIGHT = () => HEIGHT() / MINO_HEIGHT;
+
+    const getSpeedFromLevel = (_level) => {
+        return Math.pow(0.8 - (_level - 1) * 0.007, _level - 1) * 1000;
+    };
 
     /**
      * Converts the representing position of the tetromino in a matrix co-ordinate system to PX (where the tetromino is represented by its center point)
@@ -461,6 +461,7 @@ const Tetromino = function (
 
         return { matrixX, matrixY };
     }
+
     // This is the sprite object of the Tetromino created from the Sprite module.
     if (matrixY + BLOCK_HEIGHT() > 14) {
         matrixY = 14 - BLOCK_HEIGHT();
@@ -514,8 +515,6 @@ const Tetromino = function (
         set(letter, matrixX, matrixY, rotation + dir + COUNT()); // added COUNT() to ensure no negative remainder
     }
 
-    const SOFT_DROP_SPEED = 100;
-
     /**
      * Drops the tetromino to the lowest possible position.
      * @param {boolean} _isPlayer - Indicates whether the action is performed by the player.
@@ -559,7 +558,7 @@ const Tetromino = function (
      * @param {boolean} _isPlayer - Indicates whether the action is performed by the player.
      * @param {boolean} [_isKeyDown=true] - Indicates whether the key is currently being held down.
      */
-    function move(_action, _isPlayer, _isKeyDown = true) {
+    function move(_action, _isPlayer, _level, _isKeyDown = true) {
         if (_action != INVALID_KEY) {
             let { x, y } = sprite.getXY();
             let { matrixX, matrixY } = getMatrixXY();
@@ -580,7 +579,9 @@ const Tetromino = function (
                     rotate(1);
                     return;
                 case SOFT_DROP:
-                    speed = _isKeyDown ? SOFT_DROP_SPEED : DEFAULT_SPEED;
+                    speed = _isKeyDown
+                        ? SOFT_DROP_SPEED
+                        : getSpeedFromLevel(_level);
                     return;
                 case HARD_DROP:
                     console.log("Tetromino: Hard Drop");
@@ -653,13 +654,14 @@ const Tetromino = function (
      * @param {number} time - The timestamp when this function is called
      * @returns {boolean} hitBottom - True if the tetromino's position is fixed, false otherwise.
      */
-    const drop = (time) => {
+    const drop = (time, level) => {
         /* Update the player if the player is moving */
         let { x, y } = sprite.getXY();
         const { matrixX, matrixY } = getMatrixXY();
+        const _SPEED = getSpeedFromLevel(level);
         if (lastUpdate == 0) lastUpdate = time;
 
-        if (isHardDrop || time - lastUpdate >= speed) {
+        if (isHardDrop || time - lastUpdate >= _SPEED) {
             isHardDrop = false;
             // console.log(matrixY)
 

@@ -919,6 +919,7 @@ const Game = (function () {
         // desynchronized: true,
     });
     let mode = 0;
+    let level = 0;
 
     /**
      * Represents the player's game area.
@@ -931,6 +932,11 @@ const Game = (function () {
      */
     let opponent_gameArea = null;
     let opponent = null;
+
+    const setLevel = (level) => {
+        player_gameArea.setLevel(level);
+        opponent_gameArea.setLevel(level);
+    };
 
     const setOpponent = function (_opponent) {
         opponent = _opponent;
@@ -1052,6 +1058,7 @@ const Game = (function () {
         hide,
         addCheatRow,
         addPunishRow,
+        setLevel,
         setOpponent,
     };
 })();
