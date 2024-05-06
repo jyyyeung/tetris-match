@@ -398,6 +398,37 @@ const Tetromino = function (
     }
 
     /**
+     * Checks if the given position is valid within the tetromino matrix.
+     *
+     * @param {number} x - The x-coordinate of the position.
+     * @param {number} y - The y-coordinate of the position.
+     * @returns {boolean} - True if the position is valid, false otherwise.
+     */
+    function isValidPosition(x, y) {
+        const { matrixX, matrixY } = getMatrixXY(x, y);
+        // console.log(matrixX, matrixY);
+        return isValidMatrixPosition(matrixX, matrixY);
+    }
+
+    /**
+     * Checks if the given matrix position is valid within the game area.
+     * @param {number} matrixX - The x-coordinate of the matrix position.
+     * @param {number} matrixY - The y-coordinate of the matrix position.
+     * @returns {boolean} - Returns true if the matrix position is valid, otherwise false.
+     */
+    function isValidMatrixPosition(matrixX, matrixY) {
+        // console.log("fullyWIthinBox");
+        const box = sprite.getBoundingBox();
+        if (!box.fullyWithinBox(gameArea)) return false;
+        if (isOverlappingMinos(matrixX, matrixY)) return false;
+        // console.log("<0");
+        if (matrixX < 0 || matrixY < 0) return false;
+        if (matrixX + BLOCK_WIDTH() > MATRIX_WIDTH) return false;
+        if (matrixY + BLOCK_HEIGHT() - 1 >= MATRIX_HEIGHT) return false;
+        return true;
+    }
+
+    /**
      * Returns the valid matrix coordinates for a given matrix position.
      * @param {number} _matrixX - The x-coordinate of the matrix position.
      * @param {number} _matrixY - The y-coordinate of the matrix position.
@@ -562,37 +593,6 @@ const Tetromino = function (
                 sprite.setXY(x, y);
             }
         }
-    }
-
-    /**
-     * Checks if the given position is valid within the tetromino matrix.
-     *
-     * @param {number} x - The x-coordinate of the position.
-     * @param {number} y - The y-coordinate of the position.
-     * @returns {boolean} - True if the position is valid, false otherwise.
-     */
-    function isValidPosition(x, y) {
-        const { matrixX, matrixY } = getMatrixXY(x, y);
-        // console.log(matrixX, matrixY);
-        return isValidMatrixPosition(matrixX, matrixY);
-    }
-
-    /**
-     * Checks if the given matrix position is valid within the game area.
-     * @param {number} matrixX - The x-coordinate of the matrix position.
-     * @param {number} matrixY - The y-coordinate of the matrix position.
-     * @returns {boolean} - Returns true if the matrix position is valid, otherwise false.
-     */
-    function isValidMatrixPosition(matrixX, matrixY) {
-        // console.log("fullyWIthinBox");
-        const box = sprite.getBoundingBox();
-        if (!box.fullyWithinBox(gameArea)) return false;
-        if (isOverlappingMinos(matrixX, matrixY)) return false;
-        // console.log("<0");
-        if (matrixX < 0 || matrixY < 0) return false;
-        if (matrixX + BLOCK_WIDTH() > MATRIX_WIDTH) return false;
-        // if (matrixY + BLOCK_HEIGHT() > MATRIX_HEIGHT) return false;
-        return true;
     }
 
     /**
@@ -776,7 +776,14 @@ const Tetromino = function (
      * Checks if a tetromino can spawn at the current position.
      * @returns {boolean} Returns true if the tetromino can spawn, false otherwise.
      */
-    const canSpawn = () => isValidMatrixPosition(3, 12);
+    const canSpawn = () => {
+        let mYPos = 12;
+        if (mYPos + BLOCK_HEIGHT() > MATRIX_HEIGHT) {
+            mYPos = MATRIX_HEIGHT - BLOCK_HEIGHT();
+        }
+        // const validMatrixPosition = getValidMatrixXY(3, 12);
+        return isValidMatrixPosition(3, mYPos);
+    };
 
     const updateMinosMatrix = (_matrix) => {
         minosMatrix = _matrix;
@@ -788,6 +795,7 @@ const Tetromino = function (
         setXY: sprite.setXY,
         getLetter,
         getMatrixXY,
+        setMatrixXY,
         move,
         tetrominoToMinos,
         isValidMatrixPosition,
