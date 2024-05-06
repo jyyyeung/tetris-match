@@ -334,6 +334,7 @@ const Tetromino = function (
     const BLOCK_HEIGHT = () => HEIGHT() / MINO_HEIGHT;
 
     const getSpeedFromLevel = (_level) => {
+        if (_level > 15) _level = 15;
         return Math.pow(0.8 - (_level - 1) * 0.007, _level - 1) * 1000;
     };
 
