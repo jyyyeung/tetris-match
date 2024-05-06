@@ -66,6 +66,7 @@ body {
     height: 100vh;
     padding: 0;
     margin: 0;
+    overflow: hidden;
 }
 
 .center {
@@ -420,6 +421,7 @@ button.icon:active {
 }
 
 #game-container {
+    overflow: hidden;
     height: 100vh;
     width: 100vw;
 }
@@ -686,3 +688,48 @@ table, .scoreboard {
     background: #04AA6D;
     cursor: pointer;
   }
+
+  @keyframes cloud-animation {
+    from {
+        transform: translateX(1050px)
+    }
+
+    to {
+        transform: translateX(-250px)
+    }
+}
+
+  .cloud {
+    overflow: hidden;
+    animation-name: cloud-animation;
+    animation-timing-function: linear;
+    animation-duration: 10s;
+    animation-iteration-count: infinite;
+    position: absolute;
+}
+
+#cloud1 {
+    animation-delay: -1s;
+}
+
+#cloud2 {
+    animation-delay: -4s;
+    bottom: 50%;
+}
+
+#cloud3 {
+    animation-delay: -8s;
+    bottom: 10%;
+}
+
+#grassland {
+    position: absolute;
+    bottom: 0;
+    width: 100vw;
+    height: 10vh;
+    display: none;
+}
+
+embed {
+    overflow: hidden;
+}

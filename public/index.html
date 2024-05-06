@@ -18,6 +18,7 @@
     </head>
 
     <body>
+        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <!-- Chatroom container -->
         <div
             id="container"
@@ -449,6 +450,9 @@
             <!-- The countdown screen -->
             <!-- Tetris Match game container -->
             <div id="game-container" class="gamecol">
+                <embed src="src/res/cloud.svg" type="image/svg+xml" class="cloud" id="cloud1"/> 
+                <embed src="src/res/cloud.svg" type="image/svg+xml" class="cloud" id="cloud2"/> 
+                <embed src="src/res/cloud.svg" type="image/svg+xml" class="cloud" id="cloud3"/> 
                 <div id="game-container-bg-img"></div>
 
                 <div class="gamerow">
@@ -566,6 +570,8 @@
                         <tspan id="opponent-score">000</tspan>
                     </box>
                 </div>
+
+                <!-- <canvas id="grassland" width="100vw" height="210px"></canvas> -->
 
                 <!-- START: Opponent next Tetriminos -->
 
@@ -715,6 +721,7 @@
         <script src="scripts/constants/socket_events.js"></script>
         <script src="scripts/socket.js"></script>
         <script src="scripts/sprites/sprite.js"></script>
+        <script src="scripts/sprites/grass.js"></script>
         <script src="scripts/sprites/mino.js"></script>
         <script src="scripts/sprites/tetromino.js"></script>
         <script src="scripts/bounding_box.js"></script>

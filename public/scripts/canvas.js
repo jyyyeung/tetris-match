@@ -10,6 +10,8 @@ const MATRIX_WIDTH = 10;
 const MATRIX_HEIGHT = 14;
 const BLOCK_SIZE = 32;
 
+//let grassland = null;
+
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -204,7 +206,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
                 return currentTetromino.move(ROTATE_RIGHT, isPlayer, level);
             }
             if (action == SOFT_DROP) {
-                // console.table(currentTetromino.minosMatrix);
+                console.log("soft dropping");
                 return currentTetromino.move(SOFT_DROP, isPlayer, level);
             }
             if (action == HARD_DROP) {
@@ -572,6 +574,11 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     }
 
     const initGame = (_firstTetromino = "", _tetrominos = []) => {
+        /* grassCV = $("#grassland").get(0);
+        console.log(grassCV)
+        grassContext = grassCV.getContext("2d");
+        grassland = Grass(grassContext, 0, grassCV.height); */
+
         nextTetrominos = [];
         if (isPlayer) {
             const initTetrominos = [];
@@ -793,6 +800,11 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             }
             return;
         }
+
+        /* grassland.update(now);
+        grassContext.clearRect(0, 0, grassCV.width, grassCV.height);
+        grassland.draw(); */
+
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;
         // console.log("game time so far", gameTimeSoFar);
