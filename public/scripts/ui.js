@@ -902,12 +902,12 @@ const ChatPanel = (function () {
 
 // Game;
 const Game = (function () {
-    const opponent_cv = $("canvas").get(1);
+    const opponent_cv = $("canvas").get(2);
     const opponent_context = opponent_cv.getContext("2d", {
         willReadFrequently: true,
         alpha: true,
     });
-    const player_cv = $("canvas").get(0);
+    const player_cv = $("canvas").get(1);
     /**
      * The context for drawing on the player canvas.
      *

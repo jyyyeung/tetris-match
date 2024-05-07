@@ -6,21 +6,18 @@ const Grass = function(ctx, x, y) {
 
     // This is the sprite sequences of the grass
     const sequence = {
-        x: 0, y:  0, width: 200, height: 210, count: 3, timing: 200, loop: true
+        x: 0, y:  0, width: 1000, height: 53, count: 3, timing: 500, loop: true, vertical: true
     };
 
     // This is the sprite object of the grass created from the Sprite module.
     const sprite = Sprite(ctx, x, y);
 
-    let lastUpdate = 0;
-    let index = 0;
-
     // The sprite object is configured for the grass sprite here.
     sprite.setSequence(sequence)
           .setScale(1)
-          .useSheet("../../src/res/grass_sprite.png");
+          .useSheet("../../src/res/grassland_sprite.png");
 
-          const update = function (time) {
+/*           const update = function (time) {
             if (lastUpdate == 0) lastUpdate = time;
    
             // XXX: Move to the next sprite when the timing is right
@@ -37,7 +34,7 @@ const Grass = function(ctx, x, y) {
             }
    
             return this;
-        };
+        }; */
 
     // The methods are returned as an object here.
     return {
@@ -45,6 +42,6 @@ const Grass = function(ctx, x, y) {
         setXY: sprite.setXY,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
-        update: update
+        update: sprite.update
     };
 };

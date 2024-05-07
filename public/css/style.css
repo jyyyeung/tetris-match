@@ -723,11 +723,15 @@ table, .scoreboard {
 }
 
 #grassland {
+    height: 210px;
     position: absolute;
     bottom: 0;
-    width: 100vw;
-    height: 10vh;
-    display: none;
+    width: 100%;
+    image-rendering: pixelated;
+    background-color: transparent;
+    border: none;
+    /* transform: scale(1);
+    transform-origin: left bottom; */
 }
 
 embed {

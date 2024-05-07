@@ -10,7 +10,7 @@ const MATRIX_WIDTH = 10;
 const MATRIX_HEIGHT = 14;
 const BLOCK_SIZE = 32;
 
-//let grassland = null;
+const grassland = [];
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -573,11 +573,14 @@ const GameArea = function (cv, ctx, isPlayer = true) {
         setScore(score);
     }
 
-    const initGame = (_firstTetromino = "", _tetrominos = []) => {
-        /* grassCV = $("#grassland").get(0);
+    const initGame = (_firstTetromino = "", _tetrominos = []) => { 
+        grassCV = $("#grassland").get(0);
         console.log(grassCV)
         grassContext = grassCV.getContext("2d");
-        grassland = Grass(grassContext, 0, grassCV.height); */
+        for (let i = 0; i < 2; ++i) {
+            console.log("i = ", i);
+            grassland.push(Grass(grassContext, 20+i*42, grassCV.height-27))
+        }
 
         nextTetrominos = [];
         if (isPlayer) {
@@ -795,9 +798,9 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             return;
         }
 
-        /* grassland.update(now);
+        grassland.forEach((element)=>{element.update(now);})
         grassContext.clearRect(0, 0, grassCV.width, grassCV.height);
-        grassland.draw(); */
+        grassland.forEach((element)=>{element.draw();})
 
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;

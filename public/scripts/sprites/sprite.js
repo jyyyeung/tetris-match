@@ -219,7 +219,21 @@ const Sprite = function (ctx, x, y) {
         const size = getDisplaySize();
 
         /* XXX: Replace the following code to draw the sprite correctly */
-        ctx.drawImage(
+        if (sequence.vertical) {
+            ctx.drawImage(
+                sheet,
+                sequence.x,
+                sequence.y + index * sequence.height,
+                sequence.width,
+                sequence.height,
+                parseInt(x - size.width / 2),
+                parseInt(y - size.height / 2),
+                size.width,
+                size.height
+            );
+        }
+        else {
+            ctx.drawImage(
             sheet,
             sequence.x + index * sequence.width,
             sequence.y,
@@ -230,6 +244,8 @@ const Sprite = function (ctx, x, y) {
             size.width,
             size.height
         );
+        }
+        
 
         /* Restore saved settings */
         ctx.restore();
@@ -256,24 +272,23 @@ const Sprite = function (ctx, x, y) {
      * @param {number} time - The current time in milliseconds.
      * @returns {Object} - The updated sprite object.
      */
-    // const update = function (time) {
-    //     if (lastUpdate == 0) lastUpdate = time;
+    const update = function (time) {
+         if (lastUpdate == 0) lastUpdate = time;
 
-    //     // XXX: Move to the next sprite when the timing is right
-    //     if (sequence.timing && time - lastUpdate >= sequence.timing) {
-    //         // Draw the sprite
-    //         index++;
-    //         if (index >= sequence.count) {
-    //             // Repeat the animation from the first sprite only if sequence.loop is true
-    //             if (sequence.loop) index = 0;
-    //             else index--;
-    //         }
+        // XXX: Move to the next sprite when the timing is right
+         if (sequence.timing && time - lastUpdate >= sequence.timing) {
+             // Draw the sprite
+             index++;
+             if (index >= sequence.count) {
+                 // Repeat the animation from the first sprite only if sequence.loop is true
+                 if (sequence.loop) index = 0;
+                 else index--;
+             }
 
-    //         lastUpdate = time;
-    //     }
-
-    //     return this;
-    // };
+             lastUpdate = time;
+         }
+         return this;
+     };
 
     const isLoaded = function () {
         return loaded;
@@ -291,6 +306,6 @@ const Sprite = function (ctx, x, y) {
         getBoundingBox: getBoundingBox,
         isReady: isReady,
         draw: draw,
-        // update: update,
+        update: update,
     };
 };

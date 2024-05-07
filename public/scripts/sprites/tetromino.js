@@ -22,7 +22,7 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
         player_context,
         gameArea,
         player_matrix,
-        "I"
+        randomLetter
     );
     previousSpawned = randomLetter;
     return tetromino;

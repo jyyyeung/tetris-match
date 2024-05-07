@@ -90,7 +90,7 @@ in a card game are considered one type of thing
         -   [ ] Any collection of the same thing that is animated / 
 can be interacted counts as one type of thing
         -   [ ] Static objects / text do not count
-        - Tetrominoes, cloud (TODO: grass, sun)
+        - Tetrominoes, cloud, grass (TODO: clock)
     -   [x] Players’ interaction 20
         -   [x] Some kind of players’ interaction is shown 
 in almost real-time
