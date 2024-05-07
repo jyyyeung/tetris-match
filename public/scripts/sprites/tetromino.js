@@ -295,6 +295,8 @@ const Tetromino = function (
      */
     let rotation = 0;
 
+    let isSoftDrop = false;
+
     /**
      * Returns the block ID for the current tetromino rotation.
      * @returns {string} The block ID.
@@ -335,7 +337,10 @@ const Tetromino = function (
 
     const getSpeedFromLevel = (_level) => {
         if (_level > 15) _level = 15;
-        return Math.pow(0.8 - (_level - 1) * 0.007, _level - 1) * 1000;
+        const _defaultSpeed =
+            Math.pow(0.8 - (_level - 1) * 0.007, _level - 1) * 1000;
+        // if (isSoftDrop) return _defaultSpeed / 3;
+        return _defaultSpeed;
     };
 
     /**
@@ -580,9 +585,7 @@ const Tetromino = function (
                     rotate(1);
                     return;
                 case SOFT_DROP:
-                    speed = _isKeyDown
-                        ? SOFT_DROP_SPEED
-                        : getSpeedFromLevel(_level);
+                    isSoftDrop = true;
                     return;
                 case HARD_DROP:
                     console.log("Tetromino: Hard Drop");
@@ -662,9 +665,9 @@ const Tetromino = function (
         const _SPEED = getSpeedFromLevel(level);
         if (lastUpdate == 0) lastUpdate = time;
 
-        if (isHardDrop || time - lastUpdate >= _SPEED) {
+        if (isHardDrop || isSoftDrop || time - lastUpdate >= _SPEED) {
             isHardDrop = false;
-            // console.log(matrixY)
+            isSoftDrop = false;
 
             // if matrixY is 0, return true to fix position
             if (matrixY == 0) {
@@ -685,7 +688,6 @@ const Tetromino = function (
 
             /* Set the new position if it is within the game area */
             if (isValidPosition(x, y)) {
-                // console.log("is valid posiition");
                 sprite.setXY(x, y);
             }
             lastUpdate = time;

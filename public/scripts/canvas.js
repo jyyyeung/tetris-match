@@ -243,8 +243,8 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             // Invalid Action
             if (action == INVALID_KEY) return;
             // Handle other movements
-            if (action == SOFT_DROP)
-                return currentTetromino.move(SOFT_DROP, isPlayer, level, false);
+            // if (action == SOFT_DROP)
+            //     return currentTetromino.move(SOFT_DROP, isPlayer, level, false);
             if (action == CHEAT_MODE) {
                 isCheating = false;
                 lastKeyUpAt = new Date();
