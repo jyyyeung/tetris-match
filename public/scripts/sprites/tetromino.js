@@ -1,4 +1,8 @@
-let previousSpawned = null;
+/**
+ * Represents the previously spawned tetromino.
+ * @type {string} - The letter representing the previously spawned tetromino.
+ */
+let previousSpawned = undefined;
 /**
  * Spawns a random tetromino on the game area.
  *
@@ -9,7 +13,7 @@ let previousSpawned = null;
  */
 function spawnRandomTetromino(player_context, gameArea, player_matrix) {
     const letters = ["I", "J", "L", "O", "S", "T", "Z"];
-    if (previousSpawned != null) {
+    if (previousSpawned != undefined) {
         // Try to avoid two consecuitive tetrominos of the same type
         letters.splice(letters.indexOf(previousSpawned), 1);
     }
@@ -29,9 +33,9 @@ function spawnRandomTetromino(player_context, gameArea, player_matrix) {
  * @param {CanvasRenderingContext2D} ctx - The rendering context of the canvas.
  * @param {BoundingBox} gameArea - The game area where the Tetromino is placed.
  * @param {Array<Array<number>>} _minosMatrix - The matrix representing the minos in the game area.
- * @param {number} matrixX - The x-coordinate of the Tetromino in the game matrix.
- * @param {number} matrixY - The y-coordinate of the Tetromino in the game matrix.
  * @param {string} letter - The letter representing the type of Tetromino.
+ * @param {number} [matrixX=3] - The x-coordinate of the Tetromino in the game matrix.
+ * @param {number} [matrixY=12] - The y-coordinate of the Tetromino in the game matrix.
  */
 const Tetromino = function (
     ctx,

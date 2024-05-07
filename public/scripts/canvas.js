@@ -584,12 +584,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             const initTetrominos = [];
             // console.table(matrix);
             console.log("init", currentTetromino);
-            currentTetromino = spawnRandomTetromino(
-                ctx,
-                gameArea,
-                matrix,
-                level
-            );
+            currentTetromino = spawnRandomTetromino(ctx, gameArea, matrix);
             for (let i = 0; i < 3; i++) {
                 const tetromino = spawnRandomTetromino(ctx, gameArea, matrix);
                 initTetrominos.push(tetromino.getLetter());
@@ -597,16 +592,15 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             }
             Socket.initGame(currentTetromino.getLetter(), initTetrominos);
         } else {
-            console.table(matrix);
+            // console.table(matrix);
             currentTetromino = new Tetromino(
                 ctx,
                 gameArea,
                 matrix,
-                _firstTetromino,
-                level
+                _firstTetromino
             );
             nextTetrominos = _tetrominos.map(
-                (t) => new Tetromino(ctx, gameArea, matrix, t)
+                (letter) => new Tetromino(ctx, gameArea, matrix, letter)
             );
             Socket.readyToStart();
         }
