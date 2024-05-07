@@ -84,13 +84,12 @@ account
 -   [x] Game play page 95
 
     -   [x] Things in the game 40
-        -   [ ] There are at least 4 types of ‘things’ in the game
+        -   [x] There are at least 4 types of ‘things’ in the game: Tetrominoes, cloud, grass, clock
         -   [ ] For example, bullets in a shooting game or cards 
 in a card game are considered one type of thing
-        -   [ ] Any collection of the same thing that is animated / 
+        -   [] Any collection of the same thing that is animated / 
 can be interacted counts as one type of thing
         -   [ ] Static objects / text do not count
-        - Tetrominoes, cloud, grass (TODO: clock)
     -   [x] Players’ interaction 20
         -   [x] Some kind of players’ interaction is shown 
 in almost real-time

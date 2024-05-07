@@ -969,6 +969,21 @@ const Game = (function () {
         grassland.forEach((element)=>{element.update(now);})
         grassContext.clearRect(0, 0, grassCV.width, grassCV.height);
         grassland.forEach((element)=>{element.draw();})
+
+        const secondHand = $('.second-hand');
+        const minsHand = $('.min-hand');
+        const hourHand = $('.hour-hand');
+
+        const t = new Date();
+        const seconds = t.getSeconds();
+        const secondsDegrees = ((seconds / 60) * 360) + 90;
+        secondHand.css("transform",`rotate(${secondsDegrees}deg)`)
+        const mins = t.getMinutes();
+        const minsDegrees = ((mins / 60) * 360) + ((seconds/60)*6) + 90;
+        minsHand.css("transform",`rotate(${minsDegrees}deg)`);
+        const hour = t.getHours();
+        const hourDegrees = ((hour / 12) * 360) + ((mins/60)*30) + 90;
+        hourHand.css("transform",`rotate(${hourDegrees}deg)`);
     }
 
 
