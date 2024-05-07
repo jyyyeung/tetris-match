@@ -902,6 +902,7 @@ const ChatPanel = (function () {
 
 // Game;
 const Game = (function () {
+    const grassland = [];
     const opponent_cv = $("canvas").get(2);
     const opponent_context = opponent_cv.getContext("2d", {
         willReadFrequently: true,
@@ -949,8 +950,28 @@ const Game = (function () {
     function initialize() {
         $("#countdown").hide();
         $("#gameover").hide();
+        grassCV = $("#grassland").get(0);
+        grassContext = grassCV.getContext("2d");
+        var img = new Image();
+        img.onload = function() {
+            for (let i = 0; i < 2; ++i) {
+            console.log("i = ", i);
+            grassland.push(Grass(grassContext, 20+i*42, grassCV.height-27))
+            }
+            grassland.forEach((element)=>{element.draw();})
+            console.log("grassland game init")
+        };
+        img.src = "../src/res/grassland_sprite.png";
         //$("#game-container").hide();
     }
+
+    const doFrameGrassland = function(now) {
+        grassland.forEach((element)=>{element.update(now);})
+        grassContext.clearRect(0, 0, grassCV.width, grassCV.height);
+        grassland.forEach((element)=>{element.draw();})
+    }
+
+
 
     const initGame = function (_mode) {
         $("#homepage").hide();
@@ -1060,6 +1081,7 @@ const Game = (function () {
         addPunishRow,
         setLevel,
         setOpponent,
+        doFrameGrassland
     };
 })();
 

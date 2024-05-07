@@ -574,14 +574,6 @@ const GameArea = function (cv, ctx, isPlayer = true) {
     }
 
     const initGame = (_firstTetromino = "", _tetrominos = []) => { 
-        grassCV = $("#grassland").get(0);
-        console.log(grassCV)
-        grassContext = grassCV.getContext("2d");
-        for (let i = 0; i < 2; ++i) {
-            console.log("i = ", i);
-            grassland.push(Grass(grassContext, 20+i*42, grassCV.height-27))
-        }
-
         nextTetrominos = [];
         if (isPlayer) {
             const initTetrominos = [];
@@ -798,9 +790,7 @@ const GameArea = function (cv, ctx, isPlayer = true) {
             return;
         }
 
-        grassland.forEach((element)=>{element.update(now);})
-        grassContext.clearRect(0, 0, grassCV.width, grassCV.height);
-        grassland.forEach((element)=>{element.draw();})
+        Game.doFrameGrassland(now);
 
         // /* Update the time remaining */
         const gameTimeSoFar = now - gameStartTime;

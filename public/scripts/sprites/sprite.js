@@ -262,6 +262,9 @@ const Sprite = function (ctx, x, y) {
             //drawShadow();
             drawSprite();
         }
+        else {
+            console.log("not ready")
+        }
         return this;
     };
 
