@@ -7,7 +7,7 @@ $(function () {
     // const gem = Gem(context, 427, 350, "green"); // The gem
 });
 const MATRIX_WIDTH = 10;
-const MATRIX_HEIGHT = 14;
+const MATRIX_HEIGHT = 15;
 const BLOCK_SIZE = 32;
 
 const grassland = [];

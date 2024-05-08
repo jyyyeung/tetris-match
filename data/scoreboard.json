@@ -3,7 +3,8 @@
   "123": {
    "avatar": "Hamster",
    "name": "123",
-   "score": "100"
+   "timestamp": "2024-05-08T15:24:30.314Z",
+   "score": 1240
   },
   "456": {
    "avatar": "Hamster",
@@ -70,6 +71,12 @@
    "avatar": "Panda",
    "name": "s",
    "score": "100"
+  },
+  "Test1": {
+   "avatar": "Bear",
+   "name": "Test1",
+   "timestamp": "2024-05-08T15:24:30.308Z",
+   "score": 1240
   }
  },
  "2": {
@@ -144,6 +151,11 @@
    "name": "s",
    "timestamp": "2024-05-06T09:01:51.881Z",
    "score": 4800
+  },
+  "Test1": {
+   "avatar": "Bear",
+   "name": "Test1",
+   "score": 0
   }
  }
 }

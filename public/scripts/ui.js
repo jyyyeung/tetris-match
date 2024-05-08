@@ -126,7 +126,8 @@ const HomePage = (function () {
 
     const returnHome = function () {
         $("#homepage").show();
-        buttonFunc(HOME_PROFILE);
+        renderSidePanel(HOME_PROFILE);
+        //$("#home-side-panel").show();
         UI.playBGM();
     };
 
@@ -147,12 +148,14 @@ const MatchPage = (function () {
     };
     let timerID = 0;
     const pageChange = function (newPhase) {
+
         /* 
         When phase is set to the following values, the corresponding page will be displayed when return button is clicked:
         3 - choose gamemode page
         2 - "Create private room", "Join private room", "Public Match"
         1 - home page
         */
+
         switch (newPhase) {
             case 0:
                 $("#homepage").show();
@@ -202,7 +205,10 @@ const MatchPage = (function () {
         });
 
         $("#match-page-return").click(function () {
-            if (phase == 3) Socket.leaveRoom();
+            if (phase == 3) {
+                console.log("leaving room");
+                Socket.leaveRoom();
+            }
             pageChange(phase - 1);
             if (timerID) {
                 clearInterval(timerID);
@@ -277,6 +283,19 @@ const MatchPage = (function () {
         }, 1000);
     };
 
+    const returnContinue = function() {
+        if (phase == 3) {
+            console.log("leaving room");
+            Socket.leaveRoom();
+        }
+        pageChange(phase - 1);
+        if (timerID) {
+            clearInterval(timerID);
+            timerID = 0;
+            $("#queue-timer").text("0:00");
+        }
+    }
+
     const stopTimer = function () {
         clearInterval(timerID);
         timerID = 0;
@@ -323,6 +342,13 @@ const MatchPage = (function () {
         $("#match-page").hide();
     };
 
+    const reset = function() {
+        $("#create-private-game-page").hide();
+        $("#join-room-id").text("");
+        $("#join-room-message").text("");
+        phase = 1;
+    }
+
     return {
         initialize,
         show,
@@ -333,6 +359,7 @@ const MatchPage = (function () {
         waitingForOpponent,
         hideAll,
         hide,
+        reset
     };
 })();
 
@@ -993,6 +1020,7 @@ const Game = (function () {
         UI.stopBGM();
         GameOver.reset();
         GameOver.hide();
+        MatchPage.reset();
         MatchPage.hide();
         $("#countdown").show();
         $("#join-private-game-page").hide();

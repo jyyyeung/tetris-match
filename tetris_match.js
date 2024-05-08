@@ -113,9 +113,9 @@ app.post("/signin", (req, res) => {
     let isDataValid = false;
     if (!username) errorMsg = "Username cannot be empty";
     else if (!password) errorMsg = "Password cannot be empty";
-    else if (!(username in users)) errorMsg = "Invalid Credentials";
+    else if (!(username in users)) errorMsg = "User does not exist.";
     else if (!bcrypt.compareSync(password, users[username].password))
-        errorMsg = "Invalid Credentials";
+        errorMsg = "Incorrect password";
     else isDataValid = true;
 
     if (!isDataValid) {
@@ -296,7 +296,7 @@ httpServer.listen(8000, () => {
                 socket.join(_room);
                 roomPlayers[_room] = user.username;
                 roomReady[_room] = 1;
-                console.log("Joined room: ", _room);
+                console.log("Created and Joined room: ", _room);
                 room = _room;
                 return _room;
             };
@@ -390,10 +390,15 @@ httpServer.listen(8000, () => {
                 if (room == null) return;
                 roomReady[room] -= 1;
                 if (roomReady[room] < 0) roomReady[room] = 0;
-                socket.leave(room);
                 console.log("Leaving room: ", room);
-                // If no more players in the room, delete the room
+                socket.leave(room);
 
+                if (publicMatchSurvivalMode.indexOf(room) > -1) 
+                    publicMatchSurvivalMode.splice(publicMatchSurvivalMode.indexOf(room), 1);
+                else if (publicMatchTimeMode.indexOf(room) > -1)
+                publicMatchTimeMode.splice(publicMatchTimeMode.indexOf(room), 1);
+                // If no more players in the room, delete the room
+                
                 if (!io.sockets.adapter.rooms.get(room)) {
                     delete roomMode[room];
                     delete roomReady[room];

@@ -263,6 +263,7 @@ const Socket = (function () {
     const publicMatch = function (_mode) {
         console.log("public match", { room }, { _mode });
         if (room != null) return false;
+        console.log("emiting public match")
         socket.emit("public match", _mode);
         gameInProgress = false;
     };
