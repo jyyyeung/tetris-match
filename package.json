@@ -8,9 +8,9 @@
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "express": "^4.19.2",
-    "express-session": "^1.18.0",
-    "socket.io": "^4.7.5"
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "socket.io": "^4.8.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
